@@ -629,13 +629,9 @@ void loop() {
 					 * Last soundfile is over and has stopped :
 					 * We relaunch the hum !
 					 */
-<<<<<<< HEAD
 #ifdef LUXEON
 					lightChangeColor(storage.mainColor,true);
 #endif
-=======
-					lightChangeColor(storage.mainColor,true);
->>>>>>> refs/remotes/origin/RGB-fork
 #ifdef LS_RELAUNCH_DEBUG
 					Serial.print(F("MP3 stopped :"));
 					Serial.print(millis());
@@ -727,11 +723,7 @@ void loop() {
 			if (enterMenu) {
 				mp3.playTrackFromDir(4, 1/*, false*/);
 #ifdef LS_INFO
-<<<<<<< HEAD
 				Serial.print(F("VOLUME\nCur:"));
-=======
-				Serial.print(F("VOLUME\nCurrent:"));
->>>>>>> refs/remotes/origin/RGB-fork
 				Serial.println(storage.volume);
 #endif
 				enterMenu = false;
@@ -762,11 +754,7 @@ void loop() {
 			if (enterMenu) {
 				mp3.playTrackFromDir(5, 1);
 #ifdef LS_INFO
-<<<<<<< HEAD
 				Serial.println(F("SOUNDFONT\nCur:"));
-=======
-				Serial.println(F("SOUNDFONT\nCurrent:"));
->>>>>>> refs/remotes/origin/RGB-fork
 				Serial.println(soundFont.getFolder());
 #endif
 				enterMenu = false;
@@ -782,28 +770,17 @@ void loop() {
 			} else if (value == 2 and play) {
 				play = false;
 				mp3.playTrackFromDir(15, 1/*, false*/);
-<<<<<<< HEAD
 				delay(500);
 			} else if (value == SOUNDFONT_QUANTITY + 1 and play) {
 				play = false;
 				mp3.playTrackFromDir(14, 1/*, false*/);
 				delay(500);
-=======
-				//delay(100);
-			} else if (value == SOUNDFONT_QUANTITY + 1 and play) {
-				play = false;
-				mp3.playTrackFromDir(14, 1/*, false*/);
-				//delay(100);
->>>>>>> refs/remotes/origin/RGB-fork
 			}
 			if (value != lastValue) {
 				storage.soundFont = value;
 				soundFont.setFolder(value);
-<<<<<<< HEAD
 				mp3.playTrackFromDir(soundFont.getBoot(), soundFont.getFolder()/*, false*/);
 				delay(500);
-=======
->>>>>>> refs/remotes/origin/RGB-fork
 				//mp3.playTrackFromDir(soundFont.getBoot(),soundFont.getFolder()/*, false*/);
 #ifdef LUXEON
 				storage.mainColor[3] = storage.soundFontColorPreset[value][0];
@@ -828,11 +805,7 @@ void loop() {
 				ledOff(ledPins);
 				lightChangeColor(storage.mainColor,true);
 #ifdef LS_INFO
-<<<<<<< HEAD
 				Serial.print(F("COLOR1\nCur:"));
-=======
-				Serial.print(F("MAIN COLOR\nCurrent:"));
->>>>>>> refs/remotes/origin/RGB-fork
 				Serial.println(storage.mainColor[3]);
 #endif
 				enterMenu = false;
@@ -869,11 +842,7 @@ void loop() {
 				ledOff(ledPins);
 				lightChangeColor(storage.clashColor,true);
 #ifdef LS_INFO
-<<<<<<< HEAD
 				Serial.print(F("COLOR2\nCur:"));
-=======
-				Serial.print(F("CLASH  COLOR\nCurrent:"));
->>>>>>> refs/remotes/origin/RGB-fork
 				Serial.println(storage.clashColor[3]);
 #endif
 				enterMenu = false;
@@ -944,11 +913,7 @@ void loop() {
 			if (enterMenu) {
 				mp3.playTrackFromDir(6, 1);
 #ifdef LS_INFO
-<<<<<<< HEAD
 				Serial.print(F("SWING\nCur:"));
-=======
-				Serial.print(F("SWING\nCurrent:"));
->>>>>>> refs/remotes/origin/RGB-fork
 				Serial.print(storage.swingTreshold);
 #endif
 				enterMenu = false;
@@ -979,11 +944,7 @@ void loop() {
 			if (enterMenu) {
 				mp3.playTrackFromDir(7, 1);
 #ifdef LS_INFO
-<<<<<<< HEAD
 				Serial.print(F("CLASH1\nCur:"));
-=======
-				Serial.print(F("CLASH  ACCEL\nCurrent:"));
->>>>>>> refs/remotes/origin/RGB-fork
 				Serial.print(storage.clashAccelTreshold);
 #endif
 				enterMenu = false;
@@ -1013,11 +974,7 @@ void loop() {
 			if (enterMenu) {
 				mp3.playTrackFromDir(8, 1);
 #ifdef LS_INFO
-<<<<<<< HEAD
 				Serial.print(F("CLASH2\nCur:"));
-=======
-				Serial.print(F("CLASH  BRAKE\nCurrent:"));
->>>>>>> refs/remotes/origin/RGB-fork
 				Serial.print(storage.clashBrakeTreshold);
 #endif
 				enterMenu = false;
