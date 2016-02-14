@@ -1,8 +1,8 @@
 /*
- * LightSaberOS V1.0RC1
+ * LightSaberOS V1.0RC2
  * author: 		Sébastien CAPOU (neskweek@gmail.com)
  * Source : 	https://github.com/neskweek/LightSaberOS.
- * Date: 		2016-02-11
+ * Date: 		2016-02-14
  * Description:	Operating System for Arduino based LightSaber
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License.
@@ -26,7 +26,8 @@
  */
 #define CONFIG_VERSION "LS01"
 
-//#define LEDSTRINGS
+
+#define LEDSTRINGS  // Comment this RGB users
 #ifndef LEDSTRINGS
 #define LUXEON
 #endif
@@ -50,6 +51,7 @@
 #define LEDSTRING5 			7
 #define LEDSTRING6 			8
 #endif
+
 #ifdef LUXEON
 #define COLORS		 		54   // Number of RGB (not RGBW) colors in our array. Do we need that much ?
 #define LED_RED 			3
