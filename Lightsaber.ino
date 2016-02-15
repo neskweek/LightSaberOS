@@ -28,7 +28,7 @@
 #define CONFIG_VERSION 		"LS01"
 #define MEMORYBASE 			32
 
-#define LEDSTRINGS  // Comment this RGB users
+#define LEDSTRINGS  // RGB LED USERS: Comment this line
 #ifndef LEDSTRINGS
 #define LUXEON
 #endif
@@ -58,6 +58,9 @@
 #define LED_GREEN 			5
 #define LED_BLUE 			6
 //#define LED_WHITE 			9   //Not used right now
+
+#define BLASTER_FLASH_TIME  20
+#define CLASH_BLINK_TIME  100
 #endif
 
 #define DFPLAYER_RX			8
@@ -135,14 +138,14 @@ bool isBigBrake = false;
  * LED String variables
  */
 #ifdef LEDSTRINGS
-int ledPins[] = { LEDSTRING1, LEDSTRING2, LEDSTRING3, LEDSTRING4, LEDSTRING5,
-LEDSTRING6 };
+int ledPins[] = {LEDSTRING1, LEDSTRING2, LEDSTRING3, LEDSTRING4, LEDSTRING5,
+	LEDSTRING6};
 #endif
 #ifdef LUXEON
-int ledPins[] = {LED_RED, LED_GREEN, LED_BLUE /*,LED_WHITE*/};
+int ledPins[] = { LED_RED, LED_GREEN, LED_BLUE /*,LED_WHITE*/};
 
 // byte color => {R,G,B,ColorNumber}
-byte currentColor[3];
+byte currentColor[4];
 const int rgbFactor = 100;
 #endif
 int brightness = 0;    // how bright the LED is
@@ -158,7 +161,10 @@ bool configMode = false; // Play with your saber
 bool ignition = false;
 bool browsing = false;
 int modification = 0;
-
+#ifdef LUXEON
+int blaster = -1;
+int lockupBlink = 0;
+#endif
 /*
  * DFPLAYER variables
  */
@@ -170,9 +176,6 @@ long value = 0;
 long lastValue = 0;
 bool repeat = false;
 bool changePlayMode = false;
-uint8_t hum[] = { 0x7E, 0xFF, 0x06, 0x0F, 0x00, 0x01, 0x05, 0xFE, 0xE6, 0xEF };
-uint8_t last_send_buf[10] = { 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
-		0xFF, 0xFF };
 long swingSuppress = 1;
 long clashSuppress = 1;
 /*
@@ -181,22 +184,10 @@ long clashSuppress = 1;
 int menu = 0;
 bool enterMenu = false;
 bool changeMenu = false;
-bool ok = true;
+//bool ok = true;
 int configAdress = 0;
 bool play = false;
 #ifdef LEDSTRINGS
-struct StoreStruct {
-	// This is for mere detection if they are our settings
-	char version[5];
-	// The settings
-	int volume; // 0 to 30
-	int soundFont; // as many as Sound font you have defined in Soundfont.h
-	long swingTreshold; // treshold acceleration for Swing
-	long clashAccelTreshold; // treshold acceleration for Swing
-	long clashBrakeTreshold; // treshold acceleration for Swing
-} storage;
-#endif
-#ifdef LUXEON
 struct StoreStruct {
 	// This is for mere detection if they are our settings
 	char version[5];
@@ -206,10 +197,22 @@ struct StoreStruct {
 	long swingTreshold;// treshold acceleration for Swing
 	long clashAccelTreshold;// treshold acceleration for Swing
 	long clashBrakeTreshold;// treshold acceleration for Swing
+}storage;
+#endif
+#ifdef LUXEON
+struct StoreStruct {
+	// This is for mere detection if they are our settings
+	char version[5];
+	// The settings
+	int volume; // 0 to 30
+	int soundFont; // as many as Sound font you have defined in Soundfont.h
+	long swingTreshold; // treshold acceleration for Swing
+	long clashAccelTreshold; // treshold acceleration for Swing
+	long clashBrakeTreshold; // treshold acceleration for Swing
 	byte mainColor[4];
 	byte clashColor[4];
 	byte soundFontColorPreset[SOUNDFONT_QUANTITY + 2][2];
-}storage;
+} storage;
 #endif
 
 // ================================================================
@@ -370,19 +373,19 @@ void setup() {
 	mainButton.setClickTicks(CLICK);
 	mainButton.setPressTicks(PRESS_CONFIG);
 	mainButton.attachClick(mainClick);
-//	mainButton.attachDoubleClick(mainDoubleClick);
+	mainButton.attachDoubleClick(mainDoubleClick);
 	mainButton.attachLongPressStart(mainLongPressStart);
 	mainButton.attachLongPressStop(mainLongPressStop);
-	//mainButton.attachDuringLongPress(mainLongPress);
+	mainButton.attachDuringLongPress(mainLongPress);
 
 	// link the Lockup button functions.
 	lockupButton.setClickTicks(CLICK);
 	lockupButton.setPressTicks(PRESS_CONFIG);
 	lockupButton.attachClick(lockupClick);
-//	lockupButton.attachDoubleClick(lockupDoubleClick);
+	lockupButton.attachDoubleClick(lockupDoubleClick);
 	lockupButton.attachLongPressStart(lockupLongPressStart);
 	lockupButton.attachLongPressStop(lockupLongPressStop);
-//	lockupButton.attachDuringLongPress(lockupLongPress);
+	lockupButton.attachDuringLongPress(lockupLongPress);
 	/***** BUTTONS INITIALISATION  *****/
 
 	/***** DF PLAYER INITIALISATION  *****/
@@ -420,11 +423,22 @@ void loop() {
 	 */
 	if (actionMode) {
 
+
+
+
 		/*
 		 Serial.print(F("Action Mode");
 		 Serial.print(F(" time=");
 		 Serial.println(millis());
 		 */
+#ifdef LUXEON
+		if (blaster >= 0) {
+			blaster--;
+			if (blaster == 0) {
+				lightChangeColor(storage.mainColor, false);
+			}
+		}
+#endif
 
 		if (!ignition) {
 			/*
@@ -691,28 +705,28 @@ void loop() {
 
 #ifdef LUXEON
 		byte rgbArray[COLORS][3] = {
-			// RGB Array 3 wide 54 tall, stores RGB values
-			// (There's gotta be a prettier way to do this!)
-			{	100, 0, 0}, /*Red*/
-			{	100, 15, 0}, {100, 40, 0}, {100, 60, 0}, {100, 100, 0},
-			{	60, 100, 0}, {40, 100, 0}, {15, 100, 0},
-			{	0, 100, 0} /*Green*/, {0, 100, 15}, {0, 100, 40}, {0,
-				100, 60}, {0, 100, 100}, {0, 60, 100},
-			{	0, 40, 100}, {0, 15, 100}, {0, 0, 100}, /*Blue*/
-			{	15, 0, 100}, {40, 0, 100}, {60, 0, 100}, {100, 0, 100},
-			{	100, 0, 60}, {100, 0, 40}, {100, 0, 15},
-			//Hue one, a lighter starts at Array pointer 40100
-			{	100, 15, 15}, {100, 40, 15}, {100, 60, 15}, {100, 100,
-				15}, {60, 100, 15}, {40, 100, 15}, {15, 100, 15},
-			{	15, 100, 40}, {15, 100, 60}, {15, 100, 100}, {15, 60,
-				100}, {15, 40, 100}, {15, 15, 100},
-			{	40, 15, 100}, {60, 15, 100}, {100, 15, 100}, {100, 15,
-				60}, {100, 15, 40},
-			//Hue two, Lightest starts at Array pointer 10040
-			{	100, 40, 40}, {100, 60, 40}, {100, 100, 40}, {60, 100,
-				40}, {40, 100, 40}, {40, 100, 60},
-			{	40, 100, 100}, {40, 60, 100}, {40, 40, 100}, {60, 40,
-				100}, {100, 40, 100}, {100, 40, 60},};
+				// RGB Array 3 wide 54 tall, stores RGB values
+				// (There's gotta be a prettier way to do this!)
+				{ 100, 0, 0 }, /*Red*/
+				{ 100, 15, 0 }, { 100, 40, 0 }, { 100, 60, 0 }, { 100, 100, 0 },
+				{ 60, 100, 0 }, { 40, 100, 0 }, { 15, 100, 0 },
+				{ 0, 100, 0 } /*Green*/, { 0, 100, 15 }, { 0, 100, 40 }, { 0,
+						100, 60 }, { 0, 100, 100 }, { 0, 60, 100 },
+				{ 0, 40, 100 }, { 0, 15, 100 }, { 0, 0, 100 }, /*Blue*/
+				{ 15, 0, 100 }, { 40, 0, 100 }, { 60, 0, 100 }, { 100, 0, 100 },
+				{ 100, 0, 60 }, { 100, 0, 40 }, { 100, 0, 15 },
+				//Hue one, a lighter starts at Array pointer 40100
+				{ 100, 15, 15 }, { 100, 40, 15 }, { 100, 60, 15 }, { 100, 100,
+						15 }, { 60, 100, 15 }, { 40, 100, 15 }, { 15, 100, 15 },
+				{ 15, 100, 40 }, { 15, 100, 60 }, { 15, 100, 100 }, { 15, 60,
+						100 }, { 15, 40, 100 }, { 15, 15, 100 },
+				{ 40, 15, 100 }, { 60, 15, 100 }, { 100, 15, 100 }, { 100, 15,
+						60 }, { 100, 15, 40 },
+				//Hue two, Lightest starts at Array pointer 10040
+				{ 100, 40, 40 }, { 100, 60, 40 }, { 100, 100, 40 }, { 60, 100,
+						40 }, { 40, 100, 40 }, { 40, 100, 60 },
+				{ 40, 100, 100 }, { 40, 60, 100 }, { 40, 40, 100 }, { 60, 40,
+						100 }, { 100, 40, 100 }, { 100, 40, 60 }, };
 #endif
 
 		if (!browsing) {
@@ -781,7 +795,7 @@ void loop() {
 			}
 			break;
 #ifdef LUXEON
-			case 2:
+		case 2:
 			confMenuStart(9);
 
 			confParseValue(storage.mainColor[3], 0, COLORS, 1);
@@ -797,7 +811,7 @@ void loop() {
 #endif
 			}
 			break;
-			case 3:
+		case 3:
 			confMenuStart(10);
 
 			confParseValue(storage.clashColor[3], 0, COLORS, 1);
@@ -813,7 +827,7 @@ void loop() {
 #endif
 			}
 			break;
-			case 4:
+		case 4:
 			confMenuStart(11);
 
 			if (modification > 0) {
@@ -822,9 +836,9 @@ void loop() {
 				Serial.println(F("Yes"));
 				mp3.playTrackFromDir(12, 1/*, false*/);
 				storage.soundFontColorPreset[storage.soundFont][0] =
-				storage.mainColor[3];
+						storage.mainColor[3];
 				storage.soundFontColorPreset[storage.soundFont][1] =
-				storage.clashColor[3];
+						storage.clashColor[3];
 				menu++;
 				changeMenu = true;
 				enterMenu = true;
@@ -1046,7 +1060,8 @@ void lockupClick() {
 		analogWrite(ledPins[random(6)], LOW); //momentary shut off one led segment
 #endif
 #ifdef LUXEON
-		lightChangeColor(storage.clashColor, true);
+		lightChangeColor(storage.clashColor, false);
+		blaster = BLASTER_FLASH_TIME;
 #endif
 		if (soundFont.getBlaster()) {
 			// Some Soundfont may not have Blaster sounds
@@ -1096,6 +1111,7 @@ void lockupLongPressStart() {
 		//Lockup Start
 #ifdef LUXEON
 		lightChangeColor(storage.clashColor, true);
+		lockupBlink = random(CLASH_BLINK_TIME);
 #endif
 		//		Serial.println(soundFont.getLockup());
 		//		if (soundFont.getLockup()) {
@@ -1123,9 +1139,20 @@ void lockupLongPress() {
 	Serial.println("Lockup button longPress...");
 #endif
 	if (actionMode) {
-		/*
-		 * ACTION TO DEFINE
-		 */
+#ifdef LUXEON
+		//
+		if (lockupBlink > 0) {
+			lockupBlink--;
+		} else {
+			if (currentColor[3] == storage.clashColor[3]) {
+				lockupBlink = random(CLASH_BLINK_TIME);
+				lightChangeColor(storage.mainColor, false);
+			} else if (currentColor[3] == storage.mainColor[3]) {
+				lockupBlink = random(CLASH_BLINK_TIME);
+				lightChangeColor(storage.clashColor, false);
+			}
+		}
+#endif
 	} else if (configMode) {
 		/*
 		 * ACTION TO DEFINE
@@ -1144,7 +1171,8 @@ void lockupLongPressStop() {
 	if (actionMode) {
 		//Lockup Stop
 #ifdef LUXEON
-		lightChangeColor(storage.mainColor, true);
+		lightChangeColor(storage.mainColor, false);
+		lockupBlink = 0;
 #endif
 		lastPlayed = mp3.playTrackFromDir(4, soundFont.getFolder());
 		repeat = true;
@@ -1218,7 +1246,7 @@ void lightOff(int ledPins[]) {
 		for (int i = 2; i >= 0; i--) {
 			analogWrite(ledPins[i],
 					(MAX_BRIGHTNESS - (MAX_BRIGHTNESS / fadeOut))
-					* currentColor[i] / 100);
+							* currentColor[i] / 100);
 		}
 		delay(2);
 	}
@@ -1237,7 +1265,7 @@ void lightFlicker(int ledPins[], int value) {
 
 void lightChangeColor(byte color[], bool lightup) {
 // lightFlicker the leds
-	for (int i = 0; i <= 2; i++) {
+	for (int i = 0; i <= 3; i++) {
 		currentColor[i] = color[i];
 		if (lightup) {
 			analogWrite(ledPins[i], MAX_BRIGHTNESS * currentColor[i] / 100);
@@ -1397,15 +1425,15 @@ void confMenuStart(int sound) {
 			Serial.println(storage.swingTreshold);
 			break;
 #ifdef LUXEON
-			case 9:
+		case 9:
 			Serial.print(F("COLOR1\nCur:"));
 			Serial.println(storage.mainColor[3]);
 			break;
-			case 10:
+		case 10:
 			Serial.print(F("COLOR2\nCur:"));
 			Serial.println(storage.clashColor[3]);
 			break;
-			case 11:
+		case 11:
 			Serial.println(F("SAVE TO SOUNDFONT?\nMain :Yes/Lockup: No"));
 			break;
 #endif
