@@ -60,7 +60,11 @@
 #define LEDSTRING5 			10
 #define LEDSTRING6 			11
 #ifdef LUXEON
-#define COLORS		 		48   // Number of RGB (not RGBW) colors in our array. Has to be  6x2^X. Default value is 48=6x2^4
+/* COLORS
+ * Number of colors to chose from
+ * Range : 6-600
+ */
+#define COLORS		 		48
 #define LED_RED 			3
 #define LED_GREEN 			5
 #define LED_BLUE 			6
