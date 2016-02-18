@@ -1,16 +1,22 @@
 /*
  * Soundfont.h
  *
- *  Created on: 10 févr. 2016
- *      Author: neskw
+ * Created on: 	10 feb 2016
+ * author: 		Sebastien CAPOU (neskweek@gmail.com)
+ * Source : 	https://github.com/neskweek/LightSaberOS
+ * Description:	Soundfont Config file for LightSaberOS
+ *
+ * This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License.
+ * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-sa/4.0/.
  */
+
 
 #ifndef SOUNDFONT_H_
 #define SOUNDFONT_H_
 
 /*
  * LightSaberOS V1.0RC1
- * author: 		Sébastien CAPOU (neskweek@gmail.com)
+ * author: 		Sï¿½bastien CAPOU (neskweek@gmail.com)
  * Source : 	https://github.com/neskweek/LightSaberOS.
  * Date: 		2016-02-11
  * Description:	Operating System for Arduino based LightSaber
@@ -18,7 +24,6 @@
  * This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License.
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-sa/4.0/.
  */
-#include <LinkedList.h>
 
 class SoundFont {
 
@@ -28,14 +33,16 @@ public:
 
 	SoundFont() {
 
-		boot = LinkedList<int>();
-		powerOn = LinkedList<int>();
-		powerOff = LinkedList<int>();
-		hum = LinkedList<int>();
-		swing = LinkedList<int>();
-		clash = LinkedList<int>();
-		lockup = LinkedList<int>();
-		blaster = LinkedList<int>();
+		boot = LinkedList<uint8_t>();
+		powerOn = LinkedList<uint8_t>();
+		powerOff = LinkedList<uint8_t>();
+		hum = LinkedList<uint8_t>();
+		swing = LinkedList<uint8_t>();
+		clash = LinkedList<uint8_t>();
+		lockup = LinkedList<uint8_t>();
+		blaster = LinkedList<uint8_t>();
+		wrist = LinkedList<uint8_t>();
+		force = LinkedList<uint8_t>();
 
 	}
 	;
@@ -54,15 +61,17 @@ public:
 	}
 	;
 
-	void setFolder(int folder) {
-		int boot[2];
-		int powerOn[2];
-		int powerOff[2];
-		int hum[2];
-		int swing[2];
-		int clash[2];
-		int lockup[2];
-		int blaster[2];
+	void setFolder(uint8_t folder) {
+		uint8_t boot[2];
+		uint8_t powerOn[2];
+		uint8_t powerOff[2];
+		uint8_t hum[2];
+		uint8_t swing[2];
+		uint8_t clash[2];
+		uint8_t lockup[2];
+		uint8_t blaster[2];
+		uint8_t wrist[2];
+		uint8_t force[2];
 
 		this->folder = folder;
 
@@ -113,6 +122,10 @@ public:
 			lockup[1] = 5;
 			blaster[0] = 30;
 			blaster[1] = 30;
+			wrist[0] = 0;
+			wrist[1] = 0;
+			force[0] = 0;
+			force[1] = 0;
 			break;
 		case 3:
 			boot[0] = 1;
@@ -131,6 +144,10 @@ public:
 			lockup[1] = 5;
 			blaster[0] = 22;
 			blaster[1] = 22;
+			wrist[0] = 0;
+			wrist[1] = 0;
+			force[0] = 0;
+			force[1] = 0;
 			break;
 		}
 		this->boot.clear();
@@ -141,6 +158,8 @@ public:
 		this->clash.clear();
 		this->lockup.clear();
 		this->blaster.clear();
+		this->wrist.clear();
+		this->force.clear();
 		fill(&this->boot, boot);
 		fill(&this->powerOn, powerOn);
 		fill(&this->powerOff, powerOff);
@@ -149,58 +168,68 @@ public:
 		fill(&this->clash, clash);
 		fill(&this->lockup, lockup);
 		fill(&this->blaster, blaster);
-
+		fill(&this->wrist, wrist);
+		fill(&this->force, force);
 	}
 
-	int getFolder() const {
+	uint8_t getFolder() const {
 		return folder;
 	}
 
-	const int getBlaster() {
+	const uint8_t getBlaster() {
 		return this->blaster.get(random(0, this->blaster.size()));
 	}
 
-	const int getBoot() {
+	const uint8_t getBoot() {
 		return this->boot.get(random(0, this->boot.size()));
 	}
 
-	const int getClash() {
+	const uint8_t getClash() {
 		return this->clash.get(random(0, this->clash.size()));
 	}
 
-	const int getHum() {
+	const uint8_t getHum() {
 		return this->hum.get(random(0, this->hum.size()));
 	}
 
-	const int getLockup() {
+	const uint8_t getLockup() {
 		return this->lockup.get(random(0, this->lockup.size()));
 	}
 
-	const int getPowerOff() {
+	const uint8_t getPowerOff() {
 		return this->powerOff.get(random(0, this->powerOff.size()));
 	}
 
-	const int getPowerOn() {
+	const uint8_t getPowerOn() {
 		return this->powerOn.get(random(0, this->powerOn.size()));
 	}
 
-	const int getSwing() {
+	const uint8_t getSwing() {
 		return this->swing.get(random(0, this->swing.size()));
 	}
 
-private:
-	int folder;
-	LinkedList<int> boot;
-	LinkedList<int> powerOn;
-	LinkedList<int> powerOff;
-	LinkedList<int> hum;
-	LinkedList<int> swing;
-	LinkedList<int> clash;
-	LinkedList<int> lockup;
-	LinkedList<int> blaster;
+	const uint8_t getForce() {
+		return this->force.get(random(0, this->force.size()));
+	}
+	const uint8_t getWrist() {
+		return this->wrist.get(random(0, this->wrist.size()));
+	}
 
-	void fill(LinkedList<int>* list, int array[]) {
-		for (int i = array[0]; i <= array[1]; i++) {
+private:
+	uint8_t folder;
+	LinkedList<uint8_t> boot;
+	LinkedList<uint8_t> powerOn;
+	LinkedList<uint8_t> powerOff;
+	LinkedList<uint8_t> hum;
+	LinkedList<uint8_t> swing;
+	LinkedList<uint8_t> clash;
+	LinkedList<uint8_t> lockup;
+	LinkedList<uint8_t> blaster;
+	LinkedList<uint8_t> wrist;
+	LinkedList<uint8_t> force;
+
+	void fill(LinkedList<uint8_t>* list, uint8_t array[]) {
+		for (uint8_t i = array[0]; i <= array[1]; i++) {
 			list->add(i);
 		}
 	}
