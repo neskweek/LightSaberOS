@@ -48,7 +48,7 @@ First, you'll need (if not already done) to calibrate your MPU6050.
 
 [I recommend you use the AutoCalibration script you can find here](http://www.i2cdevlib.com/forums/topic/96-arduino-sketch-to-automatically-calculate-mpu6050-offsets/)
 
-Note the offset it will give you and replace those you'll find in my code (line 309).
+Note the offset it will give you and replace those you'll find in my code.
 
 
 #### Prepare your SDCard 
@@ -68,7 +68,8 @@ Don't forget to wire those ones which were added :
 * DFPLAYER SPK+ to A0
 * DFPLAYER SPK- to A1
 Wiring of busy pin is optional since LightSaberOS doesn't use it.
-(__I'll upload Schematics diagram soon__)
+
+__(I'll upload Schematics diagram soon)__
 
 #### Tweak your install 
 
@@ -76,6 +77,8 @@ If you're an RGB led user, comment line 32:
 ```c++
 #define LEDSTRINGS 
 ```
+
+__(More parameters explanation soon)__
 
 #### Upload the sketch to your arduino.
 
@@ -105,11 +108,14 @@ In config Mode :
 	* volume
 	* soundfont 
 	* swing sensitivity : adjust swing sensitivity.
+	
 [ONLY FOR RGB LED USERS]
 	* Main color : change the color of your saber
 	* Clash color: change the color displayed during clash effect 
 	* Assign colors to current soundfont ? : Allows you to save the colors you just defined to the selected soundfont
+	
 [/ONLY FOR RGB LED USERS]
+
 	* clash acceleration sensitivity : trigger clash detection algorythm. The higher the value, the less sensible it is
 	* clash brake sensitivity : trigger clash sound.The higher the value, the more sensible it is
 * Long press lockup button : update config to EEPROM and leave config mode
@@ -152,7 +158,7 @@ By priority :
 * Finish the DFPlayer lib
 
 
-## Demo video (pre 1.0 RC5)
+## Demo video (made on 1.0 RC4)
 https://youtu.be/mc8scn_qyFM
 
 I hope you'll like it.
