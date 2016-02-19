@@ -43,14 +43,14 @@ I would be glad to see other modules added. If you're interested to make your de
 
 ## Install / Config
 
-1. First, you'll need (if not already done) to calibrate your MPU6050.
+### First, you'll need (if not already done) to calibrate your MPU6050.
 
 [I recommend you use the AutoCalibration script you can find here](http://www.i2cdevlib.com/forums/topic/96-arduino-sketch-to-automatically-calculate-mpu6050-offsets/)
 
 Note the offset it will give you and replace those you'll find in my code (line 309).
 
 
-2. Then, put the content of SDCard_without_hum_extensions.zip on your SDCard:
+### Then, put the content of SDCard_without_hum_extensions.zip on your SDCard:
 
 Erase any directory that would be named like the ones you'll find in this archive. Formatting your SDCard would be even better !
 In this archive there's two example of soundfonts :
@@ -75,9 +75,9 @@ If you're an RGB led user, comment line 32:
 #define LEDSTRINGS 
 ```
 
-3. Upload the sketch to your arduino.
+### Upload the sketch to your arduino.
 
-4. Enjoy
+### Enjoy
 
 
 ## How it works :
