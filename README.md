@@ -118,37 +118,35 @@ To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-
 
 ## Notes :
 
-__NOOOO MP3, NOOOO WMA !!!__  Only WAVs !!! : when encoding a sound to those format (MP3 and WMA) the encoder will automaticly put a silence at start. WE DON'T WANT GAPS !!!  
+1. __NOOOO MP3, NOOOO WMA !!!__  Only WAVs !!! : when encoding a sound to those format (MP3 and WMA) the encoder will automaticly put a silence at start. WE DON'T WANT GAPS !!!  
 
-With soundfiles with hum extension (you edited a swing file and paste a hum sound repeated for some time), if you put 2 min of hum after your swing sound, if you don't move your saber for 2 min (higly unprobable in real situation) you'll notice a little gap in hum sound at that moment : You've just switch on a pure hum soundfile.
+2. With soundfiles with hum extension (you edited a swing file and paste a hum sound repeated for some time), if you put 2 min of hum after your swing sound, if you don't move your saber for 2 min (higly unprobable in real situation) you'll notice a little gap in hum sound at that moment : You've just switch on a pure hum soundfile.
 
-Don't put gaps in soundfile numbering ex.:001_Boot.wav,002.wav, 0010_Swing1.wav... The "folder play" command of the DFPlayer will see them as 001, 002, 003... That will generate unpredictable behaviour.
+3. Don't put gaps in soundfile numbering ex.:001_Boot.wav,002.wav, 0010_Swing1.wav... The "folder play" command of the DFPlayer will see them as 001, 002, 003... That will generate unpredictable behaviour.
 
-You can't put more than 255 folders numbered folder on your SDCard, including O1 (which contains config mode sounds)
+4. You can't put more than 255 folders numbered folder on your SDCard, including O1 (which contains config mode sounds)
 
-You can't put more than 255 files in a folder on your SDCard.
+5. You can't put more than 255 files in a folder on your SDCard.
 
-You won't be able to have more than 65535 sound file on the wole SDCard (including config sounds).
+6. You won't be able to have more than 65535 sound file on the wole SDCard (including config sounds).
 
-Don't put names after folder number (ex.: 001_Config or 002_Sith). Your folder won't be detected (tested :( )
+7. Don't put names after folder number (ex.: 001_Config or 002_Sith). Your folder won't be detected (tested :( )
 
-Since I've developped it on a breadboard, clash and swings settings may need some more tweaking. Still hopping that will not be the case  :P. I've developped those wanting to obtain "real life" saber feel.
+8. Since I've developped it on a breadboard, clash and swings settings may need some more tweaking. Still hopping that will not be the case  :P. I've developped those wanting to obtain "real life" saber feel.
 
-Beware  the amount of debug settings you uncoment: they add significant amount of data to the compile.
+9. Beware  the amount of debug settings you uncoment: they add significant amount of data to the compile.
 
 
 ## TODO :
 By priority :
 
-* Make a good README.txt
+* Better README.md
 * Find a way to make hum relaunch unoticable - Possible with our hardware ? it would require to launch a sound _as soon as_ we receive an "END_PLAY" response from DFPlayer :
 	* timer ijnterrupts tested with no success.(I might have not use them properly)
 	* SoftwareSerial seems to already use interrupts to monitor DFPLAYER_TX we receive(I'm not sure of that). The best solution would be to use this interrupt to capture an "END_PLAY" response but I don't want to modify SoftwareSerial Lib
 * Try to reduce compiled hex file to be able to add  more functionnality and/or handling of more modules (IMU/Music players).
-* Add RGB support
-* Find a better way to handle RGB/RGBW color changing (rgbArray is a too heavy container and is not an elegant solution)
-* Make powerOn/powerOff ledstring effect sync to soundfont  soundfiles play time.
-=>Add 2 time-variables to setup in soundfont.h
+* Make powerOn/powerOff ledstring effect sync to soundfont soundfiles play time.
+	* Add 2 time-variables to setup in soundfont.h
 * Find a use  to:
 	* short press lockup button in standby mode 
 	* double click on main button in action/config/standby mode
@@ -162,7 +160,12 @@ By priority :
 https://youtu.be/mc8scn_qyFM
 
 I hope you'll like it.
-
 Don't hesitate to reports bugs (I've made a lot of test but... hey !), or suggest new functionallity.
 
-Now I can finally go to  my bed again with a light minded head :)
+
+If you want to contribute to this project, please contact me via mail or on the [thread of this project] (http://forum.arduino.cc/index.php?topic=361566.0)
+
+
+## Thanks
+Thanks to Protonerd from Arduino Forum for initiating this project
+Thanks to Jakesoft from Arduino Forum for is initial ideau of using arduino device to build a lightsaber.
