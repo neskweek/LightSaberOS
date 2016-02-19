@@ -1,7 +1,7 @@
 /*
  * Soundfont.h
  *
- * Created on: 	10 feb 2016
+ * Created on: 	19 feb 2016
  * author: 		Sebastien CAPOU (neskweek@gmail.com)
  * Source : 	https://github.com/neskweek/LightSaberOS
  * Description:	Soundfont Config file for LightSaberOS
@@ -14,16 +14,7 @@
 #ifndef SOUNDFONT_H_
 #define SOUNDFONT_H_
 
-/*
- * LightSaberOS V1.0RC1
- * author: 		S�bastien CAPOU (neskweek@gmail.com)
- * Source : 	https://github.com/neskweek/LightSaberOS.
- * Date: 		2016-02-11
- * Description:	Operating System for Arduino based LightSaber
- *
- * This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License.
- * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-sa/4.0/.
- */
+
 
 class SoundFont {
 
@@ -122,10 +113,10 @@ public:
 			lockup[1] = 5;
 			blaster[0] = 30;
 			blaster[1] = 30;
-			wrist[0] = 0;
-			wrist[1] = 0;
-			force[0] = 0;
-			force[1] = 0;
+			wrist[0] = 32;
+			wrist[1] = 32;
+			force[0] = 31;
+			force[1] = 31;
 			break;
 		case 3:
 			boot[0] = 1;
@@ -144,10 +135,10 @@ public:
 			lockup[1] = 5;
 			blaster[0] = 22;
 			blaster[1] = 22;
-			wrist[0] = 0;
-			wrist[1] = 0;
-			force[0] = 0;
-			force[1] = 0;
+			wrist[0] = 24;
+			wrist[1] = 24;
+			force[0] = 23;
+			force[1] = 23;
 			break;
 		}
 		this->boot.clear();
