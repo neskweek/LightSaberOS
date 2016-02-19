@@ -182,15 +182,9 @@ By priority :
 	* double clik on lockup button in action/config/standby mode.
 
 
-## videos (made on 1.0 RC4)
+## Videos
 * [Quick tour (made under v1.0 RC4)] (https://youtu.be/mc8scn_qyFM)
 * [Motion Detection Demo (made under v1.0 RC5)] (https://www.youtube.com/watch?v=wY8BSSEyYLY)
-
-I hope you'll like it.
-
-Don't hesitate to reports bugs (I've made a lot of test but... hey !), or suggest new functionallity.
-
-If you want to contribute to this project, please contact me via mail or on the [thread of this project] (http://forum.arduino.cc/index.php?topic=361566.0)
 
 
 ## Known Bug :
@@ -202,3 +196,14 @@ If you want to contribute to this project, please contact me via mail or on the 
 Thanks to Protonerd from Arduino Forum for initiating this project.
 
 Thanks to Jakesoft from Arduino Forum for is initial ideau of using arduino device to build a lightsaber.
+
+
+
+
+
+
+I hope you'll like it.
+
+Don't hesitate to reports bugs (I've made a lot of test but... hey !), or suggest new functionallity.
+
+If you want to contribute to this project, please contact me via mail or on the [thread of this project] (http://forum.arduino.cc/index.php?topic=361566.0)
