@@ -31,11 +31,10 @@ I would be glad to see other modules added. If you're interested to make your de
 
 ## What it does :
 
-
 * Movement detection for swing, wrist twist and clash detection throught interrupts
 * Almost gapless playing with basic soundfiles (without hum extensions)
 * "Gapless" playing with soundfiles with hum extensions (see "Notes") 
-* Blaster shot (shot press on lockup button)
+* Blaster shot (short press on lockup button)
 * Lockup (long press on lockup button. Plays until release of the button)
 * Config Menu (volume, soundfont, RGB Led blade color changes, swing sensitivity, clash sensitivity)
 * Soundfont adding supported by manual declaration in Soundfont.h(from DFPlayer spec: virtually up to 254 soundfonts if you don't exceed a total of 65535 sound files on your SDCard. But not tested yet)
@@ -45,34 +44,26 @@ I would be glad to see other modules added. If you're interested to make your de
 ## Install / Config
 
 First, you'll need (if not already done) to calibrate your MPU6050.
-
 [I recommend you use the AutoCalibration script you can find here](http://www.i2cdevlib.com/forums/topic/96-arduino-sketch-to-automatically-calculate-mpu6050-offsets/)
-
-Note the offset it will give you and replace those you'll find in my code (line 309)
+Note the offset it will give you and replace those you'll find in my code (line 309).
 
 
 Then, put the content of SDCard_without_hum_extensions.zip on your SDCard:
-
 Erase any directory that would be named like the ones you'll find in this archive. Formatting your SDCard would be even better !
-
 In this archive there's two example of soundfonts :
-
-02: contains a Jedi soundfont without extended hum sound files : Obsidian
-
-03: contains a Sith soundfont without extended hum sound files : Sith
-
+* 02: contains a Jedi soundfont without extended hum sound files : Obsidian
+* 03: contains a Sith soundfont without extended hum sound files : Sith
 If you want an example of soundfont with hum extension, please [this archive (__19 feb 2016: new archive upload in progress__)](http://) and put its content on your SDCard. replace SoundFont.h of your project with the one found in this archive.
 
 
 
 Use of original Protonerd's wirings since 1.0RC3
-(__I'll upload Schematics diagram soon__)
 Don't forget to wire those ones which were added :
 * DFPLAYER TX to D7
 * DFPLAYER SPK+ to A0
 * DFPLAYER SPK- to A1
 Wiring of busy pin is optional since LightSaberOS doesn't use it.
-
+(__I'll upload Schematics diagram soon__)
 
 
 If you're an RGB led user, comment line 32:
@@ -124,29 +115,19 @@ If you want to add a soundfont, create a new folder (named 004 for instance), pu
 ## License:
 
 This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License.
-
 To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-sa/4.0/]http://creativecommons.org/licenses/by-nc-sa/4.0/ .
 
 ## Notes :
 
 1. __NOOOO MP3, NOOOO WMA !!!__  Only WAVs !!! : when encoding a sound to those format (MP3 and WMA) the encoder will automaticly put a silence at start. WE DON'T WANT GAPS !!!  
-
 2. With soundfiles with hum extension (you edited a swing file and paste a hum sound repeated for some time), if you put 2 min of hum after your swing sound, if you don't move your saber for 2 min (higly unprobable in real situation) you'll notice a little gap in hum sound at that moment : You've just switch on a pure hum soundfile.
-
 3. Don't put gaps in soundfile numbering ex.:001_Boot.wav,002.wav, 0010_Swing1.wav... The "folder play" command of the DFPlayer will see them as 001, 002, 003... That will generate unpredictable behaviour.
-
 4. You can't put more than 255 folders numbered folder on your SDCard, including O1 (which contains config mode sounds)
-
 5. You can't put more than 255 files in a folder on your SDCard.
-
 6. You won't be able to have more than 65535 sound file on the wole SDCard (including config sounds).
-
 7. Don't put names after folder number (ex.: 001_Config or 002_Sith). Your folder won't be detected (tested :( )
-
 8. Since I've developped it on a breadboard, clash and swings settings may need some more tweaking. Still hopping that will not be the case  :P. I've developped those wanting to obtain "real life" saber feel.
-
 9. Beware  the amount of debug settings you uncoment: they add significant amount of data to the compile.
-
 
 ## TODO :
 By priority :
@@ -165,27 +146,19 @@ By priority :
 * Finish the DFPlayer lib
 
 
-
-
 ## Demo video (pre 1.0 RC5)
 https://youtu.be/mc8scn_qyFM
 
 I hope you'll like it.
-
 Don't hesitate to reports bugs (I've made a lot of test but... hey !), or suggest new functionallity.
-
-
 If you want to contribute to this project, please contact me via mail or on the [thread of this project] (http://forum.arduino.cc/index.php?topic=361566.0)
-
 
 
 ## Known Bug :
 * In config mode, when chosing a new SoundFont, on some occasions, LSOS doesn't play the boot sound like it should... I can't find why
 
 
-
 ## Thanks
 
 Thanks to Protonerd from Arduino Forum for initiating this project.
-
 Thanks to Jakesoft from Arduino Forum for is initial ideau of using arduino device to build a lightsaber.
