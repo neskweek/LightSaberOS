@@ -72,12 +72,43 @@ Wiring of busy pin is optional since LightSaberOS doesn't use it.
 
 #### Tweak your install 
 
-If you're an RGB led user, comment line 32:
+* If you're an RGB led user
+comment:
 ```c++
 #define LEDSTRINGS 
 ```
 
-__(More parameters explanation soon)__
+* If you're an Single led use
+1. wire your LED on pin D3
+2. comment:
+```c++
+#define LEDSTRINGS 
+```
+3. modify to obtain
+```c++
+#ifdef LUXEON
+		storage.mainColor = 0;
+		storage.clashColor = 0
+		storage.soundFontColorPreset[2][0] = 0;
+		storage.soundFontColorPreset[2][1] = 0;
+		storage.soundFontColorPreset[3][0] = 0;
+		storage.soundFontColorPreset[3][1] = 0;
+#endif
+```
+
+* Tweaks 
+```c++
+#define CLICK				5    // ms you need to press a button to be a click
+#define PRESS_ACTION		200  // ms you need to press a button to be a long press, in action mode
+#define PRESS_CONFIG		400  // ms you need to press a button to be a long press, in config mode
+/* MAX_BRIGHTNESS
+ * Maximum output voltage to apply to LEDS
+ * Default = 200 (78,4%) Max=255 Min=0(Off)
+ * WARNING ! A too high value may burn your leds. Please make your maths !
+ */
+#define MAX_BRIGHTNESS		200
+```
+
 
 #### Upload the sketch to your arduino.
 
