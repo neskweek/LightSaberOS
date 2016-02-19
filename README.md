@@ -79,12 +79,12 @@ comment:
 ```
 
 * If you're an Single led use
-1. wire your LED on pin D3
-2. comment:
+	1. wire your LED on pin D3
+	2. comment:
 ```c++
 #define LEDSTRINGS 
 ```
-3. modify to obtain
+	3. modify to obtain
 ```c++
 #ifdef LUXEON
 		storage.mainColor = 0;
