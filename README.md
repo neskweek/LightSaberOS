@@ -182,8 +182,9 @@ By priority :
 	* double clik on lockup button in action/config/standby mode.
 
 
-## Demo video (made on 1.0 RC4)
-https://youtu.be/mc8scn_qyFM
+## videos (made on 1.0 RC4)
+* [Quick tour (made under v1.0 RC4)] (https://youtu.be/mc8scn_qyFM)
+* [Motion Detection Demo (made under v1.0 RC5)] (https://www.youtube.com/watch?v=wY8BSSEyYLY)
 
 I hope you'll like it.
 
