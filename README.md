@@ -43,16 +43,20 @@ I would be glad to see other modules added. If you're interested to make your de
 
 ## Install / Config
 
-First, you'll need (if not already done) to calibrate your MPU6050.
+1. First, you'll need (if not already done) to calibrate your MPU6050.
+
 [I recommend you use the AutoCalibration script you can find here](http://www.i2cdevlib.com/forums/topic/96-arduino-sketch-to-automatically-calculate-mpu6050-offsets/)
+
 Note the offset it will give you and replace those you'll find in my code (line 309).
 
 
-Then, put the content of SDCard_without_hum_extensions.zip on your SDCard:
+2. Then, put the content of SDCard_without_hum_extensions.zip on your SDCard:
+
 Erase any directory that would be named like the ones you'll find in this archive. Formatting your SDCard would be even better !
 In this archive there's two example of soundfonts :
 * 02: contains a Jedi soundfont without extended hum sound files : Obsidian
 * 03: contains a Sith soundfont without extended hum sound files : Sith
+
 If you want an example of soundfont with hum extension, please [this archive (__19 feb 2016: new archive upload in progress__)](http://) and put its content on your SDCard. replace SoundFont.h of your project with the one found in this archive.
 
 
@@ -71,9 +75,9 @@ If you're an RGB led user, comment line 32:
 #define LEDSTRINGS 
 ```
 
-Upload the sketch to your arduino.
+3. Upload the sketch to your arduino.
 
-Enjoy
+4. Enjoy
 
 
 ## How it works :
@@ -150,7 +154,9 @@ By priority :
 https://youtu.be/mc8scn_qyFM
 
 I hope you'll like it.
+
 Don't hesitate to reports bugs (I've made a lot of test but... hey !), or suggest new functionallity.
+
 If you want to contribute to this project, please contact me via mail or on the [thread of this project] (http://forum.arduino.cc/index.php?topic=361566.0)
 
 
@@ -161,4 +167,5 @@ If you want to contribute to this project, please contact me via mail or on the 
 ## Thanks
 
 Thanks to Protonerd from Arduino Forum for initiating this project.
+
 Thanks to Jakesoft from Arduino Forum for is initial ideau of using arduino device to build a lightsaber.
