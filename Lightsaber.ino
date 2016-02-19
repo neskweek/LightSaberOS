@@ -28,8 +28,8 @@
  */
 #define CONFIG_VERSION 		"L01"
 #define MEMORYBASE 			32
-#define SWING_SUPPRESS 		10
-#define CLASH_SUPPRESS 		40
+#define SWING_SUPPRESS 		7
+#define CLASH_SUPPRESS 		7
 #define CLASH_PASSES 		20
 #define BRAKE_PASSES 		3
 
@@ -62,7 +62,7 @@
 #ifdef LUXEON
 /* COLORS
  * Number of colors to chose from
- * Range : 6-600
+ * Range : 6<->600
  */
 #define COLORS		 		48
 #define LED_RED 			3
@@ -525,8 +525,8 @@ void loop() {
 		if (abs(quaternion.w) > storage.swingTreshold and !swingSuppress
 				and aaWorld.z < 0
 				and abs(quaternion.z) < (9 / 2) * storage.swingTreshold
-				and (abs(quaternion.x) > (5 / 2) * storage.swingTreshold
-						or abs(quaternion.y) > (5 / 2) * storage.swingTreshold)	// We don't want to treat blade Z axe rotations as a swing
+				and (abs(quaternion.x) > 3 * storage.swingTreshold
+						or abs(quaternion.y) > 3 * storage.swingTreshold)	// We don't want to treat blade Z axe rotations as a swing
 				) {
 			/*
 			 *  THIS IS A SWING !
@@ -548,8 +548,8 @@ void loop() {
 		} else if (abs(quaternion.w) > storage.swingTreshold and !swingSuppress
 				and (aaWorld.z > 0
 						and abs(quaternion.z) > (13 / 2) * storage.swingTreshold
-						and abs(quaternion.x) < (5 / 2) * storage.swingTreshold
-						and abs(quaternion.y) < (5 / 2) * storage.swingTreshold)// We specifically  treat blade Z axe rotations as a swing
+						and abs(quaternion.x) < 3 * storage.swingTreshold
+						and abs(quaternion.y) < 3 * storage.swingTreshold)// We specifically  treat blade Z axe rotations as a swing
 				) {
 			/*
 			 *  THIS IS A WRIST TWIST !
