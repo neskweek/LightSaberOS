@@ -83,11 +83,13 @@ comment:
 	1. wire your LED on pin D3
 	
 	2. comment:
+	
 ```c++
 #define LEDSTRINGS 
 ```
 
 	3. modify to obtain
+	
 ```c++
 #ifdef LUXEON
 		storage.mainColor = 0;
