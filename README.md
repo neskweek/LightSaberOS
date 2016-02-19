@@ -43,14 +43,16 @@ I would be glad to see other modules added. If you're interested to make your de
 
 ## Install / Config
 
-### First, you'll need (if not already done) to calibrate your MPU6050.
+#### IMU calibration 
+First, you'll need (if not already done) to calibrate your MPU6050.
 
 [I recommend you use the AutoCalibration script you can find here](http://www.i2cdevlib.com/forums/topic/96-arduino-sketch-to-automatically-calculate-mpu6050-offsets/)
 
 Note the offset it will give you and replace those you'll find in my code (line 309).
 
 
-### Then, put the content of SDCard_without_hum_extensions.zip on your SDCard:
+#### Prepare your SDCard 
+Then, put the content of SDCard_without_hum_extensions.zip on your SDCard:
 
 Erase any directory that would be named like the ones you'll find in this archive. Formatting your SDCard would be even better !
 In this archive there's two example of soundfonts :
@@ -59,8 +61,7 @@ In this archive there's two example of soundfonts :
 
 If you want an example of soundfont with hum extension, please [this archive (__19 feb 2016: new archive upload in progress__)](http://) and put its content on your SDCard. replace SoundFont.h of your project with the one found in this archive.
 
-
-
+#### Check Wirings
 Use of original Protonerd's wirings since 1.0RC3
 Don't forget to wire those ones which were added :
 * DFPLAYER TX to D7
@@ -69,15 +70,16 @@ Don't forget to wire those ones which were added :
 Wiring of busy pin is optional since LightSaberOS doesn't use it.
 (__I'll upload Schematics diagram soon__)
 
+#### Tweak your install 
 
 If you're an RGB led user, comment line 32:
 ```c++
 #define LEDSTRINGS 
 ```
 
-### Upload the sketch to your arduino.
+#### Upload the sketch to your arduino.
 
-### Enjoy
+#### Enjoy
 
 
 ## How it works :
