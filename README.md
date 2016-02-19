@@ -68,7 +68,7 @@ Don't forget to wire those ones which were added :
 * DFPLAYER SPK- to A1
 Wiring of busy pin is optional since LightSaberOS doesn't use it.
 
-__(I'll upload Schematics diagram soon)__
+![Schematics](http://i1073.photobucket.com/albums/w385/cest_bastien1/Lightsaber/AS2_LEDstringSaberArduino_NeskweekRevised_zpsu5k0ljck.png)
 
 #### Tweak your install 
 
