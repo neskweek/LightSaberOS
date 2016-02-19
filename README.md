@@ -1,5 +1,6 @@
 # LightSaberOS
-Operating System for Arduino based LightSaber
+
+
 
 ## What you will need :
 
@@ -66,8 +67,9 @@ Wiring of busy pin is optional since LightSaberOS doesn't use it.
 
 
 If you're an RGB led user, comment line 32:
+```c++
 #define LEDSTRINGS 
-
+```
 
 Upload the sketch to your arduino.
 
