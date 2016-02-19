@@ -13,9 +13,6 @@
 * If you want to explore/tweak the code I __strongly__ recommend you use "Eclipse for Arduino". This source is quite long (1023 lines). I've tried to keep it the most readbale as possible. 
 
 
-__*N.B.:*__ Be aware that at the time I post this the DFPlayer lib isn't finished yet, but fully usable for our project.
-
-
 
 ## Device currently supported :
 
@@ -152,7 +149,6 @@ By priority :
 	* short press lockup button in standby mode 
 	* double click on main button in action/config/standby mode
 	* double clik on lockup button in action/config/standby mode.
-* Finish the DFPlayer lib
 
 
 ## Demo video (made on 1.0 RC4)
