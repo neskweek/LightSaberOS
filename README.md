@@ -58,7 +58,7 @@ In this archive there's two example of soundfonts :
 * 02: contains a Jedi soundfont without extended hum sound files : Obsidian
 * 03: contains a Sith soundfont without extended hum sound files : Sith
 
-If you want an example of soundfont with hum extension, please [this archive (__19 feb 2016: new archive upload in progress__)](http://) and put its content on your SDCard. replace SoundFont.h of your project with the one found in this archive.
+If you want an example of soundfont with hum extension, please [this archive](http://https://drive.google.com/file/d/0B3FqB9nvAU0Fd1p4T05zZnRQWnM/view?usp=sharing) and put its content on your SDCard. replace SoundFont.h of your project with the one found in this archive.
 
 #### Check Wirings
 Use of original Protonerd's wirings since 1.0RC3
