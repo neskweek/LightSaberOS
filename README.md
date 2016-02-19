@@ -19,6 +19,8 @@ __*N.B.:*__ Be aware that at the time I post this the DFPlayer lib isn't finishe
 
 ## Device currently supported :
 
+Designed to be used on Arduino Nano (ATmega328 processors)
+
 * IMU (accelerometer + gyroscope) modules :
 	* MPU6050
 * Soundplayer modules:
