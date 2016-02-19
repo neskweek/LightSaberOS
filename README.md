@@ -108,14 +108,9 @@ In config Mode :
 	* volume
 	* soundfont 
 	* swing sensitivity : adjust swing sensitivity.
-	
-[ONLY FOR RGB LED USERS]
-	* Main color : change the color of your saber
-	* Clash color: change the color displayed during clash effect 
-	* Assign colors to current soundfont ? : Allows you to save the colors you just defined to the selected soundfont
-	
-[/ONLY FOR RGB LED USERS]
-
+	* [ONLY FOR RGB LED USERS] Main color : change the color of your saber
+	* [ONLY FOR RGB LED USERS] Clash color: change the color displayed during clash effect 
+	* [ONLY FOR RGB LED USERS] Assign colors to current soundfont ? : Allows you to save the colors you just defined to the selected soundfont
 	* clash acceleration sensitivity : trigger clash detection algorythm. The higher the value, the less sensible it is
 	* clash brake sensitivity : trigger clash sound.The higher the value, the more sensible it is
 * Long press lockup button : update config to EEPROM and leave config mode
