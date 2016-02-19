@@ -166,6 +166,12 @@ Don't hesitate to reports bugs (I've made a lot of test but... hey !), or sugges
 If you want to contribute to this project, please contact me via mail or on the [thread of this project] (http://forum.arduino.cc/index.php?topic=361566.0)
 
 
+
+## Known Bug :
+* In config mode, when chosing a new SoundFont, on some occasions, LSOS doesn't play the boot sound like it should... I can't find why
+
+
+
 ## Thanks
 Thanks to Protonerd from Arduino Forum for initiating this project
 Thanks to Jakesoft from Arduino Forum for is initial ideau of using arduino device to build a lightsaber.
