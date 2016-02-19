@@ -19,11 +19,11 @@ __*N.B.:*__ Be aware that at the time I post this the DFPlayer lib isn't finishe
 
 ## Device currently supported :
 
-*IMU (accelerometer + gyroscope) modules :
+* IMU (accelerometer + gyroscope) modules :
 	* MPU6050
-*Soundplayer modules:
+* Soundplayer modules:
 	* DFPlayer Mini
-*Blade module:
+* Blade module:
 	* homemade ledstrings
 	* RGB Leds (Luxeon style)  (since 1.0 RC2)
 
