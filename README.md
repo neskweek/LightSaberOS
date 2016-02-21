@@ -4,12 +4,12 @@
 
 ## What you will need :
 
-* my new DFPlayer library (Included)
-* [I2Cdev and MPU6050](https://codeload.github.com/jrowberg/i2cdevlib/zip/master)
-* [EEPROMex9.1](http://thijs.elenbaas.net/wp-content/uploads/downloads/2013/12/EEPROMEx-9.1.zip)
-* OneButton
-* LinkedList
-* Wire 
+* my new DFPlayer library (Included in zip file)
+* [I2Cdev and MPU6050 (Included in zip file)](https://codeload.github.com/jrowberg/i2cdevlib/zip/master) 
+* [EEPROMex9.1 (Included in zip file)](http://thijs.elenbaas.net/wp-content/uploads/downloads/2013/12/EEPROMEx-9.1.zip)
+* [OneButton (Included in zip file)] (https://github.com/mathertel/OneButton)
+* [LinkedList (Included in zip file)] (https://github.com/ivanseidel/LinkedList)
+* Wire (Included in Arduino IDE) 
 * If you want to explore/tweak the code I __strongly__ recommend you use "Eclipse for Arduino". This source is quite long (1023 lines). I've tried to keep it the most readbale as possible. 
 
 
