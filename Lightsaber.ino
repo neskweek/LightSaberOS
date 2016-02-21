@@ -1,7 +1,7 @@
 /*
- * LightSaberOS V1.0RC5
+ * LightSaberOS V1.0RC6
  *
- * Created on: 	10 feb 2016
+ * Created on: 	21 feb 2016
  * author: 		Sebastien CAPOU (neskweek@gmail.com)
  * Source : 	https://github.com/neskweek/LightSaberOS
  * Description:	Operating System for Arduino based LightSaber
