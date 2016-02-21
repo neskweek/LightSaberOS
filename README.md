@@ -50,6 +50,16 @@ First, you'll need (if not already done) to calibrate your MPU6050.
 Note the offset it will give you and replace those you'll find in my code.
 
 
+#### Determine IMU orientation
+Which IMU's axis is parallel to blade axis ?
+change it accordingly in the code : 
+```c++
+//#define BLADE_X
+#define BLADE_Y
+//#define BLADE_Z
+```
+
+
 #### Prepare your SDCard 
 Then, put the content of SDCard_without_hum_extensions.zip on your SDCard:
 
