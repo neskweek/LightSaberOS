@@ -43,6 +43,14 @@
 #endif
 
 /*
+ * MPU6050 device ORIENTATION
+ * Choose which MPU's axis is parallel to blade axis
+ */
+//#define BLADE_X
+#define BLADE_Y
+//#define BLADE_Z
+
+/*
  * DEFINED PINS
  * Modify to match your project setup
  * DO NOT USE PINS:
@@ -59,18 +67,39 @@
 #define LEDSTRING4 			9
 #define LEDSTRING5 			10
 #define LEDSTRING6 			11
+
 #ifdef LUXEON
-/* COLORS
- * Number of colors to chose from
- * Range : 6<->600
+/*
+ * MY_OWN_COLORS
+ * If you want to manually specify your own colors
  */
-#define COLORS		 		48
+#define MY_OWN_COLORS
+//#define FIXED_RANGE_COLORS
+
 #define LED_RED 			3
 #define LED_GREEN 			5
 #define LED_BLUE 			6
 
 #define BLASTER_FLASH_TIME  5
 #define CLASH_BLINK_TIME    15
+#endif
+
+/* FOR RGB USERS
+ * How do you want to handle your colors ?
+ */
+# ifdef MY_OWN_COLORS
+/* COLORS
+ * Number of colors YOU defined in getColor function
+ */
+#define COLORS		 		3
+#endif
+#ifdef FIXED_RANGE_COLORS
+/* COLORS
+ * Number of colors to chose from
+ * Range : 6<->600
+ * Default: 48
+ */
+#define COLORS		 		48
 #endif
 
 #define DFPLAYER_RX			8
@@ -104,6 +133,7 @@
  * WARNING ! A too high value may burn your leds. Please make your maths !
  */
 #define MAX_BRIGHTNESS		200
+
 
 /*
  * DEBUG PARAMETERS
@@ -522,12 +552,31 @@ void loop() {
 		 * We detect swings as hilt's orientation change
 		 * since IMUs sucks at determining relative position in space
 		 */
+#ifdef BLADE_Z
 		if (abs(quaternion.w) > storage.swingTreshold and !swingSuppress
 				and aaWorld.z < 0
 				and abs(quaternion.z) < (9 / 2) * storage.swingTreshold
 				and (abs(quaternion.x) > 3 * storage.swingTreshold
-						or abs(quaternion.y) > 3 * storage.swingTreshold)	// We don't want to treat blade Z axe rotations as a swing
-				) {
+						or abs(quaternion.y) > 3 * storage.swingTreshold)// We don't want to treat blade Z axe rotations as a swing
+		)
+#endif
+#ifdef BLADE_Y
+		if (abs(quaternion.w) > storage.swingTreshold and !swingSuppress
+				and aaWorld.y < 0
+				and abs(quaternion.y) < (9 / 2) * storage.swingTreshold
+				and (abs(quaternion.x) > 3 * storage.swingTreshold
+						or abs(quaternion.z) > 3 * storage.swingTreshold)// We don't want to treat blade Y axe rotations as a swing
+				)
+#endif
+#ifdef BLADE_X
+				if (abs(quaternion.w) > storage.swingTreshold and !swingSuppress
+						and aaWorld.x < 0
+						and abs(quaternion.x) < (9 / 2) * storage.swingTreshold
+						and (abs(quaternion.z) > 3 * storage.swingTreshold
+								or abs(quaternion.y) > 3 * storage.swingTreshold)// We don't want to treat blade X axe rotations as a swing
+				)
+#endif
+				{
 			/*
 			 *  THIS IS A SWING !
 			 */
@@ -545,11 +594,29 @@ void loop() {
 			printQuaternion(quaternion, 1);
 #endif
 
-		} else if (abs(quaternion.w) > storage.swingTreshold and !swingSuppress
+		}
+#ifdef BLADE_Z
+		else if (abs(quaternion.w) > storage.swingTreshold and !swingSuppress
 				and (aaWorld.z > 0
 						and abs(quaternion.z) > (13 / 2) * storage.swingTreshold
 						and abs(quaternion.x) < 3 * storage.swingTreshold
 						and abs(quaternion.y) < 3 * storage.swingTreshold)// We specifically  treat blade Z axe rotations as a swing
+#endif
+#ifdef BLADE_Y
+		else if (abs(quaternion.w) > storage.swingTreshold and !swingSuppress
+				and (aaWorld.y > 0
+						and abs(quaternion.y) > (13 / 2) * storage.swingTreshold
+						and abs(quaternion.x) < 3 * storage.swingTreshold
+						and abs(quaternion.z) < 3 * storage.swingTreshold)// We specifically  treat blade Z axe rotations as a swing
+#endif
+#ifdef BLADE_X
+				else if (abs(quaternion.w) > storage.swingTreshold and !swingSuppress
+						and (aaWorld.x > 0
+								and abs(quaternion.x) > (13 / 2) * storage.swingTreshold
+								and abs(quaternion.z) < 3 * storage.swingTreshold
+								and abs(quaternion.y) < 3 * storage.swingTreshold)// We specifically  treat blade Z axe rotations as a swing
+#endif
+
 				) {
 			/*
 			 *  THIS IS A WRIST TWIST !
@@ -568,7 +635,6 @@ void loop() {
 				swingSuppress = SWING_SUPPRESS * 10;
 				delay(OPERATING_DELAY * 3);
 			}
-
 #ifdef LS_SWING_DEBUG
 			Serial.print(F("WRIST\t s="));
 			Serial.print(swingSuppress);
@@ -777,7 +843,7 @@ void loop() {
 			case 2:
 			confMenuStart(9);
 
-			confParseValue(storage.mainColor, 0, COLORS-1, 1);
+			confParseValue(storage.mainColor, 0, COLORS - 1, 1);
 
 			if (modification) {
 
@@ -792,7 +858,7 @@ void loop() {
 			case 3:
 			confMenuStart(10);
 
-			confParseValue(storage.clashColor, 0, COLORS-1, 1);
+			confParseValue(storage.clashColor, 0, COLORS - 1, 1);
 
 			if (modification) {
 
@@ -947,6 +1013,7 @@ inline void mainClick() {
 #endif
 	if (actionMode) {
 		if (soundFont.getForce()) {
+
 			// Some Soundfont may not have Force sounds
 			repeat = false;
 			mp3.playTrackFromDir(soundFont.getForce(), soundFont.getFolder());
@@ -1257,6 +1324,50 @@ inline void lightFlicker(uint8_t ledPins[], uint8_t value) {
 	}
 } //lightFlicker
 
+inline void lightChangeColor(uint8_t color, bool lightup) {
+	getColor(color);
+	if (lightup) {
+		for (uint8_t i = 0; i <= 2; i++) {
+			analogWrite(ledPins[i],
+					MAX_BRIGHTNESS * currentColor[i] / 100);
+		}
+	}
+} //lightChangeColor
+#endif
+
+#ifdef MY_OWN_COLORS
+inline void getColor(uint8_t id) {
+	currentColor[3] = id;
+	switch (id) {
+		case 0:
+		//Red
+		currentColor[0] = 100;
+		currentColor[1] = 0;
+		currentColor[2] = 0;
+		break;
+		case 1:
+		//Green
+		currentColor[0] = 0;
+		currentColor[1] = 100;
+		currentColor[2] = 0;
+		break;
+		case 2:
+		//Blue
+		currentColor[0] = 0;
+		currentColor[1] = 0;
+		currentColor[2] = 100;
+		break;
+		default:
+		// White?
+		currentColor[0] = 100;
+		currentColor[1] = 100;
+		currentColor[2] = 100;
+		break;
+	}
+} //getColor
+#endif
+
+#ifdef FIXED_RANGE_COLORS
 inline void getColor(uint8_t id) {
 	uint8_t tint = (COLORS / 6);
 	uint8_t step = 100 / tint;
@@ -1293,17 +1404,7 @@ inline void getColor(uint8_t id) {
 		currentColor[2] = 100 - (step * (id % tint));
 	}
 
-}
-
-inline void lightChangeColor(uint8_t color, bool lightup) {
-	getColor(color);
-	if (lightup) {
-		for (uint8_t i = 0; i <= 2; i++) {
-			analogWrite(ledPins[i],
-					MAX_BRIGHTNESS * currentColor[i] / 100);
-		}
-	}
-} //lightChangeColor
+} //getColor
 #endif
 
 // ====================================================================================
@@ -1501,14 +1602,14 @@ inline void confMenuStart(uint8_t sound) {
 			Serial.print(F("COLOR1\nCur:"));
 			Serial.println(storage.mainColor);
 			lightChangeColor(storage.mainColor, true);
-			value=storage.mainColor;
+			value = storage.mainColor;
 			break;
 			case 10:
 			lightOff(ledPins, false);
 			Serial.print(F("COLOR2\nCur:"));
 			Serial.println(storage.clashColor);
 			lightChangeColor(storage.clashColor, true);
-			value=storage.clashColor;
+			value = storage.clashColor;
 			break;
 			case 11:
 			lightOff(ledPins, false);
