@@ -46,14 +46,14 @@ I would be glad to see other modules added. If you're interested to make your de
 ## Install / Config
 
 #### IMU calibration 
-| First, you'll need (if not already done) to calibrate your MPU6050.
-| [I recommend you use the AutoCalibration script you can find here](http://www.i2cdevlib.com/forums/topic/96-arduino-sketch-to-automatically-calculate-mpu6050-offsets/)
-| Note the offset it will give you and replace those you'll find in my code.
+ First, you'll need (if not already done) to calibrate your MPU6050.  
+ [I recommend you use the AutoCalibration script you can find here](http://www.i2cdevlib.com/forums/topic/96-arduino-sketch-to-automatically-calculate-mpu6050-offsets/)  
+ Note the offset it will give you and replace those you'll find in my code.  
 
 
 #### Determine IMU orientation
-| The way you physically installed the MPU6050 in your hilt will influence how swing detection works.
-| You'll have to determine which IMU's axis is parallel to blade axis and change it accordingly in the code : 
+ The way you physically installed the MPU6050 in your hilt will influence how swing detection works.  
+ You'll have to determine which IMU's axis is parallel to blade axis and change it accordingly in the code :   
 ```c++
 //#define BLADE_X
 #define BLADE_Y
@@ -62,16 +62,16 @@ I would be glad to see other modules added. If you're interested to make your de
 
 
 #### Prepare your SDCard 
-Then, put the content of SDCard_without_hum_extensions.zip on your SDCard:
+Then, put the content of SDCard_without_hum_extensions.zip on your SDCard:  
+Erase any directory that would be named like the ones you'll find in this archive.  
+Formatting your SDCard would be even better !  
 
-Erase any directory that would be named like the ones you'll find in this archive. Formatting your SDCard would be even better !
 In this archive there's two example of soundfonts :
 * 02: contains a Jedi soundfont without extended hum sound files : Obsidian
 * 03: contains a Sith soundfont without extended hum sound files : Sith
 
-If you want an example of soundfont with hum extension, download  [this archive](http://https://drive.google.com/file/d/0B3FqB9nvAU0Fd1p4T05zZnRQWnM/view?usp=sharing) and put its content on your SDCard. replace SoundFont.h of your project with the one found in this archive.
-This second example contains the following soundonft :
-
+If you want an example of soundfont with hum extension, download  [this archive](http://https://drive.google.com/file/d/0B3FqB9nvAU0Fd1p4T05zZnRQWnM/view?usp=sharing) and put its content on your SDCard.   Replace SoundFont.h of your project with the one found in this archive.  
+This second example contains the following soundonft :  
 * 02: contains a Jedi soundfont __WITH__ extended hum sound files : Obsidian
 * 03: contains a Jedi soundfont __WITHOUT__ extended hum sound files : Obsidian
 * 04: contains a Sith soundfont without extended hum sound files : Sith
@@ -79,13 +79,12 @@ This second example contains the following soundonft :
 
 
 #### Check Wirings
-Use of original Protonerd's wirings since 1.0RC3
-Don't forget to wire those ones which were added :
+Use of original Protonerd's wirings since 1.0RC3  
+Don't forget to wire those ones which were added :  
 * DFPLAYER TX to D7
 * DFPLAYER SPK+ to A0
 * DFPLAYER SPK- to A1
-Wiring of busy pin is optional since LightSaberOS doesn't use it.
-
+Wiring of busy pin is optional since LightSaberOS doesn't use it.  
 ![Schematics](http://i1073.photobucket.com/albums/w385/cest_bastien1/Lightsaber/AS2_LEDstringSaberArduino_NeskweekRevised_zpsu5k0ljck.png)
 
 #### Tweak your install 
@@ -100,21 +99,21 @@ comment:
 
 	1. Wire your LED on pin D3
 	
-	2. Comment this line
+	2. Comment this line :
 	
 ```c++ 
 #define LEDSTRINGS 
-``` 
-:	3. Modify those lines :
-	
-```c++ 
+```        
+:	        iii. Modify the following lines so all variables are set to 0 :    
+
+```c++         
 #ifdef LUXEON
-		storage.mainColor = ~~4~~ **0**;
-		storage.clashColor = ~~5~~ **0**;
-		storage.soundFontColorPreset[2][0] = ~~2~~ **0**;
+		storage.mainColor = 0;
+		storage.clashColor = 0;
+		storage.soundFontColorPreset[2][0] = 0;
 		storage.soundFontColorPreset[2][1] = 0;
 		storage.soundFontColorPreset[3][0] = 0;
-		storage.soundFontColorPreset[3][1] = ~~5~~ **0**;
+		storage.soundFontColorPreset[3][1] = 0;
 #endif
 ```
 
