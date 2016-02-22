@@ -117,7 +117,7 @@ comment:
 
 * Tweaks 
 ```c++
-#define CLICK			5    // ms you need to press a button to be a click
+#define CLICK				5    // ms you need to press a button to be a click
 #define PRESS_ACTION		200  // ms you need to press a button to be a long press, in action mode
 #define PRESS_CONFIG		400  // ms you need to press a button to be a long press, in config mode
 /* MAX_BRIGHTNESS
