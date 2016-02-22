@@ -137,7 +137,7 @@ comment:
 
 
 #### 6. Upload the sketch to your arduino.
-___Will only work with Arduino IDE v1.6.5 !!!___
+> ___Will only work with Arduino IDE v1.6.5 !!!___  
 Arduino v1.6.7 will generate errors.
 
 #### 7. Enjoy
