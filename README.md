@@ -145,18 +145,18 @@ Arduino v1.6.7 will generate errors.
 
 ## How it works :
 
-###### In standby mode (idle) :  
+###### _In standby mode (idle)_ :  
 * Short press on main button : activate your saber
 * Long press on lockup button : activate config mode
 
 
-###### In Action Mode :
+###### _In Action Mode_ :
 * Long press lockup button : Lockup
 * Short press lockup button : Clash
 * Long press main button : shutdown saber
 
 
-###### In config Mode :  
+###### _In config Mode_ :  
 * short press main button : Up the value
 * short press lockup button : Down the value
 * long press main button : Change menu :  
@@ -181,7 +181,7 @@ To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-
 
 ## Notes :
 
-1. __NOOOO MP3, NOOOO WMA !!!__  Only WAVs !!! : when encoding a sound to those format (MP3 and WMA) the encoder will automaticly put a silence at start. WE DON'T WANT GAPS !!!  
+1. __NOOOO MP3, NOOOO WMA !!!__  _Only WAVs !!!_ : when encoding a sound to those format (MP3 and WMA) the encoder will automaticly put a silence at start. WE DON'T WANT GAPS !!!  
 2. With soundfiles with hum extension (you edited a swing file and paste a hum sound repeated for some time), if you put 2 min of hum after your swing sound, if you don't move your saber for 2 min (higly unprobable in real situation) you'll notice a little gap in hum sound at that moment : You've just switch on a pure hum soundfile.
 3. Don't put gaps in soundfile numbering ex.:001_Boot.wav,002.wav, 0010_Swing1.wav... The "folder play" command of the DFPlayer will see them as 001, 002, 003... That will generate unpredictable behaviour.
 4. You can't put more than 255 folders numbered folder on your SDCard, including O1 (which contains config mode sounds)
