@@ -3,7 +3,7 @@
 
 
 ## What you will need :
-* Arduino IDE ___v1.6.5___ (___not 1.6.7___)
+* Arduino IDE ___v1.6.5___ (___not 1.6.7___) or/and Arduino Eclipse
 * my new DFPlayer library (Included in zip file)
 * [I2Cdev and MPU6050 (Included in zip file)](https://codeload.github.com/jrowberg/i2cdevlib/zip/master) 
 * [EEPROMex9.1 (Included in zip file)](http://thijs.elenbaas.net/wp-content/uploads/downloads/2013/12/EEPROMEx-9.1.zip)
