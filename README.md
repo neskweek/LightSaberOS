@@ -45,13 +45,13 @@ I would be glad to see other modules added. If you're interested to make your de
 
 ## Install / Config
 
-#### IMU calibration 
+#### 1. IMU calibration 
  First, you'll need (if not already done) to calibrate your MPU6050.  
  [I recommend you use the AutoCalibration script you can find here](http://www.i2cdevlib.com/forums/topic/96-arduino-sketch-to-automatically-calculate-mpu6050-offsets/)  
  Note the offset it will give you and replace those you'll find in my code.  
 
 
-#### Determine IMU orientation
+#### 2. Determine IMU orientation
  The way you physically installed the MPU6050 in your hilt will influence how swing detection works.  
  You'll have to determine which IMU's axis is parallel to blade axis and change it accordingly in the code :   
 ```c++
@@ -61,7 +61,7 @@ I would be glad to see other modules added. If you're interested to make your de
 ```
 
 
-#### Prepare your SDCard 
+#### 3. Prepare your SDCard 
 Then, put the content of SDCard_without_hum_extensions.zip on your SDCard:  
 Erase any directory that would be named like the ones you'll find in this archive.  
 Formatting your SDCard would be even better !  
@@ -78,7 +78,7 @@ This second example contains the following soundonft :
 
 
 
-#### Check Wirings
+#### 4. Check Wirings
 Use of original Protonerd's wirings since 1.0RC3  
 Don't forget to wire those ones which were added :  
 * DFPLAYER TX to D7
@@ -87,7 +87,7 @@ Don't forget to wire those ones which were added :
 Wiring of busy pin is optional since LightSaberOS doesn't use it.  
 ![Schematics](http://i1073.photobucket.com/albums/w385/cest_bastien1/Lightsaber/AS2_LEDstringSaberArduino_NeskweekRevised_zpsu5k0ljck.png)
 
-#### Tweak your install 
+#### 5. Tweak your install (optionnal) 
 
 * If you're an RGB led user
 comment:
@@ -130,10 +130,17 @@ comment:
 #define MAX_BRIGHTNESS		200
 ```
 
+: To win some hex file size, or when you will want to use your saber in normal day to day use, comment this line: 
+```c++
+#define LS_INFO
+```
 
-#### Upload the sketch to your arduino.
 
-#### Enjoy
+#### 6. Upload the sketch to your arduino.
+___Will only work with Arduino IDE v1.6.5 !!!___
+Arduino v1.6.7 will generate errors.
+
+#### 7. Enjoy
 
 
 ## How it works :
