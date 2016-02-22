@@ -10,7 +10,7 @@
 * [OneButton (Included in zip file)] (https://github.com/mathertel/OneButton)
 * [LinkedList (Included in zip file)] (https://github.com/ivanseidel/LinkedList)
 * Wire (Included in Arduino IDE) 
-*  
+  
 
 Note: If you want to explore/tweak the code I __strongly__ recommend you use "Eclipse for Arduino". This source is quite long. I've tried to keep it the most readbale as possible. 
 
