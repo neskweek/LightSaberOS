@@ -48,7 +48,7 @@ I would be glad to see other modules added. If you're interested to make your de
 #### 1. IMU calibration 
  First, you'll need (if not already done) to calibrate your MPU6050.  
  [I recommend you use the AutoCalibration script you can find here](http://www.i2cdevlib.com/forums/topic/96-arduino-sketch-to-automatically-calculate-mpu6050-offsets/)  
- Note the offset it will give you and replace those you'll find in my code.  
+ Note the offset values it will give you and replace those you'll find in my code : 
 ```c++
 	/*
 	 * Those offsets are specific to each MPU6050 device.
