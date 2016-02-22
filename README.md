@@ -104,7 +104,7 @@ comment:
 ```c++ 
 #define LEDSTRINGS 
 ```        
-:	        iii. Modify the following lines so all variables are set to 0 :    
+: : : : : : :iii.Modify the following lines so all variables are set to 0 :    
 
 ```c++         
 #ifdef LUXEON
@@ -130,7 +130,7 @@ comment:
 #define MAX_BRIGHTNESS		200
 ```
 
-: To win some hex file size, or when you will want to use your saber in normal day to day use, comment this line: 
+* To win some hex file size, or when you will want to use your saber in normal day to day use, comment this line: 
 ```c++
 #define LS_INFO
 ```
