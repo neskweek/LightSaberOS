@@ -3,7 +3,7 @@
 
 
 ## What you will need :
-* Arduino IDE ___v1.6.5___ (___not 1.6.7___) or/and Arduino Eclipse
+* Arduino IDE ___v1.6.5___ (_not 1.6.7_) or/and Arduino Eclipse
 * my new DFPlayer library (Included in zip file)
 * [I2Cdev and MPU6050 (Included in zip file)](https://codeload.github.com/jrowberg/i2cdevlib/zip/master) 
 * [EEPROMex9.1 (Included in zip file)](http://thijs.elenbaas.net/wp-content/uploads/downloads/2013/12/EEPROMEx-9.1.zip)
@@ -46,16 +46,14 @@ I would be glad to see other modules added. If you're interested to make your de
 ## Install / Config
 
 #### IMU calibration 
-First, you'll need (if not already done) to calibrate your MPU6050.
-
-[I recommend you use the AutoCalibration script you can find here](http://www.i2cdevlib.com/forums/topic/96-arduino-sketch-to-automatically-calculate-mpu6050-offsets/)
-
-Note the offset it will give you and replace those you'll find in my code.
+| First, you'll need (if not already done) to calibrate your MPU6050.
+| [I recommend you use the AutoCalibration script you can find here](http://www.i2cdevlib.com/forums/topic/96-arduino-sketch-to-automatically-calculate-mpu6050-offsets/)
+| Note the offset it will give you and replace those you'll find in my code.
 
 
 #### Determine IMU orientation
-Which IMU's axis is parallel to blade axis ?
-change it accordingly in the code : 
+| The way you physically installed the MPU6050 in your hilt will influence how swing detection works.
+| You'll have to determine which IMU's axis is parallel to blade axis and change it accordingly in the code : 
 ```c++
 //#define BLADE_X
 #define BLADE_Y
@@ -95,8 +93,8 @@ Wiring of busy pin is optional since LightSaberOS doesn't use it.
 * If you're an RGB led user
 comment:
 ```c++
-//#define LEDSTRINGS 
-```
+#define LEDSTRINGS 
+``` 
 
 * If you're an Single led use
 
@@ -104,15 +102,12 @@ comment:
 	
 	2. Comment this line
 	
-```c++
+```c++ 
 #define LEDSTRINGS 
-```
-
-
-	3. Modify those lines :
-
-
-```c++
+``` 
+:	3. Modify those lines :
+	
+```c++ 
 #ifdef LUXEON
 		storage.mainColor = ~~4~~ **0**;
 		storage.clashColor = ~~5~~ **0**;
