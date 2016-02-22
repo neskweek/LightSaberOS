@@ -24,8 +24,9 @@ Designed to be used on Arduino Nano (ATmega328 processors)
 * Soundplayer modules:
 	* DFPlayer Mini
 * Blade module:
-	* homemade ledstrings
-	* RGB Leds (Luxeon style)  (since 1.0 RC2)
+	* homemade LEDstrings
+	* RGB LEDs (Luxeon/Cree styled)
+	* Single LED
 
 I would be glad to see other modules added. If you're interested to make your device compatible, please contact me.
 
