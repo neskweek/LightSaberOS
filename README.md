@@ -100,21 +100,26 @@ comment:
 
 * If you're an Single led use
 
-	1. wire your LED on pin D3
+	1. Wire your LED on pin D3
 	
-	2. comment/modify to obtain:
+	2. Comment this line
 	
 ```c++
-//#define LEDSTRINGS 
+#define LEDSTRINGS 
 ```
+
+
+	3. Modify those lines :
+
+
 ```c++
 #ifdef LUXEON
-		storage.mainColor = 0;
-		storage.clashColor = 0
-		storage.soundFontColorPreset[2][0] = 0;
+		storage.mainColor = ~~4~~ **0**;
+		storage.clashColor = ~~5~~ **0**;
+		storage.soundFontColorPreset[2][0] = ~~2~~ **0**;
 		storage.soundFontColorPreset[2][1] = 0;
 		storage.soundFontColorPreset[3][0] = 0;
-		storage.soundFontColorPreset[3][1] = 0;
+		storage.soundFontColorPreset[3][1] = ~~5~~ **0**;
 #endif
 ```
 
