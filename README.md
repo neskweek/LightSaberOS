@@ -195,13 +195,11 @@ To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-
 By priority :
 
 * Better README.md (Work in progress)
-* Find a way to make hum relaunch unoticable - Possible with our hardware ? it would require to launch a sound _as soon as_ we receive an "END_PLAY" response from DFPlayer :
-	* timer ijnterrupts tested with no success.(I might have not use them properly)
-	* SoftwareSerial seems to already use interrupts to monitor DFPLAYER_TX we receive(I'm not sure of that). The best solution would be to use this interrupt to capture an "END_PLAY" response but I don't want to modify SoftwareSerial Lib
+* Find a way to make hum relaunch unoticable - Possible with our hardware ? it would require to launch a sound _as soon as_ we receive an "END_PLAY" response from DFPlayer (don't know if it will be possible with current soundplayer hardware)
 * Try to reduce compiled hex file to be able to add  more functionnality and/or handling of more modules (IMU/Music players).
 * Make powerOn/powerOff ledstring effect sync to soundfont soundfiles play time.
 	* Add 2 time-variables to setup in soundfont.h
-* Find a use  to:
+* Find a use to:
 	* short press lockup button in standby mode 
 	* double click on main button in action/config/standby mode
 	* double clik on lockup button in action/config/standby mode.
