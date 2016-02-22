@@ -145,18 +145,18 @@ Arduino v1.6.7 will generate errors.
 
 ## How it works :
 
-In standby mode (idle) :  
+###### In standby mode (idle) :  
 * Short press on main button : activate your saber
 * Long press on lockup button : activate config mode
 
 
-In Action Mode :
+###### In Action Mode :
 * Long press lockup button : Lockup
 * Short press lockup button : Clash
 * Long press main button : shutdown saber
 
 
-In config Mode :  
+###### In config Mode :  
 * short press main button : Up the value
 * short press lockup button : Down the value
 * long press main button : Change menu :  
