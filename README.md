@@ -49,7 +49,19 @@ I would be glad to see other modules added. If you're interested to make your de
  First, you'll need (if not already done) to calibrate your MPU6050.  
  [I recommend you use the AutoCalibration script you can find here](http://www.i2cdevlib.com/forums/topic/96-arduino-sketch-to-automatically-calculate-mpu6050-offsets/)  
  Note the offset it will give you and replace those you'll find in my code.  
-
+```c++
+	/*
+	 * Those offsets are specific to each MPU6050 device.
+	 * they are found via calibration process.
+	 * See this script http://www.i2cdevlib.com/forums/index.php?app=core&module=attach&section=attach&attach_id=27
+	 */
+	mpu.setXAccelOffset(-2645);
+	mpu.setYAccelOffset(-5491);
+	mpu.setZAccelOffset(3881);
+	mpu.setXGyroOffset(27);
+	mpu.setYGyroOffset(-135);
+	mpu.setZGyroOffset(-38);
+```
 
 #### 2. Determine IMU orientation
  The way you physically installed the MPU6050 in your hilt will influence how swing detection works.  
