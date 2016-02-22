@@ -89,22 +89,21 @@ Wiring of busy pin is optional since LightSaberOS doesn't use it.
 
 #### 5. Tweak your install (optionnal) 
 
-* If you're an RGB led user
+##### 5A. RGB LEDs users
 comment:
 ```c++
 #define LEDSTRINGS 
 ``` 
 
-* If you're an Single led use
-
-	1. Wire your LED on pin D3
+##### 5B. Single LED users
+* a) Wire your LED on pin D3
 	
-	2. Comment this line :
+* b) Comment this line :
 	
 ```c++ 
 #define LEDSTRINGS 
 ```        
-: : : : : :iii.Modify the following lines so all variables are set to 0 :    
+* c) Modify the following lines so all variables are set to 0 :    
 
 ```c++         
 #ifdef LUXEON
@@ -117,7 +116,8 @@ comment:
 #endif
 ```
 
-* Tweaks 
+##### 	5C.Tweaks
+* General tweaks :
 ```c++
 #define CLICK				5    // ms you need to press a button to be a click
 #define PRESS_ACTION		200  // ms you need to press a button to be a long press, in action mode
