@@ -68,7 +68,14 @@ In this archive there's two example of soundfonts :
 * 02: contains a Jedi soundfont without extended hum sound files : Obsidian
 * 03: contains a Sith soundfont without extended hum sound files : Sith
 
-If you want an example of soundfont with hum extension, please [this archive](http://https://drive.google.com/file/d/0B3FqB9nvAU0Fd1p4T05zZnRQWnM/view?usp=sharing) and put its content on your SDCard. replace SoundFont.h of your project with the one found in this archive.
+If you want an example of soundfont with hum extension, download  [this archive](http://https://drive.google.com/file/d/0B3FqB9nvAU0Fd1p4T05zZnRQWnM/view?usp=sharing) and put its content on your SDCard. replace SoundFont.h of your project with the one found in this archive.
+This second example contains the following soundonft :
+
+* 02: contains a Jedi soundfont __WITH__ extended hum sound files : Obsidian
+* 03: contains a Jedi soundfont __WITHOUT__ extended hum sound files : Obsidian
+* 04: contains a Sith soundfont without extended hum sound files : Sith
+
+
 
 #### Check Wirings
 Use of original Protonerd's wirings since 1.0RC3
@@ -85,17 +92,17 @@ Wiring of busy pin is optional since LightSaberOS doesn't use it.
 * If you're an RGB led user
 comment:
 ```c++
-#define LEDSTRINGS 
+//#define LEDSTRINGS 
 ```
 
 * If you're an Single led use
 
 	1. wire your LED on pin D3
 	
-	2. comment/modify:
+	2. comment/modify to obtain:
 	
 ```c++
-#define LEDSTRINGS 
+//#define LEDSTRINGS 
 ```
 ```c++
 #ifdef LUXEON
@@ -110,7 +117,7 @@ comment:
 
 * Tweaks 
 ```c++
-#define CLICK				5    // ms you need to press a button to be a click
+#define CLICK			5    // ms you need to press a button to be a click
 #define PRESS_ACTION		200  // ms you need to press a button to be a long press, in action mode
 #define PRESS_CONFIG		400  // ms you need to press a button to be a long press, in config mode
 /* MAX_BRIGHTNESS
