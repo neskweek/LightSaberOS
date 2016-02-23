@@ -210,7 +210,6 @@ By priority :
 * Find a way to remove delays function from (and induced by) DFPlayer lib.  
 I think it's interferring with movements detection system (especially clash ones)
 * Find a way to make hum relaunch unoticable   
-It would require to launch a sound _as soon as_ we receive an "END_PLAY" response from DFPlayer   
 _(not sure it will be possible with DFPlayer mini)_
 * Try to reduce compiled hex file to be able to add  more functionnality and/or handling of more modules   
 (IMU/Music players).
