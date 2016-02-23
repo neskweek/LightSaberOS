@@ -95,9 +95,9 @@ Use of original Protonerd's wirings since 1.0RC3
 Don't forget to wire those ones which were added :  
 * DFPLAYER TX to D7
 * DFPLAYER SPK+ to A0
-* DFPLAYER SPK- to A1
+* DFPLAYER SPK- to A1     
+![Schematics](http://i1073.photobucket.com/albums/w385/cest_bastien1/Lightsaber/AS2_LEDstringSaberArduino_NeskweekRevised_zpsu5k0ljck.png)    
 Wiring of busy pin is optional since LightSaberOS doesn't use it.  
-![Schematics](http://i1073.photobucket.com/albums/w385/cest_bastien1/Lightsaber/AS2_LEDstringSaberArduino_NeskweekRevised_zpsu5k0ljck.png)
 
 #### 5. Tweak your install (optionnal) 
 
