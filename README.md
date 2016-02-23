@@ -207,6 +207,7 @@ To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-
 By priority :
 
 * Better README.md (Work in progress)
+* Find a way to remove delays function from (and induced by) DFPlayer lib.
 * Find a way to make hum relaunch unoticable - Possible with our hardware ? it would require to launch a sound _as soon as_ we receive an "END_PLAY" response from DFPlayer (don't know if it will be possible with current soundplayer hardware)
 * Try to reduce compiled hex file to be able to add  more functionnality and/or handling of more modules (IMU/Music players).
 * Make powerOn/powerOff ledstring effect sync to soundfont soundfiles play time.
