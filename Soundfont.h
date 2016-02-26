@@ -10,11 +10,13 @@
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-sa/4.0/.
  */
 
-
 #ifndef SOUNDFONT_H_
 #define SOUNDFONT_H_
 
-
+struct wav {
+	uint8_t id;    //Wav id (ex :001 <= 001_Boot.wav)
+	uint16_t time; //how long this sound last in milliseconds
+};
 
 class SoundFont {
 
@@ -24,16 +26,16 @@ public:
 
 	SoundFont() {
 
-		boot = LinkedList<uint8_t>();
-		powerOn = LinkedList<uint8_t>();
-		powerOff = LinkedList<uint8_t>();
-		hum = LinkedList<uint8_t>();
-		swing = LinkedList<uint8_t>();
-		clash = LinkedList<uint8_t>();
-		lockup = LinkedList<uint8_t>();
-		blaster = LinkedList<uint8_t>();
-		wrist = LinkedList<uint8_t>();
-		force = LinkedList<uint8_t>();
+		boot = LinkedList<wav*>();
+		powerOn = LinkedList<wav*>();
+		powerOff = LinkedList<wav*>();
+		hum = LinkedList<wav*>();
+		swing = LinkedList<wav*>();
+		clash = LinkedList<wav*>();
+		lockup = LinkedList<wav*>();
+		blaster = LinkedList<wav*>();
+		wrist = LinkedList<wav*>();
+		force = LinkedList<wav*>();
 
 	}
 	;
@@ -108,7 +110,7 @@ public:
 			swing[0] = 6;
 			swing[1] = 17;
 			clash[0] = 18;
-			clash[1] = 30;
+			clash[1] = 29;
 			lockup[0] = 5;
 			lockup[1] = 5;
 			blaster[0] = 30;
@@ -119,109 +121,140 @@ public:
 			force[1] = 31;
 			break;
 		case 3:
-			boot[0] = 1;
-			boot[1] = 1;
-			powerOn[0] = 2;
-			powerOn[1] = 2;
-			powerOff[0] = 3;
-			powerOff[1] = 3;
-			hum[0] = 4;
-			hum[1] = 4;
-			swing[0] = 6;
-			swing[1] = 13;
-			clash[0] = 14;
-			clash[1] = 21;
-			lockup[0] = 5;
-			lockup[1] = 5;
-			blaster[0] = 22;
-			blaster[1] = 22;
-			wrist[0] = 24;
-			wrist[1] = 24;
-			force[0] = 23;
-			force[1] = 23;
+			this->boot.add(new wav( { 1, 3508 }));
+			this->powerOn.add(new wav( { 2, 1739 }));
+			this->powerOff.add(new wav( { 3, 1697 }));
+			this->hum.add(new wav( { 4, 4218 }));
+			this->lockup.add(new wav( { 5, 9258 }));
+			this->swing.add(new wav( { 6, 610 }));
+			this->swing.add(new wav( { 7, 610 }));
+			this->swing.add(new wav( { 8, 522 }));
+			this->swing.add(new wav( { 9, 485 }));
+			this->swing.add(new wav( { 10, 421 }));
+			this->swing.add(new wav( { 11, 520 }));
+			this->swing.add(new wav( { 12, 610 }));
+			this->swing.add(new wav( { 13, 648 }));
+			this->clash.add(new wav( { 14, 307 }));
+			this->clash.add(new wav( { 15, 570 }));
+			this->clash.add(new wav( { 16, 570 }));
+			this->clash.add(new wav( { 17, 715 }));
+			this->clash.add(new wav( { 18, 640 }));
+			this->clash.add(new wav( { 19, 570 }));
+			this->clash.add(new wav( { 20, 845 }));
+			this->clash.add(new wav( { 21, 845 }));
+			this->blaster.add(new wav( { 22, 1535 }));
+			this->wrist.add(new wav( { 23, 14171 }));
+			this->force.add(new wav( { 24, 609 }));
+			/*
+			 boot[0] = 1;
+			 boot[1] = 1;
+			 powerOn[0] = 2;
+			 powerOn[1] = 2;
+			 powerOff[0] = 3;
+			 powerOff[1] = 3;
+			 hum[0] = 4;
+			 hum[1] = 4;
+			 swing[0] = 6;
+			 swing[1] = 13;
+			 clash[0] = 14;
+			 clash[1] = 21;
+			 lockup[0] = 5;
+			 lockup[1] = 5;
+			 blaster[0] = 22;
+			 blaster[1] = 22;
+			 wrist[0] = 24;
+			 wrist[1] = 24;
+			 force[0] = 23;
+			 force[1] = 23;
+			 */
 			break;
 		}
-		this->boot.clear();
-		this->powerOn.clear();
-		this->powerOff.clear();
-		this->hum.clear();
-		this->swing.clear();
-		this->clash.clear();
-		this->lockup.clear();
-		this->blaster.clear();
-		this->wrist.clear();
-		this->force.clear();
-		fill(&this->boot, boot);
-		fill(&this->powerOn, powerOn);
-		fill(&this->powerOff, powerOff);
-		fill(&this->hum, hum);
-		fill(&this->swing, swing);
-		fill(&this->clash, clash);
-		fill(&this->lockup, lockup);
-		fill(&this->blaster, blaster);
-		fill(&this->wrist, wrist);
-		fill(&this->force, force);
+		/*
+		if (this->folder != 3) {
+			this->boot.clear();
+			this->powerOn.clear();
+			this->powerOff.clear();
+			this->hum.clear();
+			this->swing.clear();
+			this->clash.clear();
+			this->lockup.clear();
+			this->blaster.clear();
+			this->wrist.clear();
+			this->force.clear();
+
+			fill(&this->boot, boot);
+			fill(&this->powerOn, powerOn);
+			fill(&this->powerOff, powerOff);
+			fill(&this->hum, hum);
+			fill(&this->swing, swing);
+			fill(&this->clash, clash);
+			fill(&this->lockup, lockup);
+			fill(&this->blaster, blaster);
+			fill(&this->wrist, wrist);
+			fill(&this->force, force);
+		}
+		*/
 	}
 
 	uint8_t getFolder() const {
 		return folder;
 	}
 
-	const uint8_t getBlaster() {
+	wav* getBlaster() {
 		return this->blaster.get(random(0, this->blaster.size()));
 	}
 
-	const uint8_t getBoot() {
+	wav* getBoot() {
 		return this->boot.get(random(0, this->boot.size()));
 	}
 
-	const uint8_t getClash() {
+	wav* getClash() {
 		return this->clash.get(random(0, this->clash.size()));
 	}
 
-	const uint8_t getHum() {
+	wav* getHum() {
 		return this->hum.get(random(0, this->hum.size()));
 	}
 
-	const uint8_t getLockup() {
+	wav* getLockup() {
 		return this->lockup.get(random(0, this->lockup.size()));
 	}
 
-	const uint8_t getPowerOff() {
+	wav* getPowerOff() {
 		return this->powerOff.get(random(0, this->powerOff.size()));
 	}
 
-	const uint8_t getPowerOn() {
-		return this->powerOn.get(random(0, this->powerOn.size()));
+	wav* getPowerOn() {
+		return this->powerOn.get(random(this->powerOn.size()));
 	}
 
-	const uint8_t getSwing() {
+	wav* getSwing() {
 		return this->swing.get(random(0, this->swing.size()));
 	}
 
-	const uint8_t getForce() {
+	wav* getForce() {
 		return this->force.get(random(0, this->force.size()));
 	}
-	const uint8_t getWrist() {
-		return this->wrist.get(random(0, this->wrist.size()));
+	wav* getWrist() {
+		return this->wrist.get(random(this->wrist.size()));
 	}
 
 private:
 	uint8_t folder;
-	LinkedList<uint8_t> boot;
-	LinkedList<uint8_t> powerOn;
-	LinkedList<uint8_t> powerOff;
-	LinkedList<uint8_t> hum;
-	LinkedList<uint8_t> swing;
-	LinkedList<uint8_t> clash;
-	LinkedList<uint8_t> lockup;
-	LinkedList<uint8_t> blaster;
-	LinkedList<uint8_t> wrist;
-	LinkedList<uint8_t> force;
+	LinkedList<wav*> boot;
+	LinkedList<wav*> powerOn;
+	LinkedList<wav*> powerOff;
+	LinkedList<wav*> hum;
+	LinkedList<wav*> swing;
+	LinkedList<wav*> clash;
+	LinkedList<wav*> lockup;
+	LinkedList<wav*> blaster;
+	LinkedList<wav*> wrist;
+	LinkedList<wav*> force;
 
-	void fill(LinkedList<uint8_t>* list, uint8_t array[]) {
+	void fill(LinkedList<wav*>* list, uint8_t array[]) {
 		for (uint8_t i = array[0]; i <= array[1]; i++) {
-			list->add(i);
+			list->add(new wav( { i, 0 }));
 		}
 	}
 
