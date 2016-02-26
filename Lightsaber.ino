@@ -47,8 +47,8 @@
  * Choose which MPU's axis is parallel to blade axis
  */
 //#define BLADE_X
-//#define BLADE_Y
-#define BLADE_Z
+#define BLADE_Y
+//#define BLADE_Z
 
 /*
  * DEFINED PINS
@@ -134,6 +134,7 @@
  */
 #define MAX_BRIGHTNESS		200
 
+
 /*
  * DEBUG PARAMETERS
  */
@@ -215,11 +216,13 @@ uint8_t lockupBlink = 0;
  */
 DFPlayer mp3;
 SoundFont soundFont;
+volatile uint16_t lastPlayed = 0;
 int16_t value = 0;
 uint8_t swingSuppress = SWING_SUPPRESS * 2;
 uint8_t clashSuppress = 1;
-wav* isPlaying;
-long playTime;
+bool changePlayMode = false;
+volatile bool relaunch = false;
+volatile bool repeat = false;
 /***************************************************************************************************
  * ConfigMode Variables
  */
@@ -449,7 +452,7 @@ void loop() {
 	lockupButton.tick();
 
 	// check for DFPlayer FIFO queue overflow
-	if (mp3.updateFifoCount() >= DFPLAYER_FIFO_SIZE) {
+	if (mp3.updateFifoCount() >= DFPLAYER_FIFO_SIZE and repeat) {
 		//reset DFPlayer FIFO queue
 		mp3.getSerial()->flush();
 	}
@@ -477,23 +480,23 @@ void loop() {
 			/*
 			 *  This is the very first loop after Action Mode has been turned on
 			 */
-
+			repeat = false;
 			// Reduce lockup trigger time for faster lockup response
 			lockupButton.setPressTicks(PRESS_ACTION);
 #ifdef LS_INFO
 			Serial.println(F("START ACTION"));
 #endif
 			//Play powerons wavs
-			isPlaying = soundFont.getPowerOn();
-			playTime = millis();
-			//Serial.println(isPlaying->id);
-			mp3.playTrackFromDir(isPlaying->id, soundFont.getFolder());
+			mp3.playTrackFromDir(soundFont.getPowerOn(), soundFont.getFolder());
+			lastPlayed = mp3.getCurrentTrack();
 
 			// Light up the ledstrings
 			lightOn(ledPins);
+
 			// Get the initial position of the motion detector
 			motionEngine();
 			ignition = true;
+			changePlayMode = false;
 			isBigAcceleration = false;
 			isBigBrake = false;
 		}
@@ -501,27 +504,30 @@ void loop() {
 		/*
 		 * Hum sound has been relaunched
 		 */
-		if (isPlaying->time != 0
-				and (millis() - playTime) >= (isPlaying->time - 10)) {
-			Serial.println(millis() - playTime);
-			while (millis() - playTime < isPlaying->time) {/*wait*/
-			}
-			mp3.playTrackFromDir(soundFont.getHum()->id, soundFont.getFolder());
-			mp3.setSingleLoop(true);
-			Serial.println(millis() - playTime);
-			Serial.println(isPlaying->time);
-			isPlaying = new wav( { 0, 0 });
+		if (relaunch) {
 
+			// delays are disabled in ISR functions
+			delay(OPERATING_DELAY);
 #ifdef LUXEON
 			lightChangeColor(storage.mainColor, true);
 #endif
+			/* Actually we don't want to monitor this track
+			 So we save some loop-time */
+			//lastPlayed = mp3.getCurrentTrack();
+			relaunch = false;
+			repeat = true;
+			changePlayMode = true;
+#ifdef LS_RELAUNCH_DEBUG
+			Serial.print(F("MP3 Relaunched :"));
+			Serial.println(millis());
+#endif
+
 		}
 
-		/*
-		 if (changePlayMode) {
-		 mp3.setSingleLoop(repeat);
-
-		 }*/
+		if (changePlayMode) {
+			mp3.setSingleLoop(repeat);
+			changePlayMode = false;
+		}
 
 		// Calculation of the amount of brightness to fade
 		brightness = MAX_BRIGHTNESS
@@ -552,14 +558,14 @@ void loop() {
 				and abs(quaternion.z) < (9 / 2) * storage.swingTreshold
 				and (abs(quaternion.x) > 3 * storage.swingTreshold
 						or abs(quaternion.y) > 3 * storage.swingTreshold)// We don't want to treat blade Z axe rotations as a swing
-				)
+		)
 #endif
 #ifdef BLADE_Y
-				if (abs(quaternion.w) > storage.swingTreshold and !swingSuppress
-						and aaWorld.y < 0
-						and abs(quaternion.y) < (9 / 2) * storage.swingTreshold
-						and (abs(quaternion.x) > 3 * storage.swingTreshold
-								or abs(quaternion.z) > 3 * storage.swingTreshold)// We don't want to treat blade Y axe rotations as a swing
+		if (abs(quaternion.w) > storage.swingTreshold and !swingSuppress
+				and aaWorld.y < 0
+				and abs(quaternion.y) < (9 / 2) * storage.swingTreshold
+				and (abs(quaternion.x) > 3 * storage.swingTreshold
+						or abs(quaternion.z) > 3 * storage.swingTreshold)// We don't want to treat blade Y axe rotations as a swing
 				)
 #endif
 #ifdef BLADE_X
@@ -574,11 +580,11 @@ void loop() {
 			/*
 			 *  THIS IS A SWING !
 			 */
-
+			repeat = false;
 			swingSuppress = SWING_SUPPRESS;
-			isPlaying = soundFont.getSwing();
-			playTime = millis();
-			mp3.playTrackFromDir(isPlaying->id, soundFont.getFolder());
+			mp3.playTrackFromDir(soundFont.getSwing(), soundFont.getFolder());
+			lastPlayed = mp3.getCurrentTrack();
+			changePlayMode = true;
 
 #ifdef LS_SWING_DEBUG
 			Serial.print(F("SWING\t s="));
@@ -597,11 +603,11 @@ void loop() {
 						and abs(quaternion.y) < 3 * storage.swingTreshold)// We specifically  treat blade Z axe rotations as a swing
 #endif
 #ifdef BLADE_Y
-				else if (abs(quaternion.w) > storage.swingTreshold and !swingSuppress
-						and (aaWorld.y > 0
-								and abs(quaternion.y) > (13 / 2) * storage.swingTreshold
-								and abs(quaternion.x) < 3 * storage.swingTreshold
-								and abs(quaternion.z) < 3 * storage.swingTreshold)// We specifically  treat blade Z axe rotations as a swing
+		else if (abs(quaternion.w) > storage.swingTreshold and !swingSuppress
+				and (aaWorld.y > 0
+						and abs(quaternion.y) > (13 / 2) * storage.swingTreshold
+						and abs(quaternion.x) < 3 * storage.swingTreshold
+						and abs(quaternion.z) < 3 * storage.swingTreshold)// We specifically  treat blade Z axe rotations as a swing
 #endif
 #ifdef BLADE_X
 				else if (abs(quaternion.w) > storage.swingTreshold and !swingSuppress
@@ -617,17 +623,17 @@ void loop() {
 			 *  The blade did rotate around its own axe
 			 */
 
-			if (soundFont.getWrist()->id) {
+			if (soundFont.getWrist()) {
 				// Some Soundfont may not have Wrist sounds
 				swingSuppress = SWING_SUPPRESS;
-
-				isPlaying = soundFont.getWrist();
-				playTime = millis();
-				mp3.playTrackFromDir(isPlaying->id, soundFont.getFolder());
-
+				repeat = false;
+				mp3.playTrackFromDir(soundFont.getWrist(),
+						soundFont.getFolder());
+				lastPlayed = mp3.getCurrentTrack();
+				changePlayMode = true;
 			} else {
 				swingSuppress = SWING_SUPPRESS * 10;
-				//delay(OPERATING_//delay * 3);
+				delay(OPERATING_DELAY * 3);
 			}
 #ifdef LS_SWING_DEBUG
 			Serial.print(F("WRIST\t s="));
@@ -711,13 +717,13 @@ void loop() {
 			/*
 			 * THIS IS A CLASH  ! => Violent brake !
 			 */
+			repeat = false;
 			swingSuppress = SWING_SUPPRESS;
-			isPlaying = soundFont.getClash();
-			playTime = millis();
-			mp3.playTrackFromDir(isPlaying->id, soundFont.getFolder());
+			mp3.playTrackFromDir(soundFont.getClash(), soundFont.getFolder());
+			lastPlayed = mp3.getCurrentTrack();
+			changePlayMode = true;
 			initClash = 0;
 			initBrake = 0;
-
 #ifdef LUXEON
 			lightChangeColor(storage.clashColor, true);
 			blaster = BLASTER_FLASH_TIME;
@@ -733,6 +739,7 @@ void loop() {
 			 * No movement recorded !
 			 * Time to depop some variables
 			 */
+
 			if ((initClash > 0 and (isBigAcceleration or isBraking))
 					or initClash > CLASH_PASSES) {
 				/*
@@ -741,7 +748,6 @@ void loop() {
 				 */
 				initClash = 0;
 				initBrake = 0;
-
 #ifdef LS_CLASH_DEBUG
 				Serial.print(F("NOT A CLASH (B)\t"));
 				printMagnitude(magnitude);
@@ -798,9 +804,10 @@ void loop() {
 			confParseValue(storage.volume, 0, 30, 1);
 
 			if (modification) {
+
 				modification = 0;
 				storage.volume = value;
-				mp3.setVolume(storage.volume);// Too Slow: we'll change volume on exit
+				//mp3.setVolume(storage.volume);// Too Slow: we'll change volume on exit
 #ifdef LS_INFO
 				Serial.println(storage.volume);
 #endif
@@ -814,14 +821,14 @@ void loop() {
 			if (modification) {
 
 				modification = 0;
-				storage.soundFont = (uint8_t)value;
-				soundFont.setFolder((uint8_t)value);
+				storage.soundFont = value;
+				soundFont.setFolder(value);
 				/*
 				 * KNOWN BUG
 				 * It doesn't play this bloody boot sound each time...
 				 * Don't know why !!!
 				 */
-				mp3.playTrackFromDir(soundFont.getBoot()->id, (uint8_t)value);
+				mp3.playTrackFromDir(soundFont.getBoot(), value);
 
 #ifdef LUXEON
 				storage.mainColor = storage.soundFontColorPreset[value][0];
@@ -947,13 +954,15 @@ void loop() {
 	else if (!actionMode && !configMode) {
 
 		if (ignition) { // we just leaved Action Mode
+			repeat = false;
 			lockupButton.setPressTicks(PRESS_CONFIG);
-			isPlaying = soundFont.getPowerOff();
-			playTime = millis();
-			mp3.playTrackFromDir(isPlaying->id, soundFont.getFolder());
+			mp3.playTrackFromDir(soundFont.getPowerOff(),
+					soundFont.getFolder());
 			changeMenu = false;
 			isBigAcceleration = false;
 			ignition = false;
+			relaunch = false;
+			lastPlayed = 0;
 			modification = 0;
 #ifdef LS_INFO
 			Serial.println(F("END ACTION"));
@@ -964,15 +973,19 @@ void loop() {
 #ifdef LEDSTRINGS
 			lightOff(ledPins);
 #endif
-			//mp3.setSingleLoop(repeat);
+			mp3.setSingleLoop(repeat);
 
 		}
 		if (browsing) { // we just leaved Config Mode
 			saveConfig();
+
 			mp3.playTrackFromDir(3, 1);
 			browsing = false;
 			enterMenu = false;
+			relaunch = false;
+			lastPlayed = 0;
 			modification = 0;
+
 			mp3.setVolume(storage.volume);
 			menu = 0;
 #ifdef LUXEON
@@ -999,14 +1012,13 @@ inline void mainClick() {
 	Serial.println(F("Main button click."));
 #endif
 	if (actionMode) {
-		if (soundFont.getForce()->id) {
+		if (soundFont.getForce()) {
 
 			// Some Soundfont may not have Force sounds
-
-			isPlaying = soundFont.getForce();
-			playTime = millis();
-			mp3.playTrackFromDir(isPlaying->id, soundFont.getFolder());
-
+			repeat = false;
+			mp3.playTrackFromDir(soundFont.getForce(), soundFont.getFolder());
+			lastPlayed = mp3.getCurrentTrack();
+			changePlayMode = true;
 			initClash = 0;
 		}
 	} else if (configMode) {
@@ -1118,12 +1130,12 @@ inline void lockupClick() {
 		lightChangeColor(storage.clashColor, true);
 		blaster = BLASTER_FLASH_TIME;
 #endif
-
-		if (soundFont.getBlaster()->id) {
+		if (soundFont.getBlaster()) {
 			// Some Soundfont may not have Blaster sounds
-			isPlaying = soundFont.getBlaster();
-			playTime = millis();
-			mp3.playTrackFromDir(isPlaying->id, soundFont.getFolder());
+			repeat = false;
+			mp3.playTrackFromDir(soundFont.getBlaster(), soundFont.getFolder());
+			lastPlayed = mp3.getCurrentTrack();
+			changePlayMode = true;
 			initClash = 0;
 		}
 
@@ -1168,17 +1180,17 @@ inline void lockupLongPressStart() {
 		lockupBlink = random(CLASH_BLINK_TIME);
 #endif
 		//		Serial.println(soundFont.getLockup());
-		if (soundFont.getLockup()->id) {
-			isPlaying = soundFont.getLockup();
-			mp3.playSingleLoop(isPlaying->id, soundFont.getFolder());
-
+		if (soundFont.getLockup()) {
+			mp3.playTrackFromDir(soundFont.getLockup(), soundFont.getFolder());
+			repeat = true;
+			changePlayMode = true;
 			initClash = 0;
-
+			lastPlayed = mp3.getCurrentTrack();
 		}
 	} else if (configMode) {
 		//Leaving Config Mode
 		changeMenu = false;
-
+		repeat = true;
 		configMode = false;
 
 	} else if (!configMode && !actionMode) {
@@ -1228,9 +1240,10 @@ inline void lockupLongPressStop() {
 		lightChangeColor(storage.mainColor, true);
 		lockupBlink = 0;
 #endif
-		isPlaying = new wav( { 0, 0 });
-		mp3.playSingleLoop(soundFont.getHum()->id, soundFont.getFolder());
-
+		mp3.playTrackFromDir(4, soundFont.getFolder());
+		repeat = true;
+		lastPlayed = mp3.getCurrentTrack();
+		changePlayMode = true;
 		clashSuppress = 0;
 		swingSuppress = 0;
 		initClash = 0;
@@ -1514,23 +1527,21 @@ inline void printMagnitude(long magnitude) {
 // ===           	  	 			CONFIG MODE FUNCTIONS	                		===
 // ====================================================================================
 
-inline void confParseValue(uint16_t variable, uint16_t lowerLimit,
-		uint16_t upperLimit, int8_t multiplier) {
+inline void confParseValue(uint16_t variable, uint16_t min, uint16_t max,
+		short int multiplier) {
 	value = variable + (multiplier * modification);
-	int min = lowerLimit;
-	int max = upperLimit;
-	if (value < min) {
-		value = upperLimit;
-	} else if (value >  max) {
-		value = lowerLimit;
-	} else if (value == min and play) {
+	if (value < (int) min) {
+		value = max;
+	} else if (value > (int) max) {
+		value = min;
+	} else if (value == (int) min and play) {
 		play = false;
 		mp3.playTrackFromDir(15, 1);
-		//	delay(100);
-	} else if (value == max and play) {
+		delay(100);
+	} else if (value == (int) max and play) {
 		play = false;
 		mp3.playTrackFromDir(14, 1);
-		//	delay(100);
+		delay(100);
 	}
 } //confParseValue
 
@@ -1635,36 +1646,31 @@ inline void saveConfig() {
 // ====================================================================================
 // ===             			DFPLAYER MANIPULATION FUNCTIONS	            			===
 // ====================================================================================
-
 inline void handle_interrupt() {
 	if (mp3.getSerial()->getActiveObject()) {
 		mp3.getSerial()->getActiveObject()->recv();
 	}
 
-	/*
-	 if (not repeat and not relaunch and not mp3.isQuerying()) {
-	 /*
-	 * Last soundfile is over and has stopped :
-	 * We relaunch the hum !
-	 //* //
-	 while (mp3.getSerial()->available()
-	 and mp3.getSerial()->available() % DFPLAYER_BUFFER_LENGTH == 0) {
-	 mp3.receive();
-	 if (mp3.getRecvBuffer()[3] == TF_END_PLAY
-	 and (int) lastPlayed
-	 == (256 * mp3.getRecvBuffer()[5]
-	 + mp3.getRecvBuffer()[6])) {
-	 // we don't want to receive the track number right now:
-	 // we want to leave this function as soon as possible !:
-	 mp3.playTrackFromDir(soundFont.getHum()->id, soundFont.getFolder());
-
-	 relaunch = true;
-	 }
-	 }
-	 }
-
-
-	 */
+	if (not repeat and not relaunch and not mp3.isQuerying()) {
+		/*
+		 * Last soundfile is over and has stopped :
+		 * We relaunch the hum !
+		 */
+		while (mp3.getSerial()->available()
+				and mp3.getSerial()->available() % DFPLAYER_BUFFER_LENGTH == 0) {
+			mp3.receive();
+			if (mp3.getRecvBuffer()[3] == TF_END_PLAY
+					and (int) lastPlayed
+							== (256 * mp3.getRecvBuffer()[5]
+									+ mp3.getRecvBuffer()[6])) {
+				// we don't want to receive the track number right now:
+				// we want to leave this function as soon as possible !:
+				mp3.playTrackFromDir(soundFont.getHum(), soundFont.getFolder());
+				repeat = true;
+				relaunch = true;
+			}
+		}
+	}
 
 }				//handle_interrupt
 
