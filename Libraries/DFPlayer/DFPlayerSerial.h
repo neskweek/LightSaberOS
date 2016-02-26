@@ -88,7 +88,7 @@ private:
 public:
   // public methods
   DFPlayerSerial(uint8_t receivePin, uint8_t transmitPin, bool inverse_logic = false);
-  ~DFPlayerSerial();
+  virtual ~DFPlayerSerial();
   void begin(long speed);
   bool listen();
   void end();

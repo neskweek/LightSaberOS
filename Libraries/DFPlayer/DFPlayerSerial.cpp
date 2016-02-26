@@ -274,13 +274,17 @@ void DFPlayerSerial::begin(long speed)
 
   // Precalculate the various delays, in number of 4-cycle delays
   uint16_t bit_delay = (F_CPU / speed) / 4;
-
+Serial.print("bit_delay=");
+Serial.print(bit_delay);
   // 12 (gcc 4.8.2) or 13 (gcc 4.3.2) cycles from start bit to first bit,
   // 15 (gcc 4.8.2) or 16 (gcc 4.3.2) cycles between bits,
   // 12 (gcc 4.8.2) or 14 (gcc 4.3.2) cycles from last bit to stop bit
   // These are all close enough to just use 15 cycles, since the inter-bit
   // timings are the most critical (deviations stack 8 times)
-  _tx_delay = subtract_cap(bit_delay, 15 / 4);
+  //_tx_delay = subtract_cap(bit_delay, 15 / 4);
+  _tx_delay = 417;
+  Serial.print(" _tx_delay=");
+  Serial.println(_tx_delay);
 
   // Only setup rx when we have a valid PCINT for this pin
   if (digitalPinToPCICR(_receivePin)) {
@@ -394,21 +398,21 @@ size_t DFPlayerSerial::write(uint8_t b)
   uint8_t reg_mask = _transmitBitMask;
   uint8_t inv_mask = ~_transmitBitMask;
   uint8_t oldSREG = SREG;
-  bool inv = _inverse_logic;
+  //bool inv = _inverse_logic;
   uint16_t delay = _tx_delay;
 
-  if (inv)
-    b = ~b;
+  //if (inv)
+  //  b = ~b;
 
   cli();  // turn off interrupts for a clean txmit
 
   // Write the start bit
-  if (inv)
-    *reg |= reg_mask;
-  else
+  //if (inv)
+  //  *reg |= reg_mask;
+  //else
     *reg &= inv_mask;
 
-  tunedDelay(delay);
+  tunedDelay(432);
 
   // Write each of the 8 bits
   for (uint8_t i = 8; i > 0; --i)
@@ -423,13 +427,13 @@ size_t DFPlayerSerial::write(uint8_t b)
   }
 
   // restore pin to natural state
-  if (inv)
-    *reg &= inv_mask;
-  else
+  //if (inv)
+  //  *reg &= inv_mask;
+  //else
     *reg |= reg_mask;
 
   SREG = oldSREG; // turn interrupts back on
-  tunedDelay(_tx_delay);
+  tunedDelay(48000);
   
   return 1;
 }
