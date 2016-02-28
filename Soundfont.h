@@ -1,7 +1,7 @@
 /*
  * Soundfont.h
  *
- * Created on: 	19 feb 2016
+ * Created on: 	27 feb 2016
  * author: 		Sebastien CAPOU (neskweek@gmail.com)
  * Source : 	https://github.com/neskweek/LightSaberOS
  * Description:	Soundfont Config file for LightSaberOS
@@ -108,7 +108,7 @@ public:
 			swing[0] = 6;
 			swing[1] = 17;
 			clash[0] = 18;
-			clash[1] = 30;
+			clash[1] = 29;
 			lockup[0] = 5;
 			lockup[1] = 5;
 			blaster[0] = 30;

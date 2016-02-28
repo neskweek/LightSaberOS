@@ -1,7 +1,7 @@
 /*
- * LightSaberOS V1.0RC6
+ * LightSaberOS V1.0RC7
  *
- * Created on: 	21 feb 2016
+ * Created on: 	28 feb 2016
  * author: 		Sebastien CAPOU (neskweek@gmail.com)
  * Source : 	https://github.com/neskweek/LightSaberOS
  * Description:	Operating System for Arduino based LightSaber
@@ -73,16 +73,18 @@
  * MY_OWN_COLORS
  * If you want to manually specify your own colors
  */
-#define MY_OWN_COLORS
-//#define FIXED_RANGE_COLORS
+//#define MY_OWN_COLORS
+#define FIXED_RANGE_COLORS
 
 #define LED_RED 			3
 #define LED_GREEN 			5
 #define LED_BLUE 			6
 
-#define BLASTER_FLASH_TIME  5
-#define CLASH_BLINK_TIME    15
+#define LOCKUP_BLINK_TIME   15
 #endif
+
+#define BLASTER_FLASH_TIME  3
+#define CLASH_FLASH_TIME  	1
 
 /* FOR RGB USERS
  * How do you want to handle your colors ?
@@ -133,7 +135,6 @@
  * WARNING ! A too high value may burn your leds. Please make your maths !
  */
 #define MAX_BRIGHTNESS		200
-
 
 /*
  * DEBUG PARAMETERS
@@ -188,15 +189,19 @@ static bool isBigBrake = false;
 uint8_t ledPins[] = { LEDSTRING1, LEDSTRING2, LEDSTRING3, LEDSTRING4,
 LEDSTRING5,
 LEDSTRING6 };
+uint8_t blasterPin;
 #endif
 #ifdef LUXEON
 uint8_t ledPins[] = {LED_RED, LED_GREEN, LED_BLUE};
-
-// byte color => {R,G,B,ColorNumber}
 uint8_t currentColor[4];
 const uint8_t rgbFactor = 100;
 #endif
-uint8_t brightness = 0;    // how bright the LED is
+volatile uint8_t brightness = 0;    // how bright the LED is
+volatile uint8_t blaster = 0;
+volatile uint8_t clash = 0;
+volatile bool lockup = false;
+volatile uint8_t blink = 0;
+volatile uint8_t randomBlink = 0;
 /***************************************************************************************************
  * Buttons variables
  */
@@ -208,8 +213,6 @@ static bool ignition = false;
 static bool browsing = false;
 short int modification = 0;
 #ifdef LUXEON
-short int blaster = -1;
-uint8_t lockupBlink = 0;
 #endif
 /***************************************************************************************************
  * DFPLAYER variables
@@ -223,6 +226,7 @@ uint8_t clashSuppress = 1;
 bool changePlayMode = false;
 volatile bool relaunch = false;
 volatile bool repeat = false;
+uint8_t tcnt1 = 0;
 /***************************************************************************************************
  * ConfigMode Variables
  */
@@ -242,6 +246,7 @@ struct StoreStruct {
 	uint16_t swingTreshold; // treshold acceleration for Swing
 	uint16_t clashAccelTreshold; // treshold acceleration for Swing
 	uint16_t clashBrakeTreshold; // treshold acceleration for Swing
+	uint8_t soundStringPreset[SOUNDFONT_QUANTITY + 2][3];
 } storage;
 #endif
 #ifdef LUXEON
@@ -291,6 +296,14 @@ void setup() {
 		storage.swingTreshold = SWING;
 		storage.clashAccelTreshold = CLASH_ACCEL;
 		storage.clashBrakeTreshold = CLASH_BRAKE;
+#ifdef LEDSTRINGS
+		storage.soundStringPreset[2][0] = 0; //PowerOn
+		storage.soundStringPreset[2][1] = 0; //PowerOff
+		storage.soundStringPreset[2][2] = 0; //Flickering
+		storage.soundStringPreset[3][0] = 1;
+		storage.soundStringPreset[3][1] = 1;
+		storage.soundStringPreset[3][2] = 0;
+#endif
 #ifdef LUXEON
 		storage.mainColor = 4;
 		storage.clashColor = 5;
@@ -388,6 +401,7 @@ void setup() {
 	/***** MP6050 MOTION DETECTOR INITIALISATION  *****/
 
 	/***** LED SEGMENT INITIALISATION  *****/
+
 	// initialize ledstrings segments
 	pinMode(ledPins[0], OUTPUT);
 	pinMode(ledPins[1], OUTPUT);
@@ -396,7 +410,32 @@ void setup() {
 	pinMode(ledPins[3], OUTPUT);
 	pinMode(ledPins[4], OUTPUT);
 	pinMode(ledPins[5], OUTPUT);
+
 #endif
+	/*
+	 TCCR1A = 0;     // set entire TCCR1A register to 0
+	 TCCR1B = 0;     // same for TCCR1B
+
+	 // set compare match register to desired timer count:
+	 OCR1A = 1;
+	 //OCR1B = 1000;
+	 // turn on CTC mode:
+	 // Set CS10 and CS12 bits for 1024 prescaler:
+	 TCCR1B |= (1 << CS10);
+	 TCCR1B |= (1 << CS12);
+	 //TCCR1A &= ~_BV(COM1A1);   // clear the bit that enables pwm on PB1
+	 //TCCR1A &= ~_BV(COM1B1);   // clear the bit that enables pwm on PB2
+	 */
+
+	OCR2A = 2;
+
+	TCCR2A |= (1 << WGM21);
+	// Set to CTC Mode
+
+	// set prescaler to 256 and starts PWM
+	TCCR2B |= (1 << CS21);
+	TCCR2B |= (1 << CS22);
+
 	//We shutoff all pins wearing leds,just to be sure
 	analogWrite(LEDSTRING1, 0);
 	analogWrite(LEDSTRING2, 0);
@@ -404,6 +443,7 @@ void setup() {
 	analogWrite(LEDSTRING4, 0);
 	analogWrite(LEDSTRING5, 0);
 	analogWrite(LEDSTRING6, 0);
+	randomSeed(analogRead(13));
 	/***** LED SEGMENT INITIALISATION  *****/
 
 	/***** BUTTONS INITIALISATION  *****/
@@ -459,7 +499,7 @@ void loop() {
 
 	/*//////////////////////////////////////////////////////////////////////////////////////////////////////////
 	 * ACTION MODE HANDLER
-	 *//////////////////////////////////////////////////////////////////////////////////////////////////////////
+	 */ /////////////////////////////////////////////////////////////////////////////////////////////////////////
 	if (actionMode) {
 		/*
 		 // In case we want to time the loop
@@ -467,20 +507,12 @@ void loop() {
 		 Serial.print(F(" time="));
 		 Serial.println(millis());
 		 */
-#ifdef LUXEON
-		if (blaster >= 0) {
-			blaster--;
-			if (blaster == 0) {
-				lightChangeColor(storage.mainColor, true);
-			}
-		}
-#endif
 
 		if (!ignition) {
 			/*
 			 *  This is the very first loop after Action Mode has been turned on
 			 */
-			repeat = false;
+
 			// Reduce lockup trigger time for faster lockup response
 			lockupButton.setPressTicks(PRESS_ACTION);
 #ifdef LS_INFO
@@ -488,10 +520,15 @@ void loop() {
 #endif
 			//Play powerons wavs
 			mp3.playTrackFromDir(soundFont.getPowerOn(), soundFont.getFolder());
-			lastPlayed = mp3.getCurrentTrack();
 
-			// Light up the ledstrings
 			lightOn(ledPins);
+			// enable timer compare interrupt:
+//			TIMSK1 |= (1 << OCIE1A);
+			TIMSK2 |= (1 << OCIE2A);
+
+			lastPlayed = mp3.getCurrentTrack();
+			repeat = false;
+			// Light up the ledstrings
 
 			// Get the initial position of the motion detector
 			motionEngine();
@@ -530,8 +567,7 @@ void loop() {
 		}
 
 		// Calculation of the amount of brightness to fade
-		brightness = MAX_BRIGHTNESS
-				- (abs(analogRead(SPK1) - analogRead(SPK2)));
+//		brightness = MAX_BRIGHTNESS	- (abs(analogRead(SPK1) - analogRead(SPK2)));
 #ifdef LS_HEAVY_DEBUG
 		Serial.print(F("Brightness: "));
 		Serial.print(brightness);
@@ -540,7 +576,7 @@ void loop() {
 		Serial.print(F("   SPK2: "));
 		Serial.println(analogRead(SPK2));
 #endif
-		lightFlicker(ledPins, brightness);
+//		lightFlicker();
 
 		// ************************* blade movement detection ************************************
 
@@ -557,7 +593,7 @@ void loop() {
 				and aaWorld.z < 0
 				and abs(quaternion.z) < (9 / 2) * storage.swingTreshold
 				and (abs(quaternion.x) > 3 * storage.swingTreshold
-						or abs(quaternion.y) > 3 * storage.swingTreshold)// We don't want to treat blade Z axe rotations as a swing
+						or abs(quaternion.y) > 3 * storage.swingTreshold) // We don't want to treat blade Z axe rotations as a swing
 		)
 #endif
 #ifdef BLADE_Y
@@ -565,7 +601,7 @@ void loop() {
 				and aaWorld.y < 0
 				and abs(quaternion.y) < (9 / 2) * storage.swingTreshold
 				and (abs(quaternion.x) > 3 * storage.swingTreshold
-						or abs(quaternion.z) > 3 * storage.swingTreshold)// We don't want to treat blade Y axe rotations as a swing
+						or abs(quaternion.z) > 3 * storage.swingTreshold) // We don't want to treat blade Y axe rotations as a swing
 				)
 #endif
 #ifdef BLADE_X
@@ -573,17 +609,18 @@ void loop() {
 						and aaWorld.x < 0
 						and abs(quaternion.x) < (9 / 2) * storage.swingTreshold
 						and (abs(quaternion.z) > 3 * storage.swingTreshold
-								or abs(quaternion.y) > 3 * storage.swingTreshold)// We don't want to treat blade X axe rotations as a swing
+								or abs(quaternion.y) > 3 * storage.swingTreshold) // We don't want to treat blade X axe rotations as a swing
 				)
 #endif
 				{
 			/*
 			 *  THIS IS A SWING !
 			 */
-			repeat = false;
+
 			swingSuppress = SWING_SUPPRESS;
 			mp3.playTrackFromDir(soundFont.getSwing(), soundFont.getFolder());
 			lastPlayed = mp3.getCurrentTrack();
+			repeat = false;
 			changePlayMode = true;
 
 #ifdef LS_SWING_DEBUG
@@ -600,21 +637,21 @@ void loop() {
 				and (aaWorld.z > 0
 						and abs(quaternion.z) > (13 / 2) * storage.swingTreshold
 						and abs(quaternion.x) < 3 * storage.swingTreshold
-						and abs(quaternion.y) < 3 * storage.swingTreshold)// We specifically  treat blade Z axe rotations as a swing
+						and abs(quaternion.y) < 3 * storage.swingTreshold) // We specifically  treat blade Z axe rotations as a swing
 #endif
 #ifdef BLADE_Y
 		else if (abs(quaternion.w) > storage.swingTreshold and !swingSuppress
 				and (aaWorld.y > 0
 						and abs(quaternion.y) > (13 / 2) * storage.swingTreshold
 						and abs(quaternion.x) < 3 * storage.swingTreshold
-						and abs(quaternion.z) < 3 * storage.swingTreshold)// We specifically  treat blade Z axe rotations as a swing
+						and abs(quaternion.z) < 3 * storage.swingTreshold) // We specifically  treat blade Z axe rotations as a swing
 #endif
 #ifdef BLADE_X
 				else if (abs(quaternion.w) > storage.swingTreshold and !swingSuppress
 						and (aaWorld.x > 0
 								and abs(quaternion.x) > (13 / 2) * storage.swingTreshold
 								and abs(quaternion.z) < 3 * storage.swingTreshold
-								and abs(quaternion.y) < 3 * storage.swingTreshold)// We specifically  treat blade Z axe rotations as a swing
+								and abs(quaternion.y) < 3 * storage.swingTreshold) // We specifically  treat blade Z axe rotations as a swing
 #endif
 
 				) {
@@ -626,10 +663,11 @@ void loop() {
 			if (soundFont.getWrist()) {
 				// Some Soundfont may not have Wrist sounds
 				swingSuppress = SWING_SUPPRESS;
-				repeat = false;
+
 				mp3.playTrackFromDir(soundFont.getWrist(),
 						soundFont.getFolder());
 				lastPlayed = mp3.getCurrentTrack();
+				repeat = false;
 				changePlayMode = true;
 			} else {
 				swingSuppress = SWING_SUPPRESS * 10;
@@ -717,17 +755,18 @@ void loop() {
 			/*
 			 * THIS IS A CLASH  ! => Violent brake !
 			 */
-			repeat = false;
+#ifdef LUXEON
+			lightChangeColor(storage.clashColor, true);
+#endif
+			clash = CLASH_FLASH_TIME;
 			swingSuppress = SWING_SUPPRESS;
 			mp3.playTrackFromDir(soundFont.getClash(), soundFont.getFolder());
 			lastPlayed = mp3.getCurrentTrack();
+			repeat = false;
 			changePlayMode = true;
 			initClash = 0;
 			initBrake = 0;
-#ifdef LUXEON
-			lightChangeColor(storage.clashColor, true);
-			blaster = BLASTER_FLASH_TIME;
-#endif
+
 #ifdef LS_CLASH_DEBUG
 			Serial.print(F("CLASH\t"));
 			Serial.print(lastPlayed);
@@ -768,7 +807,7 @@ void loop() {
 		}
 
 		// ************************* blade movement detection ends***********************************
-	}////END ACTION MODE HANDLER///////////////////////////////////////////////////////////////////////////////////////
+	} ////END ACTION MODE HANDLER///////////////////////////////////////////////////////////////////////////////////////
 	/*//////////////////////////////////////////////////////////////////////////////////////////////////////////
 	 * CONFIG MODE HANDLER
 	 *//////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -807,7 +846,7 @@ void loop() {
 
 				modification = 0;
 				storage.volume = value;
-				//mp3.setVolume(storage.volume);// Too Slow: we'll change volume on exit
+				mp3.setVolume(storage.volume); // Too Slow: we'll change volume on exit
 #ifdef LS_INFO
 				Serial.println(storage.volume);
 #endif
@@ -839,6 +878,54 @@ void loop() {
 #endif
 			}
 			break;
+#ifdef LEDSTRINGS
+		case 2:
+			confMenuStart(12);
+
+			confParseValue(storage.soundStringPreset[storage.soundFont][0], 0,
+					1, 1);
+
+			if (modification) {
+
+				modification = 0;
+				storage.soundStringPreset[storage.soundFont][0] = value;
+#ifdef LS_INFO
+				Serial.print(storage.soundStringPreset[storage.soundFont][0]);
+#endif
+			}
+			break;
+		case 3:
+			confMenuStart(13);
+
+			confParseValue(storage.soundStringPreset[storage.soundFont][1], 0,
+					1, 1);
+
+			if (modification) {
+
+				modification = 0;
+				storage.soundStringPreset[storage.soundFont][1] = value;
+#ifdef LS_INFO
+				Serial.print(storage.soundStringPreset[storage.soundFont][1]);
+#endif
+			}
+			break;
+		case 4:
+			confMenuStart(14);
+
+			confParseValue(storage.soundStringPreset[storage.soundFont][2], 0,
+					0, 1);
+
+			if (modification) {
+
+				modification = 0;
+				storage.soundStringPreset[storage.soundFont][2] = value;
+#ifdef LS_INFO
+				Serial.print(storage.soundStringPreset[storage.soundFont][2]);
+#endif
+			}
+			break;
+#endif
+
 #ifdef LUXEON
 			case 2:
 			confMenuStart(9);
@@ -851,7 +938,13 @@ void loop() {
 				storage.mainColor = value;
 				lightChangeColor(storage.mainColor, true);
 #ifdef LS_INFO
-				Serial.println(storage.mainColor);
+				Serial.print(storage.mainColor);
+				Serial.print("\tR:");
+				Serial.print(currentColor[0]);
+				Serial.print("\tG:");
+				Serial.print(currentColor[1]);
+				Serial.print(" \tB:");
+				Serial.println(currentColor[2]);
 #endif
 			}
 			break;
@@ -866,7 +959,13 @@ void loop() {
 				storage.clashColor = value;
 				lightChangeColor(storage.clashColor, true);
 #ifdef LS_INFO
-				Serial.println(storage.clashColor);
+				Serial.print(storage.clashColor);
+				Serial.print("\tR:");
+				Serial.print(currentColor[0]);
+				Serial.print("\tG:");
+				Serial.print(currentColor[1]);
+				Serial.print(" \tB:");
+				Serial.println(currentColor[2]);
 #endif
 			}
 			break;
@@ -903,7 +1002,7 @@ void loop() {
 		case 5:
 			confMenuStart(6);
 
-			confParseValue(storage.swingTreshold, 1000, 3000, -100);
+			confParseValue(storage.swingTreshold, 500, 3000, -100);
 
 			if (modification) {
 
@@ -954,21 +1053,22 @@ void loop() {
 	else if (!actionMode && !configMode) {
 
 		if (ignition) { // we just leaved Action Mode
-			repeat = false;
 			lockupButton.setPressTicks(PRESS_CONFIG);
 			mp3.playTrackFromDir(soundFont.getPowerOff(),
 					soundFont.getFolder());
+			repeat = false;
 			changeMenu = false;
 			isBigAcceleration = false;
 			ignition = false;
 			relaunch = false;
 			lastPlayed = 0;
 			modification = 0;
+			TIMSK2 = 0;
 #ifdef LS_INFO
 			Serial.println(F("END ACTION"));
 #endif
 #ifdef LUXEON
-			lightOff(ledPins, false);
+			lightOff(ledPins, true);
 #endif
 #ifdef LEDSTRINGS
 			lightOff(ledPins);
@@ -985,16 +1085,12 @@ void loop() {
 			relaunch = false;
 			lastPlayed = 0;
 			modification = 0;
-
-			mp3.setVolume(storage.volume);
+			//mp3.setVolume(storage.volume);
 			menu = 0;
 #ifdef LUXEON
-			lightOff(ledPins, false);
 			lightChangeColor(storage.mainColor, false);
 #endif
-#ifdef LEDSTRINGS
-			lightOff(ledPins);
-#endif
+
 #ifdef LS_INFO
 			Serial.println(F("END CONF"));
 #endif
@@ -1015,9 +1111,9 @@ inline void mainClick() {
 		if (soundFont.getForce()) {
 
 			// Some Soundfont may not have Force sounds
-			repeat = false;
 			mp3.playTrackFromDir(soundFont.getForce(), soundFont.getFolder());
 			lastPlayed = mp3.getCurrentTrack();
+			repeat = false;
 			changePlayMode = true;
 			initClash = 0;
 		}
@@ -1071,14 +1167,6 @@ inline void mainLongPressStart() {
 		changeMenu = true;
 		enterMenu = true;
 		menu++;
-#ifdef LEDSTRINGS
-		lightOff(ledPins);
-		if (menu == 2) {
-			menu = 5;
-		}
-		analogWrite(ledPins[menu], 160);
-#endif
-
 	} else if (!configMode && !actionMode) {
 		/*
 		 * ACTION TO DEFINE
@@ -1123,20 +1211,24 @@ inline void lockupClick() {
 #endif
 	if (actionMode) {
 		// Blaster
+
+		if (soundFont.getBlaster()) {
 #ifdef LEDSTRINGS
-		analogWrite(ledPins[random(6)], LOW); //momentary shut off one led segment
+			blasterPin = random(6); //momentary shut off one led segment
+			blink = 0;
 #endif
 #ifdef LUXEON
-		lightChangeColor(storage.clashColor, true);
-		blaster = BLASTER_FLASH_TIME;
+			lightChangeColor(storage.clashColor, true);
+
 #endif
-		if (soundFont.getBlaster()) {
+			blaster = BLASTER_FLASH_TIME;
 			// Some Soundfont may not have Blaster sounds
-			repeat = false;
 			mp3.playTrackFromDir(soundFont.getBlaster(), soundFont.getFolder());
 			lastPlayed = mp3.getCurrentTrack();
+			repeat = false;
 			changePlayMode = true;
 			initClash = 0;
+
 		}
 
 	} else if (configMode) {
@@ -1168,17 +1260,13 @@ inline void lockupDoubleClick() {
 		 */
 	}
 } // lockupDoubleClick
-
 inline void lockupLongPressStart() {
 #ifdef LS_BUTTON_DEBUG
 	Serial.println(F("Lockup button longPress start"));
 #endif
 	if (actionMode) {
 		//Lockup Start
-#ifdef LUXEON
-		lightChangeColor(storage.clashColor, true);
-		lockupBlink = random(CLASH_BLINK_TIME);
-#endif
+		lockup = true;
 		//		Serial.println(soundFont.getLockup());
 		if (soundFont.getLockup()) {
 			mp3.playTrackFromDir(soundFont.getLockup(), soundFont.getFolder());
@@ -1199,26 +1287,14 @@ inline void lockupLongPressStart() {
 
 	}
 } // lockupLongPressStart
-
 inline void lockupLongPress() {
 #ifdef LS_BUTTON_DEBUG
 	Serial.println(F("Lockup button longPress..."));
 #endif
 	if (actionMode) {
-#ifdef LUXEON
-		//
-		if (lockupBlink > 0) {
-			lockupBlink--;
-		} else {
-			if (currentColor[3] == storage.clashColor) {
-				lockupBlink = random(CLASH_BLINK_TIME);
-				lightChangeColor(storage.mainColor, false);
-			} else if (currentColor[3] == storage.mainColor) {
-				lockupBlink = random(CLASH_BLINK_TIME);
-				lightChangeColor(storage.clashColor, false);
-			}
-		}
-#endif
+		/*
+		 * ACTION TO DEFINE
+		 */
 	} else if (configMode) {
 		/*
 		 * ACTION TO DEFINE
@@ -1229,16 +1305,16 @@ inline void lockupLongPress() {
 		 */
 	}
 } // lockupLongPress
-
 inline void lockupLongPressStop() {
 #ifdef LS_BUTTON_DEBUG
 	Serial.println(F("Lockup button longPress stop"));
 #endif
 	if (actionMode) {
 		//Lockup Stop
+		lockup = false;
+		blink = 0;
 #ifdef LUXEON
 		lightChangeColor(storage.mainColor, true);
-		lockupBlink = 0;
 #endif
 		mp3.playTrackFromDir(4, soundFont.getFolder());
 		repeat = true;
@@ -1258,40 +1334,150 @@ inline void lockupLongPressStop() {
 #ifdef LEDSTRINGS
 inline void lightOn(uint8_t ledPins[]) {
 
-// Light up the ledstrings
-	for (uint8_t i = 0; i <= 5; i++) {
-		digitalWrite(ledPins[i], HIGH);
-		if (i < 5) {
-			delay(83);
+	switch (storage.soundStringPreset[storage.soundFont][0]) {
+	case 0:
+		// Light up the ledstrings Movie-like
+		for (uint8_t i = 0; i <= 5; i++) {
+			digitalWrite(ledPins[i], HIGH);
+			if (i < 5) {
+				delay(83);
+			}
 		}
-	}
+		break;
+	case 1:
+		// Light up the ledstrings invert
+		for (uint8_t i = 0; i < 10; i++) {
+			if (i <= 5) {
+				digitalWrite(ledPins[i], HIGH);
+			}
+			if (i > 0 and i < 5) {
+				digitalWrite(ledPins[i - 1], LOW);
+			}
+			if (i > 5 and i < 10) {
+				digitalWrite(ledPins[10 - i], HIGH);
+			}
+			if (i > 5 and i < 9) {
+				digitalWrite(ledPins[i - 5], HIGH);
+			}
 
+			if (i < 10) {
+				delay(41);
+			}
+		}
+		break;
+	}
 }				//lightOn
 
 inline void lightOff(uint8_t ledPins[]) {
+	switch (storage.soundStringPreset[storage.soundFont][1]) {
+	case 0:
 // Light off the ledstrings
-	for (uint8_t i = 6; i > 0; i--) {
-		digitalWrite(ledPins[i - 1], LOW);
-		if (i - 1 > 0) {
-			delay(83);
+		for (uint8_t i = 6; i > 0; i--) {
+			digitalWrite(ledPins[i - 1], LOW);
+			if (i - 1 > 0) {
+				delay(83);
+			}
 		}
+		break;
+	case 1:
+		// Light off the ledstrings invert
+		for (uint8_t i = 0; i < 12; i++) {
+			if (i <= 5) {
+				digitalWrite(ledPins[i], LOW);
+
+				if (i > 0 and i <= 5) {
+					digitalWrite(ledPins[i - 1], HIGH);
+				}
+				if (i > 1 and i <= 5) {
+					digitalWrite(ledPins[i - 2], LOW);
+				}
+				if (i > 2 and i <= 5) {
+					digitalWrite(ledPins[i - 3], HIGH);
+				}
+				if (i > 3 and i <= 5) {
+					digitalWrite(ledPins[i - 4], LOW);
+				}
+				if (i == 5) {
+					digitalWrite(ledPins[i - 5], HIGH);
+				}
+			}
+			if (i > 5) {
+				if (i == 6) {
+					digitalWrite(ledPins[10 - (i - 1)], LOW);
+					digitalWrite(ledPins[10 - i], HIGH);
+					digitalWrite(ledPins[10 - (i + 1)], LOW);
+					digitalWrite(ledPins[10 - (i + 2)], HIGH);
+					digitalWrite(ledPins[10 - (i + 3)], LOW);
+					digitalWrite(ledPins[10 - (i + 4)], HIGH);
+				}
+				if (i == 7) {
+					digitalWrite(ledPins[10 - (i - 1)], LOW);
+					digitalWrite(ledPins[10 - i], HIGH);
+					digitalWrite(ledPins[10 - (i + 1)], LOW);
+					digitalWrite(ledPins[10 - (i + 2)], HIGH);
+					digitalWrite(ledPins[10 - (i + 3)], LOW);
+
+				}
+				if (i == 8) {
+					digitalWrite(ledPins[10 - (i - 1)], LOW);
+					digitalWrite(ledPins[10 - i], HIGH);
+					digitalWrite(ledPins[10 - (i + 1)], LOW);
+					digitalWrite(ledPins[10 - (i + 2)], HIGH);
+
+				}
+				if (i == 9) {
+					digitalWrite(ledPins[10 - (i - 1)], LOW);
+					digitalWrite(ledPins[10 - i], HIGH);
+					digitalWrite(ledPins[10 - (i + 1)], LOW);
+
+				}
+				if (i == 10) {
+					digitalWrite(ledPins[10 - (i - 1)], LOW);
+					digitalWrite(ledPins[10 - i], HIGH);
+				}
+				if (i == 11) {
+					digitalWrite(ledPins[10 - (i - 1)], LOW);
+
+				}
+			}
+
+			if (i > 0) {
+				delay(83);
+			}
+		}
+		break;
 	}
 }				//lightOff
 
-inline void lightFlicker(uint8_t ledPins[], uint8_t value) {
+void lightFlicker(uint8_t value = 0) {
+	if (not value) {
+		// Calculation of the amount of brightness to fade
+		brightness = MAX_BRIGHTNESS
+				- (abs(analogRead(SPK1) - analogRead(SPK2)));
+	} else {
+		brightness = value;
+	}
+#ifdef LS_HEAVY_DEBUG
+	Serial.print(F("Brightness: "));
+	Serial.print(brightness);
+	Serial.print(F("   SPK1: "));
+	Serial.print(analogRead(SPK1));
+	Serial.print(F("   SPK2: "));
+	Serial.println(analogRead(SPK2));
+#endif
+
 // lightFlicker the ledstrings
 	for (uint8_t i = 0; i <= 5; i++) {
-		analogWrite(ledPins[i], value);
+		analogWrite(ledPins[i], brightness);
 	}
 } //lightFlicker
 #endif
-
 #ifdef LUXEON
 
 inline void lightOn(uint8_t ledPins[]) {
 
-	// Fade in to Maximum brightness
-	for (unsigned int fadeIn = 255; fadeIn > 0; fadeIn--) {
+// Fade in to Maximum brightness
+	for (uint8_t fadeIn = 128; fadeIn > 0; fadeIn--) {
 		for (uint8_t i = 0; i <= 2; i++) {
 			analogWrite(ledPins[i],
 					(MAX_BRIGHTNESS / fadeIn) * currentColor[i] / 100);
@@ -1301,26 +1487,40 @@ inline void lightOn(uint8_t ledPins[]) {
 } //lightOn
 
 inline void lightOff(uint8_t ledPins[], bool fade) {
-	// Fade out
+// Fade out
 	if (fade) {
-		for (unsigned int fadeOut = 255; fadeOut > 0; fadeOut--) {
+		for (uint8_t fadeOut = 1; fadeOut < 128; fadeOut++) {
 			for (uint8_t i = 0; i <= 2; i++) {
 				analogWrite(ledPins[i],
-						(MAX_BRIGHTNESS - (MAX_BRIGHTNESS / fadeOut))
-						* currentColor[i] / 100);
+						(MAX_BRIGHTNESS / fadeOut) * currentColor[i] / 100);
 			}
 			delay(2);
 		}
 	}
-	// shut Off
+// shut Off
 	for (uint8_t i = 0; i <= 2; i++) {
 		analogWrite(ledPins[i], LOW);
 	}
 } //lightOff
 
-inline void lightFlicker(uint8_t ledPins[], uint8_t value) {
+inline void lightFlicker(uint8_t value = 0) {
+	if (not value) {
+		// Calculation of the amount of brightness to fade
+		brightness = MAX_BRIGHTNESS
+		- (abs(analogRead(SPK1) - analogRead(SPK2)));
+	} else {
+		brightness = value;
+	}
+#ifdef LS_HEAVY_DEBUG
+	Serial.print(F("Brightness: "));
+	Serial.print(brightness);
+	Serial.print(F("   SPK1: "));
+	Serial.print(analogRead(SPK1));
+	Serial.print(F("   SPK2: "));
+	Serial.println(analogRead(SPK2));
+#endif
 	for (uint8_t i = 0; i <= 2; i++) {
-		analogWrite(ledPins[i], value * currentColor[i] / rgbFactor);
+		analogWrite(ledPins[i], brightness * currentColor[i] / rgbFactor);
 	}
 } //lightFlicker
 
@@ -1340,25 +1540,25 @@ inline void getColor(uint8_t id) {
 	currentColor[3] = id;
 	switch (id) {
 		case 0:
-		//Red
+//Red
 		currentColor[0] = 100;
 		currentColor[1] = 0;
 		currentColor[2] = 0;
 		break;
 		case 1:
-		//Green
+//Green
 		currentColor[0] = 0;
 		currentColor[1] = 100;
 		currentColor[2] = 0;
 		break;
 		case 2:
-		//Blue
+//Blue
 		currentColor[0] = 0;
 		currentColor[1] = 0;
 		currentColor[2] = 100;
 		break;
 		default:
-		// White?
+// White?
 		currentColor[0] = 100;
 		currentColor[1] = 100;
 		currentColor[2] = 100;
@@ -1373,32 +1573,32 @@ inline void getColor(uint8_t id) {
 	uint8_t step = 100 / tint;
 	currentColor[3] = id;
 	if ((id >= 0) and (id < (1 * tint))) {
-		//From Red to Yellow
+//From Red to Yellow
 		currentColor[0] = 100;
 		currentColor[1] = step * (id % tint);
 		currentColor[2] = 0;
 	} else if ((id >= (1 * tint)) and (id < (2 * tint))) {
-		// From Yellow to Green
+// From Yellow to Green
 		currentColor[0] = 100 - (step * (id % tint));
 		currentColor[1] = 100;
 		currentColor[2] = 0;
 	} else if ((id >= (2 * tint)) and (id < (3 * tint))) {
-		// From Green to Aqua
+// From Green to Aqua
 		currentColor[0] = 0;
 		currentColor[1] = 100;
 		currentColor[2] = step * (id % tint);
 	} else if ((id >= (3 * tint)) and (id < (4 * tint))) {
-		// From Aqua to Blue
+// From Aqua to Blue
 		currentColor[0] = 0;
 		currentColor[1] = 100 - (step * (id % tint));
 		currentColor[2] = 100;
 	} else if ((id >= (4 * tint)) and (id < (5 * tint))) {
-		// From Blue to Purple/Pink
+// From Blue to Purple/Pink
 		currentColor[0] = step * (id % tint);
 		currentColor[1] = 0;
 		currentColor[2] = 100;
 	} else if (id >= (5 * tint)) {
-		// From Purple/Pink to Red
+// From Purple/Pink to Red
 		currentColor[0] = 100;
 		currentColor[1] = 0;
 		currentColor[2] = 100 - (step * (id % tint));
@@ -1407,6 +1607,97 @@ inline void getColor(uint8_t id) {
 } //getColor
 #endif
 
+ISR(TIMER2_COMPA_vect,ISR_NOBLOCK) {
+
+	lightFlicker();
+
+	if (lockup) {
+		lightFlicker(random(MAX_BRIGHTNESS));
+		if (blink == 0) {
+			randomBlink = random(7, 15);
+			blink++;
+#ifdef LUXEON
+			lightChangeColor(storage.clashColor, true);
+#endif
+		} else if (blink < randomBlink) {
+			blink++;
+		} else if (blink == randomBlink and randomBlink >= 14) {
+			blink = 0;
+#ifdef LUXEON
+			lightChangeColor(storage.clashColor, true);
+#endif
+		} else if (blink == randomBlink and randomBlink < 14) {
+			randomBlink += random(7, 15);
+			;
+#ifdef LUXEON
+			lightChangeColor(storage.mainColor, true);
+#endif
+		}
+	}
+
+	if (clash > 0) {
+		lightFlicker(MAX_BRIGHTNESS - (blink / 2));
+		if (blink < 14) {
+#ifdef LUXEON
+			lightChangeColor(storage.clashColor, true);
+#endif
+			blink++;
+		} else if (blink == 14) {
+#ifdef LUXEON
+			lightChangeColor(storage.mainColor, true);
+#endif
+			blink = 0;
+			clash = 0;
+		}
+	}
+	if (blaster > 0) {
+		if (blink < 14) {
+#ifdef LEDSTRINGS
+			analogWrite(ledPins[blasterPin], LOW); //momentary shut off one led segment
+
+#endif
+#ifdef LUXEON
+			lightChangeColor(storage.clashColor, true);
+#endif
+			blink++;
+		}
+#ifdef LEDSTRINGS //momentary shut off one led segment
+		else if (blink >= 14 and blink < 19) {
+
+			lightFlicker();
+
+			if (blasterPin > 0)
+				analogWrite(ledPins[blasterPin - 1], LOW);
+
+			if (blasterPin < 5)
+				analogWrite(ledPins[blasterPin + 1], LOW);
+
+			blink++;
+
+		} else if (blink >= 19 and blink < 24) {
+#endif
+#ifdef LUXEON
+			else if (blink >= 14 and blink < 24) {
+#endif
+#ifdef LEDSTRINGS //momentary shut off one led segment
+			lightFlicker();
+#endif
+#ifdef LUXEON
+			lightChangeColor(storage.mainColor, true);
+#endif
+			blink++;
+		} else if (blink == 24) {
+#ifdef LUXEON
+			lightChangeColor(storage.mainColor, true);
+#endif
+#ifdef LEDSTRINGS //momentary shut off one led segment
+			lightFlicker();
+#endif
+			blink = 0;
+			blaster--;
+		}
+	}
+}
 // ====================================================================================
 // ===           	  			MOTION DETECTION FUNCTIONS	            			===
 // ====================================================================================
@@ -1416,11 +1707,11 @@ inline void motionEngine() {
 	VectorInt16 aaReal; // [x, y, z]            gravity-free accel sensor measurements
 
 	VectorFloat gravity;    // [x, y, z]            gravity vector
-	// if programming failed, don't try to do anything
+// if programming failed, don't try to do anything
 	if (!dmpReady)
 		return;
 
-	// wait for MPU interrupt or extra packet(s) available
+// wait for MPU interrupt or extra packet(s) available
 	while (!mpuInterrupt && mpuFifoCount < packetSize) {
 		/* other program behavior stuff here
 		 *
@@ -1430,51 +1721,51 @@ inline void motionEngine() {
 		 */
 	}
 
-	// reset interrupt flag and get INT_STATUS byte
+// reset interrupt flag and get INT_STATUS byte
 	mpuInterrupt = false;
 	mpuIntStatus = mpu.getIntStatus();
 
-	// get current FIFO count
+// get current FIFO count
 	mpuFifoCount = mpu.getFIFOCount();
 
-	// check for overflow (this should never happen unless our code is too inefficient)
+// check for overflow (this should never happen unless our code is too inefficient)
 	if ((mpuIntStatus & 0x10) || mpuFifoCount == 1024) {
-		// reset so we can continue cleanly
+// reset so we can continue cleanly
 		mpu.resetFIFO();
 
-		// otherwise, check for DMP data ready interrupt (this should happen frequently)
+// otherwise, check for DMP data ready interrupt (this should happen frequently)
 	} else if (mpuIntStatus & 0x02) {
-		// wait for correct available data length, should be a VERY short wait
+// wait for correct available data length, should be a VERY short wait
 		while (mpuFifoCount < packetSize)
 			mpuFifoCount = mpu.getFIFOCount();
 
-		// read a packet from FIFO
+// read a packet from FIFO
 		mpu.getFIFOBytes(fifoBuffer, packetSize);
 
-		// track FIFO count here in case there is > 1 packet available
-		// (this lets us immediately read more without waiting for an interrupt)
+// track FIFO count here in case there is > 1 packet available
+// (this lets us immediately read more without waiting for an interrupt)
 		mpuFifoCount -= packetSize;
 
-		//Save last values
+//Save last values
 		quaternion_last = quaternion_reading;
 		aaWorld_last = aaWorld_reading;
 
-		//retrieve values
+//retrieve values
 		mpu.dmpGetQuaternion(&quaternion_reading, fifoBuffer);
 		mpu.dmpGetGravity(&gravity, &quaternion_reading);
 		mpu.dmpGetAccel(&aa, fifoBuffer);
 		mpu.dmpGetLinearAccel(&aaReal, &aa, &gravity);
 		mpu.dmpGetLinearAccelInWorld(&aaWorld, &aaReal, &quaternion_reading);
 #ifdef LS_MOTION_HEAVY_DEBUG
-		// display quaternion values in easy matrix form: w x y z
+// display quaternion values in easy matrix form: w x y z
 		printQuaternion(quaternion,multiplier);
 
-		// display initial world-frame acceleration, adjusted to remove gravity
-		// and rotated based on known orientation from quaternion
+// display initial world-frame acceleration, adjusted to remove gravity
+// and rotated based on known orientation from quaternion
 		printAcceleration(aaWorld);
 #endif
 
-		//We multiply by multiplier to obtain a more precise detection
+//We multiply by multiplier to obtain a more precise detection
 		quaternion.w = quaternion_reading.w * multiplier
 				- quaternion_last.w * multiplier;
 		quaternion.x = quaternion_reading.x * multiplier
@@ -1484,7 +1775,7 @@ inline void motionEngine() {
 		quaternion.z = quaternion_reading.z * multiplier
 				- quaternion_last.z * multiplier;
 
-		//Magnitude to calculate force of impact.
+//Magnitude to calculate force of impact.
 		magnitude = 1000 * sqrt(
 		sq(
 				aaWorld.x
@@ -1552,53 +1843,32 @@ inline void confMenuStart(uint8_t sound) {
 #ifdef LS_INFO
 		switch (sound) {
 		case 4:
-#ifdef LEDSTRINGS
-			lightOff(ledPins);
-			analogWrite(ledPins[0], MAX_BRIGHTNESS);
-#endif
 			Serial.print(F("VOLUME\nCur:"));
 			Serial.println(storage.volume);
 			value = storage.volume;
 			break;
 		case 5:
-#ifdef LEDSTRINGS
-			lightOff(ledPins);
-			analogWrite(ledPins[1], MAX_BRIGHTNESS);
-#endif
 			Serial.print(F("SOUNDFONT\nCur:"));
 			Serial.println(soundFont.getFolder());
 			value = soundFont.getFolder();
 			break;
 		case 6:
-#ifdef LEDSTRINGS
-			lightOff(ledPins);
-			analogWrite(ledPins[2], MAX_BRIGHTNESS);
-#endif
 			Serial.print(F("SWING\nCur:"));
 			Serial.println(storage.swingTreshold);
 			value = storage.swingTreshold;
 			break;
 		case 7:
-#ifdef LEDSTRINGS
-			lightOff(ledPins);
-			analogWrite(ledPins[3], MAX_BRIGHTNESS);
-#endif
 			Serial.print(F("CLASH1\nCur:"));
 			Serial.println(storage.clashAccelTreshold);
 			value = storage.clashAccelTreshold;
 			break;
 		case 8:
-#ifdef LEDSTRINGS
-			lightOff(ledPins);
-			analogWrite(ledPins[4], MAX_BRIGHTNESS);
-#endif
 			Serial.print(F("CLASH2\nCur:"));
 			Serial.println(storage.clashBrakeTreshold);
 			value = storage.clashBrakeTreshold;
 			break;
 #ifdef LUXEON
 			case 9:
-			lightOff(ledPins, false);
 			Serial.print(F("COLOR1\nCur:"));
 			Serial.println(storage.mainColor);
 			lightChangeColor(storage.mainColor, true);
@@ -1614,6 +1884,26 @@ inline void confMenuStart(uint8_t sound) {
 			case 11:
 			lightOff(ledPins, false);
 			Serial.println(F("SAVE TO SOUNDFONT?\nMain :Yes/Lockup: No"));
+			break;
+#endif
+#ifdef LEDSTRINGS
+		case 12:
+			lightOff(ledPins);
+			Serial.print(F("POWERON EFFECT\nCur:"));
+			Serial.println(storage.soundStringPreset[storage.soundFont][0]);
+			value = storage.soundStringPreset[storage.soundFont][0];
+			break;
+		case 13:
+			lightOff(ledPins);
+			Serial.print(F("POWEROFF EFFECT\nCur:"));
+			Serial.println(storage.soundStringPreset[storage.soundFont][1]);
+			value = storage.soundStringPreset[storage.soundFont][1];
+			break;
+		case 14:
+			lightOff(ledPins);
+			Serial.print(F("FLICKER EFFECT\nCur:"));
+			Serial.println(storage.soundStringPreset[storage.soundFont][2]);
+			value = storage.soundStringPreset[storage.soundFont][2];
 			break;
 #endif
 		}
@@ -1647,11 +1937,12 @@ inline void saveConfig() {
 // ===             			DFPLAYER MANIPULATION FUNCTIONS	            			===
 // ====================================================================================
 inline void handle_interrupt() {
+
 	if (mp3.getSerial()->getActiveObject()) {
 		mp3.getSerial()->getActiveObject()->recv();
 	}
 
-	if (not repeat and not relaunch and not mp3.isQuerying()) {
+	if (not repeat and not relaunch and (not mp3.isQuerying())) {
 		/*
 		 * Last soundfile is over and has stopped :
 		 * We relaunch the hum !
@@ -1676,7 +1967,10 @@ inline void handle_interrupt() {
 
 #if defined(PCINT0_vect)
 ISR(PCINT0_vect) {
+//uint8_t oldTIMSK2 = TIMSK2;
+//TIMSK2=0;
 	handle_interrupt();
+//TIMSK2=oldTIMSK2;
 }
 #endif
 
