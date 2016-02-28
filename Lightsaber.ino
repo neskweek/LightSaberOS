@@ -880,7 +880,7 @@ void loop() {
 			break;
 #ifdef LEDSTRINGS
 		case 2:
-			confMenuStart(12);
+			confMenuStart(17);
 
 			confParseValue(storage.soundStringPreset[storage.soundFont][0], 0,
 					1, 1);
@@ -895,7 +895,7 @@ void loop() {
 			}
 			break;
 		case 3:
-			confMenuStart(13);
+			confMenuStart(18);
 
 			confParseValue(storage.soundStringPreset[storage.soundFont][1], 0,
 					1, 1);
@@ -910,7 +910,7 @@ void loop() {
 			}
 			break;
 		case 4:
-			confMenuStart(14);
+			confMenuStart(19);
 
 			confParseValue(storage.soundStringPreset[storage.soundFont][2], 0,
 					0, 1);
@@ -1887,19 +1887,19 @@ inline void confMenuStart(uint8_t sound) {
 			break;
 #endif
 #ifdef LEDSTRINGS
-		case 12:
+		case 17:
 			lightOff(ledPins);
 			Serial.print(F("POWERON EFFECT\nCur:"));
 			Serial.println(storage.soundStringPreset[storage.soundFont][0]);
 			value = storage.soundStringPreset[storage.soundFont][0];
 			break;
-		case 13:
+		case 18:
 			lightOff(ledPins);
 			Serial.print(F("POWEROFF EFFECT\nCur:"));
 			Serial.println(storage.soundStringPreset[storage.soundFont][1]);
 			value = storage.soundStringPreset[storage.soundFont][1];
 			break;
-		case 14:
+		case 19:
 			lightOff(ledPins);
 			Serial.print(F("FLICKER EFFECT\nCur:"));
 			Serial.println(storage.soundStringPreset[storage.soundFont][2]);
