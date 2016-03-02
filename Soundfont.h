@@ -1,7 +1,7 @@
 /*
  * Soundfont.h
  *
- * Created on: 	27 feb 2016
+ * Created on: 	19 feb 2016
  * author: 		Sebastien CAPOU (neskweek@gmail.com)
  * Source : 	https://github.com/neskweek/LightSaberOS
  * Description:	Soundfont Config file for LightSaberOS
@@ -18,7 +18,7 @@
 
 class SoundFont {
 
-#define SOUNDFONT_QUANTITY 2
+#define SOUNDFONT_QUANTITY 1
 
 public:
 
@@ -97,48 +97,26 @@ public:
 		case 2:
 			// soundFont directory 02 :
 
-			boot[0] = 1;
-			boot[1] = 1;
-			powerOn[0] = 2;
-			powerOn[1] = 2;
-			powerOff[0] = 3;
-			powerOff[1] = 3;
-			hum[0] = 4;
-			hum[1] = 4;
-			swing[0] = 6;
-			swing[1] = 17;
-			clash[0] = 18;
-			clash[1] = 29;
-			lockup[0] = 5;
-			lockup[1] = 5;
-			blaster[0] = 30;
-			blaster[1] = 30;
-			wrist[0] = 32;
-			wrist[1] = 32;
-			force[0] = 31;
-			force[1] = 31;
-			break;
-		case 3:
-			boot[0] = 1;
-			boot[1] = 1;
-			powerOn[0] = 2;
-			powerOn[1] = 2;
-			powerOff[0] = 3;
-			powerOff[1] = 3;
-			hum[0] = 4;
-			hum[1] = 4;
-			swing[0] = 6;
-			swing[1] = 13;
-			clash[0] = 14;
-			clash[1] = 21;
-			lockup[0] = 5;
-			lockup[1] = 5;
-			blaster[0] = 22;
-			blaster[1] = 22;
-			wrist[0] = 24;
-			wrist[1] = 24;
-			force[0] = 23;
-			force[1] = 23;
+			boot[0] = 20;
+			boot[1] = 20;
+			powerOn[0] = 1;
+			powerOn[1] = 1;
+			powerOff[0] = 2;
+			powerOff[1] = 2;
+			hum[0] = 3;
+			hum[1] = 3;
+			swing[0] = 4;
+			swing[1] = 11;
+			clash[0] = 12;
+			clash[1] = 14;
+			lockup[0] = 18;
+			lockup[1] = 18;
+			blaster[0] = 15;
+			blaster[1] = 17;
+			wrist[0] = 19;
+			wrist[1] = 19;
+			force[0] = 21;
+			force[1] = 21;
 			break;
 		}
 		this->boot.clear();
