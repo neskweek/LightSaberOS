@@ -83,7 +83,7 @@ I would be glad to see other modules added. If you're interested to make your de
 * ~~03: contains a Sith soundfont without extended hum sound files : Sith~~  
 Removed to avoid any "copyright violation"(yeah...pfff) even if those are freely distributed elsewhere.   
 I don't want to get suited for 2 dimes as we are not making money on this.    
-I'll provide a custom soundfont made by myself as a replacement. Be aware it may repel the next release date.   
+I'll provide a custom soundfont made by myself, or any user's willing to share, as a replacement. Be aware it may repel the next release date.   
 As a side note something you won't find on sabersmiths forums , since it threaten their soundfont business :   
 [How to create  your own lightsaber sounds](https://www.youtube.com/watch?v=Q_6VITJT0-w)    
 [Link to freensound library](https://www.freesound.org/search/?q=hum&page=1)   
