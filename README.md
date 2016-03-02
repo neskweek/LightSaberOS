@@ -73,21 +73,20 @@ I would be glad to see other modules added. If you're interested to make your de
 ```
 
 
-#### 3. Prepare your SDCard 
-Then, put the content of SDCard_without_hum_extensions.zip on your SDCard:  
-Erase any directory that would be named like the ones you'll find in this archive.  
-Formatting your SDCard would be even better !  
+#### 3. Prepare your SDCard
+~~Then, put the content of SDCard.zip on your SDCard:~~  
+~~Erase any directory that would be named like the ones you'll find in this archive.~~  
+~~Formatting your SDCard would be even better !~~ 
 
-In this archive there's two example of soundfonts :
-* 02: contains a Jedi soundfont without extended hum sound files : Obsidian
-* 03: contains a Sith soundfont without extended hum sound files : Sith
-
-If you want an example of soundfont with hum extension, download  [this archive](http://https://drive.google.com/file/d/0B3FqB9nvAU0Fd1p4T05zZnRQWnM/view?usp=sharing) and put its content on your SDCard.   Replace SoundFont.h of your project with the one found in this archive.  
-This second example contains the following soundonft :  
-* 02: contains a Jedi soundfont __WITH__ extended hum sound files : Obsidian
-* 03: contains a Jedi soundfont __WITHOUT__ extended hum sound files : Obsidian
-* 04: contains a Sith soundfont without extended hum sound files : Sith
-
+~~In this archive there's two example of soundfonts :~~
+* ~~02: contains a Jedi soundfont without extended hum sound files : Obsidian~~
+* ~~03: contains a Sith soundfont without extended hum sound files : Sith~~  
+Removed to avoid any "copyright violation"(yeah...pfff) even if those are freely distributed elsewhere.   
+I don't want to get suited for 2 dimes as we are not making money on this.    
+I'll provide a custom soundfont made by myself as a replacement. Be aware it may repel the next release date.   
+As a side note something you won't find on sabersmiths forums , since it threaten their soundfont business :   
+[How to create  your own lightsaber sounds](https://www.youtube.com/watch?v=Q_6VITJT0-w)    
+[Link to freensound library](https://www.freesound.org/search/?q=hum&page=1)   
 
 
 #### 4. Check Wirings
