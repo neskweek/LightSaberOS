@@ -74,19 +74,13 @@ I would be glad to see other modules added. If you're interested to make your de
 
 
 #### 3. Prepare your SDCard
-~~Then, put the content of SDCard.zip on your SDCard:~~  
-~~Erase any directory that would be named like the ones you'll find in this archive.~~  
-~~Formatting your SDCard would be even better !~~ 
+Then, put the content of SDCard.zip on your SDCard:  
+Erase any directory that would be named like the ones you'll find in this archive.  
+Formatting your SDCard would be even better !  
 
-~~In this archive there's two example of soundfonts :~~
-* ~~02: contains a Jedi soundfont without extended hum sound files : Obsidian~~
-* ~~03: contains a Sith soundfont without extended hum sound files : Sith~~  
-Removed to avoid any "copyright violation"(yeah...pfff) even if those are freely distributed elsewhere.   
-I don't want to get suited for 2 dimes as we are not making money on this.    
-I'll provide a custom soundfont made by myself, or any user's willing to share, as a replacement. Be aware it may repel the next release date.   
-As a side note something you won't find on sabersmiths forums , since it threaten their soundfont business :   
-[How to create  your own lightsaber sounds](https://www.youtube.com/watch?v=Q_6VITJT0-w)    
-[Link to freensound library](https://www.freesound.org/search/?q=hum&page=1)   
+In this archive there's one soundfont example :
+* 02: contains a Common Creative licensed soundfont with extended hum sound files : Barlow (Thanks to Joe Barlow)
+
 
 
 #### 4. Check Wirings
@@ -239,6 +233,7 @@ _(not sure it will be possible with DFPlayer mini)_
 
 Thanks to __Protonerd__ from Arduino Forum for initiating this project.  
 Thanks to __Jakesoft__ from Arduino Forum for is initial ideau of using Arduino device to build a lightsaber.  
+Thanks to [__Joe Barlow__](https://www.freesound.org/people/joe93barlow/) for his excellent opensource soundfont that I did remix for our needs.  
 
 
 
