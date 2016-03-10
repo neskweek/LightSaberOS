@@ -1,5 +1,11 @@
 # LightSaberOS
 
+##10/03/2016 : this readme is obsolete since v1.0 release.   
+##Some information might still be relevant.   
+##A new Readme will be produce in the next few days. 
+##Thank you   
+
+
 
 
 ## What you will need :
