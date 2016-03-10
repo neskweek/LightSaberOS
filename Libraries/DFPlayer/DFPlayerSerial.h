@@ -88,7 +88,7 @@ private:
 public:
   // public methods
   DFPlayerSerial(uint8_t receivePin, uint8_t transmitPin, bool inverse_logic = false);
-  ~DFPlayerSerial();
+  virtual ~DFPlayerSerial();
   void begin(long speed);
   bool listen();
   void end();
@@ -107,6 +107,10 @@ public:
 
   // public only for easy access by interrupt handlers
   void recv();
+
+  // public only for easy access by interrupt handlers
+  static inline void handle_interrupt() __attribute__((__always_inline__));
+//  void handle_interrupt();
 
 	DFPlayerSerial* getActiveObject() {
 		return active_object;

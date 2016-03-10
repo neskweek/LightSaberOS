@@ -196,6 +196,47 @@ uint8_t DFPlayerSerial::rx_pin_read() {
 	return *_receivePortRegister & _receiveBitMask;
 }
 
+/* static */
+
+inline void DFPlayerSerial::handle_interrupt()
+//void DFPlayerSerial::handle_interrupt()
+{
+  if (active_object)
+  {
+    active_object->recv();
+  }
+}
+
+
+
+
+
+
+/*
+ * Changed For LSOS:
+ * We use atmega328 so we don't need to reserve all PCINT to be sure to catch
+ * DFPlayer serial answer
+ *
+*/
+
+#if defined(PCINT0_vect)
+ISR(PCINT0_vect)
+{
+	DFPlayerSerial::handle_interrupt();
+}
+#endif
+
+#if defined(PCINT1_vect)
+ISR(PCINT1_vect, ISR_ALIASOF(PCINT0_vect));
+#endif
+
+#if defined(PCINT2_vect)
+ISR(PCINT2_vect, ISR_ALIASOF(PCINT0_vect));
+#endif
+
+
+
+
 //
 // Constructor
 //

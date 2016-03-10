@@ -55,7 +55,7 @@ class DFPlayer {
 	 *   resulting in unpredictable behaviour.
 	 * - at worse it may crash the DFPlayer that will require a reset
 	 * */
-#define OPERATING_DELAY 210
+//#define OPERATING_DELAY 155
 
 	/*
 	 * DFPLAYER COMMANDS
@@ -259,7 +259,7 @@ public:
 #endif
 		//	if (this->isEmptyQueue()) {
 		this->mp3Serial->write(this->sendBuffer, DFPLAYER_BUFFER_LENGTH);
-		delay(OPERATING_DELAY);
+	//	delay(OPERATING_DELAY);
 
 #ifdef DFPLAYER_DEBUG
 		printHumanReadableSendBuffer();
@@ -306,6 +306,14 @@ public:
 
 	inline void playTrackFromDir(uint8_t track, uint8_t folder) {
 		setSendBuffer(FOLDER, track, folder);
+		send();
+	}
+	inline void playTrackFromMP3Folder(uint16_t track) {
+		setSendBuffer(MP3_FOLDER, track);
+		send();
+	}
+	inline void playPhysicalTrack(uint16_t value = 0) {
+		setSendBuffer(PLAY_TRACK, value);
 		send();
 	}
 
@@ -394,15 +402,15 @@ public:
 		return result;
 	}
 
-	inline uint8_t folderLoop(uint8_t folder) {
+	inline void folderLoop(uint8_t folder) {
 		setSendBuffer(FOLDER_LOOP, folder);
 		send();
 	}
-	inline uint8_t loopAll(uint8_t track = 0, uint8_t folder = 0) {
+	inline void loopAll(uint8_t track = 0, uint8_t folder = 0) {
 		setSendBuffer(LOOP_ALL, track, folder);
 		send();
 	}
-	inline uint8_t test(uint8_t track = 0, uint8_t folder = 0) {
+	inline void test(uint8_t track = 0, uint8_t folder = 0) {
 		setSendBuffer(QUERY_KEEPON, track, folder);
 		send();
 	}
@@ -552,10 +560,7 @@ public:
 		setSendBuffer(PREVIOUS);
 		send();
 	}
-	inline uint16_t playTrack(uint16_t value = 0) {
-		setSendBuffer(PLAY_TRACK, value);
-		send();
-	}
+
 	inline void volumeUp() {
 		setSendBuffer(VOL_UP);
 		send();
@@ -565,7 +570,7 @@ public:
 		send();
 	}
 
-	inline uint16_t play(uint16_t value = 0) {
+	inline void play(uint16_t value = 0) {
 		setSendBuffer(PLAYBACK, value);
 		send();
 	}

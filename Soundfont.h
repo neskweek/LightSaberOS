@@ -1,7 +1,7 @@
 /*
  * Soundfont.h
  *
- * Created on: 	19 feb 2016
+ * Created on: 	27 feb 2016
  * author: 		Sebastien CAPOU (neskweek@gmail.com)
  * Source : 	https://github.com/neskweek/LightSaberOS
  * Description:	Soundfont Config file for LightSaberOS
@@ -9,37 +9,38 @@
  * This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License.
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-sa/4.0/.
  */
-
+#include <LinkedList.h>
 
 #ifndef SOUNDFONT_H_
 #define SOUNDFONT_H_
 
-
-
 class SoundFont {
 
-#define SOUNDFONT_QUANTITY 1
+#define SOUNDFONT_QUANTITY 2
 
 public:
 
 	SoundFont() {
 
-		boot = LinkedList<uint8_t>();
-		powerOn = LinkedList<uint8_t>();
-		powerOff = LinkedList<uint8_t>();
-		hum = LinkedList<uint8_t>();
-		swing = LinkedList<uint8_t>();
-		clash = LinkedList<uint8_t>();
-		lockup = LinkedList<uint8_t>();
-		blaster = LinkedList<uint8_t>();
-		wrist = LinkedList<uint8_t>();
-		force = LinkedList<uint8_t>();
+		boot = LinkedList<uint16_t>();
+		powerOn = LinkedList<uint16_t>();
+		powerOff = LinkedList<uint16_t>();
+		hum = LinkedList<uint16_t>();
+		swing = LinkedList<uint16_t>();
+		clash = LinkedList<uint16_t>();
+		lockup = LinkedList<uint16_t>();
+		blaster = LinkedList<uint16_t>();
+		wrist = LinkedList<uint16_t>();
+		force = LinkedList<uint16_t>();
+		ID=0;
+		powerOnTime =500;
+		powerOffTime = 500;
 
 	}
 	;
 	~SoundFont() {
 		/*
-		 delete folder;
+		 delete ID;
 		 delete boot;
 		 delete powerOn;
 		 delete powerOff;
@@ -52,21 +53,21 @@ public:
 	}
 	;
 
-	void setFolder(uint8_t folder) {
-		uint8_t boot[2];
-		uint8_t powerOn[2];
-		uint8_t powerOff[2];
-		uint8_t hum[2];
-		uint8_t swing[2];
-		uint8_t clash[2];
-		uint8_t lockup[2];
-		uint8_t blaster[2];
-		uint8_t wrist[2];
-		uint8_t force[2];
+	void setID(uint16_t id) {
+		uint16_t boot[2];
+		uint16_t powerOn[2];
+		uint16_t powerOff[2];
+		uint16_t hum[2];
+		uint16_t swing[2];
+		uint16_t clash[2];
+		uint16_t lockup[2];
+		uint16_t blaster[2];
+		uint16_t wrist[2];
+		uint16_t force[2];
 
-		this->folder = folder;
+		this->ID = id;
 
-		switch (folder) {
+		switch (id) {
 		/*
 		 case EXAMPLE:
 		 // soundFont directory XX :
@@ -92,31 +93,56 @@ public:
 			// soundFont directory 01 is reserved for config menu sounds
 			break;
 		default:
-			// If you specify a folder number not defined here you will end up
+			// If you specify a ID number not defined here you will end up
 			// on the first defined soundfont
 		case 2:
 			// soundFont directory 02 :
-
+			this->powerOnTime = 400;
+			this->powerOffTime = 400;
 			boot[0] = 20;
 			boot[1] = 20;
-			powerOn[0] = 1;
-			powerOn[1] = 1;
-			powerOff[0] = 2;
-			powerOff[1] = 2;
-			hum[0] = 3;
-			hum[1] = 3;
-			swing[0] = 4;
-			swing[1] = 11;
-			clash[0] = 12;
-			clash[1] = 14;
-			lockup[0] = 18;
-			lockup[1] = 18;
-			blaster[0] = 15;
-			blaster[1] = 17;
-			wrist[0] = 19;
-			wrist[1] = 19;
-			force[0] = 21;
-			force[1] = 21;
+			powerOn[0] = 21;
+			powerOn[1] = 21;
+			powerOff[0] = 22;
+			powerOff[1] = 22;
+			hum[0] = 23;
+			hum[1] = 23;
+			swing[0] = 24;
+			swing[1] = 31;
+			clash[0] = 32;
+			clash[1] = 34;
+			lockup[0] = 38;
+			lockup[1] = 38;
+			blaster[0] = 35;
+			blaster[1] = 37;
+			wrist[0] = 39;
+			wrist[1] = 39;
+			force[0] = 0;
+			force[1] = 0;
+			break;
+		case 3:
+			this->powerOnTime = 400;
+			this->powerOffTime = 400;
+			boot[0] = 40;
+			boot[1] = 40;
+			powerOn[0] = 41;
+			powerOn[1] = 41;
+			powerOff[0] = 42;
+			powerOff[1] = 42;
+			hum[0] = 43;
+			hum[1] = 43;
+			swing[0] = 45;
+			swing[1] = 56;
+			clash[0] = 57;
+			clash[1] = 68;
+			lockup[0] = 44;
+			lockup[1] = 44;
+			blaster[0] = 69;
+			blaster[1] = 69;
+			wrist[0] = 71;
+			wrist[1] = 71;
+			force[0] = 70;
+			force[1] = 70;
 			break;
 		}
 		this->boot.clear();
@@ -141,68 +167,77 @@ public:
 		fill(&this->force, force);
 	}
 
-	uint8_t getFolder() const {
-		return folder;
+	uint16_t getID() const {
+		return this->ID;
 	}
 
-	const uint8_t getBlaster() {
+	const uint16_t getBlaster() {
 		return this->blaster.get(random(0, this->blaster.size()));
 	}
 
-	const uint8_t getBoot() {
+	const uint16_t getBoot() {
 		return this->boot.get(random(0, this->boot.size()));
 	}
 
-	const uint8_t getClash() {
+	const uint16_t getClash() {
 		return this->clash.get(random(0, this->clash.size()));
 	}
 
-	const uint8_t getHum() {
+	const uint16_t getHum() {
 		return this->hum.get(random(0, this->hum.size()));
 	}
 
-	const uint8_t getLockup() {
+	const uint16_t getLockup() {
 		return this->lockup.get(random(0, this->lockup.size()));
 	}
 
-	const uint8_t getPowerOff() {
+	const uint16_t getPowerOff() {
 		return this->powerOff.get(random(0, this->powerOff.size()));
 	}
 
-	const uint8_t getPowerOn() {
+	const uint16_t getPowerOn() {
 		return this->powerOn.get(random(0, this->powerOn.size()));
 	}
 
-	const uint8_t getSwing() {
+	const uint16_t getSwing() {
 		return this->swing.get(random(0, this->swing.size()));
 	}
 
-	const uint8_t getForce() {
+	const uint16_t getForce() {
 		return this->force.get(random(0, this->force.size()));
 	}
-	const uint8_t getWrist() {
+	const uint16_t getWrist() {
 		return this->wrist.get(random(0, this->wrist.size()));
 	}
 
-private:
-	uint8_t folder;
-	LinkedList<uint8_t> boot;
-	LinkedList<uint8_t> powerOn;
-	LinkedList<uint8_t> powerOff;
-	LinkedList<uint8_t> hum;
-	LinkedList<uint8_t> swing;
-	LinkedList<uint8_t> clash;
-	LinkedList<uint8_t> lockup;
-	LinkedList<uint8_t> blaster;
-	LinkedList<uint8_t> wrist;
-	LinkedList<uint8_t> force;
+	uint16_t getPowerOffTime() const {
+		return powerOffTime;
+	}
 
-	void fill(LinkedList<uint8_t>* list, uint8_t array[]) {
-		for (uint8_t i = array[0]; i <= array[1]; i++) {
+	uint16_t getPowerOnTime() const {
+		return powerOnTime;
+	}
+
+private:
+	uint16_t ID;
+	LinkedList<uint16_t> boot;
+	LinkedList<uint16_t> powerOn;
+	uint16_t powerOnTime;
+	LinkedList<uint16_t> powerOff;
+	uint16_t powerOffTime;
+	LinkedList<uint16_t> hum;
+	LinkedList<uint16_t> swing;
+	LinkedList<uint16_t> clash;
+	LinkedList<uint16_t> lockup;
+	LinkedList<uint16_t> blaster;
+	LinkedList<uint16_t> wrist;
+	LinkedList<uint16_t> force;
+
+	void fill(LinkedList<uint16_t>* list, uint16_t array[]) {
+		for (uint16_t i = array[0]; i <= array[1]; i++) {
 			list->add(i);
 		}
 	}
-
 };
 
 #endif /* SOUNDFONT_H_ */
