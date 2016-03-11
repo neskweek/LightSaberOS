@@ -147,7 +147,7 @@ static const uint8_t rgbFactor = 100;
  * LEDSTRINGS users have no choice :
  * your forced to use Software Accent LED
  *************************************/
-#define ACCENT_LED  A2
+//#define ACCENT_LED  16  //A2
 #ifdef ACCENT_LED
 /*
  * Soft or Had PWM for Accent
@@ -168,8 +168,8 @@ static const uint8_t rgbFactor = 100;
  *************************************/
 //#define MULTICOLOR_ACCENT_LED
 #ifdef MULTICOLOR_ACCENT_LED
-#define RED_ACCENT_LED  A2
-#define GREEN_ACCENT_LED  A3
+#define RED_ACCENT_LED  16 //A2
+#define GREEN_ACCENT_LED  17 //A3
 #define BLUE_ACCENT_LED  A7  //.... A7 is input only ...
 #endif
 
@@ -177,8 +177,8 @@ static const uint8_t rgbFactor = 100;
 
 #define DFPLAYER_RX			8
 #define DFPLAYER_TX			7
-#define SPK1				A0
-#define SPK2				A1
+#define SPK1				14 //A0
+#define SPK2				15 //A1
 
 
 #define MAIN_BUTTON			12
