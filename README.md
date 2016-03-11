@@ -9,7 +9,7 @@ ________________________________________________________________________________
 * Wrist movement detection 
 * Full gapless sound playing with "Hum Extended" soundfiles (see below)
 * Blaster Shot deflect 
-* Blade Lockup (long press on lockup button. Plays until release of the button)
+* Blade Lockup (long press on Aux switch. Plays until release of the button)
 * Accent LED
 * Flash-on-Clash LEDString
 * Multiple ignition/retractation/flickering effects
@@ -110,6 +110,153 @@ If so, Then you're ready to rock !
 ________________________________________________________________________________    
    
    
+ 
+### SETUP PROJECT 
+
+#### 1. IMU calibration 
+ First, you'll need (if not already done) to calibrate your MPU6050.  
+ [I recommend you use the AutoCalibration script you can find here](http://www.i2cdevlib.com/forums/topic/96-arduino-sketch-to-automatically-calculate-mpu6050-offsets/)  
+ Note the offset values it will give you and replace those you'll find inside setup()function  in __Lightsaber.ino__ : 
+```c++
+	/*
+	 * Those offsets are specific to each MPU6050 device.
+	 * they are found via calibration process.
+	 * See this script http://www.i2cdevlib.com/forums/index.php?app=core&module=attach&section=attach&attach_id=27
+	 */
+	mpu.setXAccelOffset(-2645);
+	mpu.setYAccelOffset(-5491);
+	mpu.setZAccelOffset(3881);
+	mpu.setXGyroOffset(27);
+	mpu.setYGyroOffset(-135);
+	mpu.setZGyroOffset(-38);
+```
+
+#### 2. Determine IMU orientation
+ The way you physically installed the MPU6050 in your hilt will influence how swing detection works.  
+ You'll have to determine which IMU's axis is parallel to blade axis and change it accordingly in __Config.h__ :   
+```c++
+//#define BLADE_X
+#define BLADE_Y
+//#define BLADE_Z
+```
+
+
+#### 3. Prepare your SDCard
+Then, put the content of SDCard.zip on your SDCard:  
+
+1. Format your SDCard. I insist !  (explanation to come)
+2. Unzip SDCard.7z to a folder
+3. Select all the files from this folder and __"Drag and Drop"__ them to your SDCard. __NO COPY AND PASTE !!!__ :
+We need to have this file copied in the same order as their filename order. On Microsoft Windows, Copy/paste produce an anarchic copy order, but Drag and Drop produce an ordered copy...  
+
+
+#### 4. Check Wirings
+Use of original Protonerd's wirings since 1.0RC3  
+Don't forget to wire those ones which were added :  
+* DFPLAYER TX to D7
+* DFPLAYER SPK+ to A0
+* DFPLAYER SPK- to A1     
+![Schematics](http://i1073.photobucket.com/albums/w385/cest_bastien1/Lightsaber/AS2_LEDstringSaberArduino_NeskweekRevised_zpsu5k0ljck.png)    
+Wiring of busy pin is optional since LightSaberOS doesn't use it.  
+
+
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+#### 5. Select your emitter type
+
+
+###### A.LEDSTRINGS 
+In __Config.h__  be sure this line is uncommented :
+```c++
+#define LEDSTRINGS 
+```   
+
+###### B. RGB LEDs 
+In __Config.h__  comment this line :
+```c++
+#define LEDSTRINGS 
+``` 
+
+###### C. Single LED
+* a) Wire your LED on pin D3
+	
+* b) In __Config.h__  comment this line :
+	
+```c++ 
+#define LEDSTRINGS 
+```        
+* c) Modify the following lines  in __LightSaber.ino__ so all variables are set to 0 :    
+
+```c++         
+#ifdef LUXEON
+		storage.mainColor = 0;
+		storage.clashColor = 0;
+		storage.soundFontColorPreset[2][0] = 0;
+		storage.soundFontColorPreset[2][1] = 0;
+		storage.soundFontColorPreset[3][0] = 0;
+		storage.soundFontColorPreset[3][1] = 0;
+#endif
+```
+
+#### 6. Compile and Upload the sketch to your Arduino device
+
+#### 7. Enjoy
+
+________________________________________________________________________________   
+
+## HOW IT WORKS :
+
+###### _In Standby Mode (idle)_ :  
+* Short press on Main switch : activate your saber (Action Mode)
+* Long press on Aux switch : activate Config Mode
+* if idle for more than 5 min : PowerSaving mode. 
+
+###### _In PowerSaving Mode (idle)_ :  
+* Short press on Main switch or Aux switch : leave PowerSaving Mode (go back to Standby Mode)
+
+
+###### _In Action Mode_ :
+* Move your saber around : Swing effect
+* Hit the hilt/blade : Clash effect
+* Short press Aux switch : Enable/disable Blaster block modes. Move your saber to produce Blaster effects.
+* Long press Aux switch : Blade Lockup effect
+* Long press Main switch : Shutdown saber
+
+
+
+
+###### _In Config Mode_ :  
+* short press Main switch : Up the value
+* short press Aux switch : Down the value
+* long press Main switch : Change menu :  
+	* Volume
+	* SoundFont 
+	* [ONLY FOR LEDSTRING USERS] Power On effect: change the type of ignition for the current SoundFont
+	* [ONLY FOR LEDSTRING USERS] Power Off effect: change the type of retractation for the current SoundFont
+	* [ONLY FOR LEDSTRING USERS] Flicker effect: change the type of flickering for the current SoundFont
+	* [ONLY FOR RGB LED USERS] Main color : change the color of your saber
+	* [ONLY FOR RGB LED USERS] Clash color: change the color displayed during clash effect 
+	* [ONLY FOR RGB LED USERS] Assign colors to current soundfont ? : Allows you to save the colors you just defined to the
+	* Swing sensitivity : adjust swing sensitivity.
+
+* Long press Aux switch : update config to EEPROM and leave Config Mode
+
+
+
+
+
+
 ________________________________________________________________________________    
 ________________________________________________________________________________    
 ________________________________________________________________________________    
@@ -139,139 +286,7 @@ ________________________________________________________________________________
 ________________________________________________________________________________    
 ________________________________________________________________________________    
 ________________________________________________________________________________    
-________________________________________________________________________________     
-## Install / Config
-
-#### 1. IMU calibration 
- First, you'll need (if not already done) to calibrate your MPU6050.  
- [I recommend you use the AutoCalibration script you can find here](http://www.i2cdevlib.com/forums/topic/96-arduino-sketch-to-automatically-calculate-mpu6050-offsets/)  
- Note the offset values it will give you and replace those you'll find in my code : 
-```c++
-	/*
-	 * Those offsets are specific to each MPU6050 device.
-	 * they are found via calibration process.
-	 * See this script http://www.i2cdevlib.com/forums/index.php?app=core&module=attach&section=attach&attach_id=27
-	 */
-	mpu.setXAccelOffset(-2645);
-	mpu.setYAccelOffset(-5491);
-	mpu.setZAccelOffset(3881);
-	mpu.setXGyroOffset(27);
-	mpu.setYGyroOffset(-135);
-	mpu.setZGyroOffset(-38);
-```
-
-#### 2. Determine IMU orientation
- The way you physically installed the MPU6050 in your hilt will influence how swing detection works.  
- You'll have to determine which IMU's axis is parallel to blade axis and change it accordingly in the code :   
-```c++
-//#define BLADE_X
-#define BLADE_Y
-//#define BLADE_Z
-```
-
-
-#### 3. Prepare your SDCard
-Then, put the content of SDCard.zip on your SDCard:  
-Erase any directory that would be named like the ones you'll find in this archive.  
-Formatting your SDCard would be even better !  
-
-In this archive there's one soundfont example :
-* 02: contains a Common Creative licensed soundfont with extended hum sound files : Barlow (Thanks to Joe Barlow)
-
-
-
-#### 4. Check Wirings
-Use of original Protonerd's wirings since 1.0RC3  
-Don't forget to wire those ones which were added :  
-* DFPLAYER TX to D7
-* DFPLAYER SPK+ to A0
-* DFPLAYER SPK- to A1     
-![Schematics](http://i1073.photobucket.com/albums/w385/cest_bastien1/Lightsaber/AS2_LEDstringSaberArduino_NeskweekRevised_zpsu5k0ljck.png)    
-Wiring of busy pin is optional since LightSaberOS doesn't use it.  
-
-#### 5. Tweak your install (optionnal) 
-
-###### A. RGB LEDs users
-comment:
-```c++
-#define LEDSTRINGS 
-``` 
-
-###### B. Single LED users
-* a) Wire your LED on pin D3
-	
-* b) Comment this line :
-	
-```c++ 
-#define LEDSTRINGS 
-```        
-* c) Modify the following lines so all variables are set to 0 :    
-
-```c++         
-#ifdef LUXEON
-		storage.mainColor = 0;
-		storage.clashColor = 0;
-		storage.soundFontColorPreset[2][0] = 0;
-		storage.soundFontColorPreset[2][1] = 0;
-		storage.soundFontColorPreset[3][0] = 0;
-		storage.soundFontColorPreset[3][1] = 0;
-#endif
-```
-
-###### C.Tweaks
-* General tweaks :
-```c++
-#define CLICK				5    // ms you need to press a button to be a click
-#define PRESS_ACTION		200  // ms you need to press a button to be a long press, in action mode
-#define PRESS_CONFIG		400  // ms you need to press a button to be a long press, in config mode
-/* MAX_BRIGHTNESS
- * Maximum output voltage to apply to LEDS
- * Default = 200 (78,4%) Max=255 Min=0(Off)
- * WARNING ! A too high value may burn your leds. Please make your maths !
- */
-#define MAX_BRIGHTNESS		200
-```
-
-* To win some hex file size, or when you will want to use your saber in normal day to day use, comment this line: 
-```c++
-#define LS_INFO
-```
-
-
-#### 6. Upload the sketch to your arduino.
-> ___Will only work with Arduino IDE v1.6.5 !!!___  
-Arduino v1.6.7 will generate errors.
-
-#### 7. Enjoy
-
-
-## How it works :
-
-###### _In standby mode (idle)_ :  
-* Short press on main button : activate your saber
-* Long press on lockup button : activate config mode
-
-
-###### _In Action Mode_ :
-* Long press lockup button : Lockup
-* Short press lockup button : Clash
-* Long press main button : shutdown saber
-
-
-###### _In config Mode_ :  
-* short press main button : Up the value
-* short press lockup button : Down the value
-* long press main button : Change menu :  
-	* volume
-	* soundfont 
-	* swing sensitivity : adjust swing sensitivity.
-	* [ONLY FOR RGB LED USERS] Main color : change the color of your saber
-	* [ONLY FOR RGB LED USERS] Clash color: change the color displayed during clash effect 
-	* [ONLY FOR RGB LED USERS] Assign colors to current soundfont ? : Allows you to save the colors you just defined to the selected soundfont
-	* clash acceleration sensitivity : trigger clash detection algorythm. The higher the value, the less sensible it is
-	* clash brake sensitivity : trigger clash sound.The higher the value, the more sensible it is
-* Long press lockup button : update config to EEPROM and leave config mode
-
+________________________________________________________________________________   
 
 If you want to add a soundfont, create a new folder (named 004 for instance), put your soundfiles in it (__don't put gaps in numbering files__) and take a look at SoundFont.h file
 
@@ -312,9 +327,9 @@ _(not sure it will be possible with DFPlayer mini)_
 * Make powerOn/powerOff ledstring effect sync to soundfont soundfiles play time.
 	* Add 2 time-variables to setup in soundfont.h
 * Find a use to:
-	* short press lockup button in standby mode 
-	* double click on main button in action/config/standby mode
-	* double clik on lockup button in action/config/standby mode.
+	* short press Aux switch in standby mode 
+	* double click on Main switch in action/config/standby mode
+	* double clik on Aux switch in action/config/standby mode.
 
 
 ## Videos
