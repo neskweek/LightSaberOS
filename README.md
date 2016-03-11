@@ -322,7 +322,7 @@ ________________________________________________________________________________
 ________________________________________________________________________________   
    
 
-##12/03/2016 : The following my not be accurate since release of version 1.0  
+##12/03/2016 : The following might not be accurate since release of version 1.0  
 ## Modification of this Readme is a "work in progress"
 ## More info regarding LSOS will be added
 ## Thank you for your patience
@@ -335,12 +335,27 @@ ________________________________________________________________________________
 ________________________________________________________________________________    
 ________________________________________________________________________________   
 
-If you want to add a soundfont, create a new folder (named 004 for instance), put your soundfiles in it (__don't put gaps in numbering files__) and take a look at SoundFont.h file
+### MODULES
 
+________________________________________________________________________________ 
 
+### HOW TO MANAGE YOUR SDCRAD
 
+________________________________________________________________________________ 
 
-## Notes :
+### HOW TO ADD A SOUNDFONT
+
+________________________________________________________________________________ 
+
+### HOW TO PERSONNALIZE CONFIG MENU SOUNDS
+
+________________________________________________________________________________ 
+
+### HOW TO MAKE YOUR OWN SOUNDFONT
+
+________________________________________________________________________________ 
+
+## NOTES :
 
 1. __Only WAVs file !!!__ _NOOOO MP3, NOOOO WMA !!!_   :     
 When encoding a sound to those format (MP3 and WMA) the encoder will automaticly put a silence at start.    
@@ -358,7 +373,10 @@ Still hopping that will not be the case  :P. I've developped those wanting to ob
 9. Beware  the amount of debug settings you uncoment: they add significant amount of data to the compile.   
 I've made them modular for this reason, so take advantage of it.
 
-  
+### LECTURES / SOURCES /INSPIRATIONS
+
+________________________________________________________________________________   
+
 
 
 
