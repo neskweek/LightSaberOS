@@ -355,7 +355,7 @@ ________________________________________________________________________________
 
 ________________________________________________________________________________ 
 
-## NOTES :
+### NOTES :
 
 1. __Only WAVs file !!!__ _NOOOO MP3, NOOOO WMA !!!_   :     
 When encoding a sound to those format (MP3 and WMA) the encoder will automaticly put a silence at start.    
