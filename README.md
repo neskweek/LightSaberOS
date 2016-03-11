@@ -247,17 +247,52 @@ ________________________________________________________________________________
 	* [ONLY FOR LEDSTRING USERS] Flicker effect: change the type of flickering for the current SoundFont
 	* [ONLY FOR RGB LED USERS] Main color : change the color of your saber
 	* [ONLY FOR RGB LED USERS] Clash color: change the color displayed during clash effect 
-	* [ONLY FOR RGB LED USERS] Assign colors to current soundfont ? : Allows you to save the colors you just defined to the
+	* [ONLY FOR RGB LED USERS] Assign colors to current soundfont ? : Allows you to save the colors you just defined to the current SoundFont
 	* Swing sensitivity : adjust swing sensitivity.
 
 * Long press Aux switch : update config to EEPROM and leave Config Mode
 
+________________________________________________________________________________  
 
+## License:
 
+This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License.  
+To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-sa/4.0/]http://creativecommons.org/licenses/by-nc-sa/4.0/ .
 
+________________________________________________________________________________   
 
+## TODO :
+By priority :
+* NEOPIXEL code integration
+* Better README.md (Work in progress)
+* Try to reduce compiled hex file 
+* Rewrite to Object Oriented form, using JakeSoft Library
+* Find a use to:
+	* short press Aux switch in standby mode 
+	* double click on Main switch in action/config/standby mode
+	* double clik on Aux switch in action/config/standby mode.
+* Rewrite some function in Assembler
+* Pitch shifting on movements (don't know if it's feasable)
 
-________________________________________________________________________________    
+________________________________________________________________________________   
+
+## VIDEOS
+
+* [DIYino demo of Neopixel lightsaber blade with LSOS](https://www.youtube.com/watch?v=lyk8riXgIzM)  
+* [DIYino prototype demo with LSOS by neskweek - Swings](https://www.youtube.com/watch?v=tU3GZzV9I6E)  
+* [Motion Detection Demo (made under v1.0 RC5)] (https://www.youtube.com/watch?v=wY8BSSEyYLY)  
+* [Quick tour (made under v1.0 RC4)] (https://youtu.be/mc8scn_qyFM)  
+________________________________________________________________________________   
+
+## THANK YOU !!!
+
+Thanks to Andras Kun (__Protonerd__ from Arduino Forum) for initiating this project and his big contribution to LSOS Code   
+Thanks to __Jakesoft__ from Arduino Forum for :
+	* his initial idea of using Arduino device to build a lightsaber.
+	* his idea of using Aux Switch as a triger mode for Blaster Blocks.
+	and many more source of inspirations.
+Thanks to [__Joe Barlow__](https://www.freesound.org/people/joe93barlow/) for his excellent opensource soundfont that I did remix for our needs.
+Thanks to __Scott Daniels__ for his [code that allows to monitor the battery charge] (http://provideyourown.com/2012/secret-arduino-voltmeter-measure-battery-voltage/)
 ________________________________________________________________________________    
 ________________________________________________________________________________    
 ________________________________________________________________________________    
@@ -291,10 +326,7 @@ ________________________________________________________________________________
 If you want to add a soundfont, create a new folder (named 004 for instance), put your soundfiles in it (__don't put gaps in numbering files__) and take a look at SoundFont.h file
 
 
-## License:
 
-This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License.  
-To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-sa/4.0/]http://creativecommons.org/licenses/by-nc-sa/4.0/ .
 
 ## Notes :
 
@@ -314,38 +346,7 @@ Still hopping that will not be the case  :P. I've developped those wanting to ob
 9. Beware  the amount of debug settings you uncoment: they add significant amount of data to the compile.   
 I've made them modular for this reason, so take advantage of it.
 
-## TODO :
-By priority :
-
-* Better README.md (Work in progress)
-* Find a way to remove delays function from (and induced by) DFPlayer lib.  
-I think it's interferring with movements detection system (especially clash ones)
-* Find a way to make hum relaunch unoticable   
-_(not sure it will be possible with DFPlayer mini)_
-* Try to reduce compiled hex file to be able to add  more functionnality and/or handling of more modules   
-(IMU/Music players).
-* Make powerOn/powerOff ledstring effect sync to soundfont soundfiles play time.
-	* Add 2 time-variables to setup in soundfont.h
-* Find a use to:
-	* short press Aux switch in standby mode 
-	* double click on Main switch in action/config/standby mode
-	* double clik on Aux switch in action/config/standby mode.
-
-
-## Videos
-* [Quick tour (made under v1.0 RC4)] (https://youtu.be/mc8scn_qyFM)
-* [Motion Detection Demo (made under v1.0 RC5)] (https://www.youtube.com/watch?v=wY8BSSEyYLY)
-
-
-## Known Bug :
-* In config mode, when chosing a new SoundFont, on some occasions, LSOS doesn't play the boot sound like it should... I can't find why
-
-
-## Thanks
-
-Thanks to __Protonerd__ from Arduino Forum for initiating this project.  
-Thanks to __Jakesoft__ from Arduino Forum for is initial ideau of using Arduino device to build a lightsaber.  
-Thanks to [__Joe Barlow__](https://www.freesound.org/people/joe93barlow/) for his excellent opensource soundfont that I did remix for our needs.  
+  
 
 
 
