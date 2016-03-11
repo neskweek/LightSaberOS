@@ -30,9 +30,6 @@
 #include <Wire.h>
 #endif
 
-
-
-
 /*
  * DO NOT MODIFY
  * Unless you know what you're doing
@@ -486,9 +483,16 @@ void loop() {
 				lowBattery = true;
 			}
 			delay(1000);
-			lowBattery = false;
-			randomBlink = 0;
-			blink = 0;
+			dfplayer.playPhysicalTrack(soundFont.getHum());
+			delay(40);
+			if (actionMode) {
+
+				dfplayer.setSingleLoop(true);
+				delay(40);
+				lowBattery = false;
+				randomBlink = 0;
+				blink = 0;
+			}
 		}
 
 		lastBatterycheck = millis();
