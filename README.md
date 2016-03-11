@@ -1,42 +1,7 @@
 # LightSaberOS
+________________________________________________________________________________   
 
-## What you will need :
-* [Java Runtime Environment 8](http://www.oracle.com/technetwork/java/javase/downloads/jre8-downloads-2133155.html) Download the right file for your architecture
-* [Arduino Eclipse v.2016-03-11_03-29-38](http://www.baeyens.it/eclipse/download.php) Again, download the right file for your architecture
-* my new DFPlayer library (Included in zip file)
-* [I2Cdev and MPU6050 (Included in zip file)](https://codeload.github.com/jrowberg/i2cdevlib/zip/master) 
-* [EEPROMex9.1 (Included in zip file)](http://thijs.elenbaas.net/wp-content/uploads/downloads/2013/12/EEPROMEx-9.1.zip)
-* [OneButton (Included in zip file)] (https://github.com/mathertel/OneButton)
-* [LinkedList (Included in zip file)] (https://github.com/ivanseidel/LinkedList)
-* Wire (Included in Arduino Eclipse) 
-
-
-
-## Device currently supported :
-
-Designed to be used on Arduino Nano (ATmega328 processors)
-
-* IMU (accelerometer + gyroscope) modules :
-	* MPU6050
-* Soundplayer modules:
-	* DFPlayer Mini
-* Blade module:
-	* homemade LEDstrings
-	* RGB LEDs (Luxeon/Cree styled)
-	* Single LED
-
-I would be glad to see other modules added. If you're interested to make your device compatible, please contact me.
-
-
-
-
-
-
-
-
-
-
-## What it does :
+### FEATURES :
 
 * Simple modular systems (you can choose to remove some systems from your final compilation)
 * Swing detection
@@ -55,8 +20,96 @@ I would be glad to see other modules added. If you're interested to make your de
 * Shutdown on critical battery level 
 * Automatic Powersaving mode when idle
 
+________________________________________________________________________________   
+
+### WHAT YOU WILL NEED :
+* [Java Runtime Environment 8](http://www.oracle.com/technetwork/java/javase/downloads/jre8-downloads-2133155.html) Download the right file for your architecture
+* [Arduino Eclipse v.2016-03-11_03-29-38](http://www.baeyens.it/eclipse/download.php) Again, download the right file for your architecture
+* my new DFPlayer library (Included in zip file)
+* [I2Cdev and MPU6050 (Included in zip file)](https://codeload.github.com/jrowberg/i2cdevlib/zip/master) 
+* [EEPROMex9.1 (Included in zip file)](http://thijs.elenbaas.net/wp-content/uploads/downloads/2013/12/EEPROMEx-9.1.zip)
+* [OneButton (Included in zip file)] (https://github.com/mathertel/OneButton)
+* [LinkedList (Included in zip file)] (https://github.com/ivanseidel/LinkedList)
+* Wire (Included in Arduino Eclipse) 
+
+________________________________________________________________________________   
+
+### DEVICE CURRENTLY SUPPORTED :
+
+Designed to be used on Arduino Nano (ATmega328 processors)
+
+* IMU (accelerometer + gyroscope) modules :
+	* MPU6050
+* Soundplayer modules:
+	* DFPlayer Mini
+* Blade module:
+	* homemade LEDstrings
+	* RGB LEDs (Luxeon/Cree styled)
+	* Single LED
+
+I would be glad to see other modules added. If you're interested to make your device compatible, please contact me.
+   
+________________________________________________________________________________   
+
+## SET UP YOUR PC:
+1. Download and install [Java Runtime Environment 8](http://www.oracle.com/technetwork/java/javase/downloads/jre8-downloads-2133155.html)   
+Download the right file for your OS   
+2. Download [Arduino Eclipse v.2016-03-11_03-29-38](http://www.baeyens.it/eclipse/download.php)      
+Again, download the right file for your OS   
+3. Uncompress this archive inside c:\Program Files   
+4. Start C:\Program Files\eclipseArduino\eclipseArduinoIDE.exe
+On first start up you will be ask where to put your prject workspace.   
+I advise you to put it there (off course replace "nesk" by your username) :   
+![Set workspace destination](https://raw.githubusercontent.com/neskweek/LightSaberOS/master/README/eclipse1.PNG)   
+On first startup it will download a bunch of stuff related to Arduino Libraries.   
+Wait until it finishes   
+5. Go to Windows > Preferences      
+6. Select Arduino and set "Build before upload ?" to "Yes" and press OK   
+7. Plug in your Arduino device    
+It would be best that you always use the same USB port for future use    
+8. Go to File > New > Arduino sketch     
+![Project Name](https://raw.githubusercontent.com/neskweek/LightSaberOS/master/README/eclipse2.PNG)   
+Then press next   
+![Fill in your board Info](https://raw.githubusercontent.com/neskweek/LightSaberOS/master/README/eclipse3.PNG)   
+COM port may be different on your PC. It depends on USB port you plugged it in.   
+Then press next   
+![Optional Check AVaRICE](https://raw.githubusercontent.com/neskweek/LightSaberOS/master/README/eclipse4.PNG)   
+Here Checking AVaRICE is optional   
+Then press Finish   
+9. Delete LightSaberOS.ino file   
+
 ________________________________________________________________________________    
+
+## IMPORT GITHUB FILES INSIDE ECLIPSE PROJECT:
+
+1. Uncompress LightSaberOS-master.zip archive
+2. If not already done create this directory : C:\Users\neskw\Arduino
+3. Copy and Paste LightSaberOS-master\Libraries directory inside C:\Users\neskw\Arduino
+4. Inside Eclipse Right click on LightSaberOS project  > Import
+![Import source files](https://raw.githubusercontent.com/neskweek/LightSaberOS/master/README/eclipse5.PNG)   
+Then press Next  
+![Select source directory](https://raw.githubusercontent.com/neskweek/LightSaberOS/master/README/eclipse6.PNG)   
+Then press Next   
+In "Eclipse Project explorer" open the new created LightSaberOS-master and select those files :   
+![Select source directory](https://raw.githubusercontent.com/neskweek/LightSaberOS/master/README/eclipse7.PNG)   
+Then drag and drop them to the root structure of the project   
+5. Inside Eclipse Right click on LightSaberOS project  > Import
+![Import Libraries](https://raw.githubusercontent.com/neskweek/LightSaberOS/master/README/eclipse8.PNG)   
+Then press Next 
+Select those libraries :
+![Select Libraries](https://raw.githubusercontent.com/neskweek/LightSaberOS/master/README/eclipse9.PNG)   
+Then press Finish 
+6. Delete LightSaberOS-master directory from Eclipse Project explorer   
+    
+   
+You should end up with this Project explorer structure :   
+![Project structure](https://raw.githubusercontent.com/neskweek/LightSaberOS/master/README/eclipse10.PNG)   
+
+If so, Then you're ready to rock !   
+
 ________________________________________________________________________________    
+   
+   
 ________________________________________________________________________________    
 ________________________________________________________________________________    
 ________________________________________________________________________________    
