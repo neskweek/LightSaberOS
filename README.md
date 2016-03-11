@@ -373,9 +373,11 @@ Still hopping that will not be the case  :P. I've developped those wanting to ob
 9. Beware  the amount of debug settings you uncoment: they add significant amount of data to the compile.   
 I've made them modular for this reason, so take advantage of it.
 
+________________________________________________________________________________ 
+
 ### LECTURES / SOURCES /INSPIRATIONS
 
-________________________________________________________________________________   
+  
 
 
 
