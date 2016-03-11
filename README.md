@@ -301,7 +301,7 @@ ________________________________________________________________________________
 
 ## WITH YOUR HELP...
 ... a real life  lightsaber which cut through stuffs, like a pizza, could be made...    
-But first things first : I need  a pizza !   
+But first things first : I need the pizza !   
 [![paypal](https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=GX6M3586YU8JL)   
 ;)   
 ________________________________________________________________________________   
