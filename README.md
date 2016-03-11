@@ -288,9 +288,10 @@ ________________________________________________________________________________
 
 Thanks to Andras Kun (__Protonerd__ from Arduino Forum) for initiating this project and his big contribution to LSOS Code    
 Thanks to __Jakesoft__ from Arduino Forum for :    
-	* his initial idea of using Arduino device to build a lightsaber.   
-	* his idea of using Aux Switch as a triger mode for Blaster Blocks.   
-	and many more source of inspirations.    
+* his initial idea of using Arduino device to build a lightsaber.   
+* his idea of using Aux Switch as a triger mode for Blaster Blocks.   
+and many more source of inspirations.
+
 Thanks to [__Joe Barlow__](https://www.freesound.org/people/joe93barlow/) for his excellent opensource soundfont that I did remix for our needs.    
 Thanks to __Scott Daniels__ for his [code that allows to monitor the battery charge] (http://provideyourown.com/2012/secret-arduino-voltmeter-measure-battery-voltage/)    
 Thanks to you for using it ;)
@@ -298,7 +299,7 @@ Thanks to you for using it ;)
 ________________________________________________________________________________   
 
 ## WITH YOUR HELP...
-... a real life  lightsaber which cut through stuffs (like pizza) could be made...    
+... a real life  lightsaber which cut through stuffs, like a pizza, could be made...    
 But first things first : I need  a pizza !   
 [![paypal](https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=GX6M3586YU8JL)   
 ;)   
