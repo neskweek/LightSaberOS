@@ -1,24 +1,14 @@
 # LightSaberOS
 
-##10/03/2016 : this readme is obsolete since v1.0 release.   
-##Some information might still be relevant.   
-##A new Readme will be produce in the next few days. 
-##Thank you   
-
-
-
-
 ## What you will need :
-* Arduino IDE ___v1.6.5___ (_not 1.6.7_) or/and Arduino Eclipse
+* [Java Runtime Environment 8](http://www.oracle.com/technetwork/java/javase/downloads/jre8-downloads-2133155.html) Download the right file for your architecture
+* [Arduino Eclipse v.2016-03-11_03-29-38](http://www.baeyens.it/eclipse/download.php) Again, download the right file for your architecture
 * my new DFPlayer library (Included in zip file)
 * [I2Cdev and MPU6050 (Included in zip file)](https://codeload.github.com/jrowberg/i2cdevlib/zip/master) 
 * [EEPROMex9.1 (Included in zip file)](http://thijs.elenbaas.net/wp-content/uploads/downloads/2013/12/EEPROMEx-9.1.zip)
 * [OneButton (Included in zip file)] (https://github.com/mathertel/OneButton)
 * [LinkedList (Included in zip file)] (https://github.com/ivanseidel/LinkedList)
-* Wire (Included in Arduino IDE) 
-  
-
-Note: If you want to explore/tweak the code I __strongly__ recommend you use "Eclipse for Arduino". This source is quite long. I've tried to keep it the most readbale as possible. 
+* Wire (Included in Arduino Eclipse) 
 
 
 
@@ -37,16 +27,51 @@ Designed to be used on Arduino Nano (ATmega328 processors)
 
 I would be glad to see other modules added. If you're interested to make your device compatible, please contact me.
 
+
+
+
+
+
+
+
+
+
 ## What it does :
 
-* Movement detection for swing, wrist twist and clash detection throught interrupts
-* Almost gapless playing with basic soundfiles (without hum extensions)
-* "Gapless" playing with soundfiles with hum extensions (see "Notes") 
-* Blaster shot (short press on lockup button)
-* Lockup (long press on lockup button. Plays until release of the button)
-* Config Menu (volume, soundfont, RGB Led blade color changes, swing sensitivity, clash sensitivity)
-* Soundfont adding supported by manual declaration in Soundfont.h(from DFPlayer spec: virtually up to 254 soundfonts if you don't exceed a total of 65535 sound files on your SDCard. But not tested yet)
-* EEPROM load/save of your config 
+* Simple modular systems (you can choose to remove some systems from your final compilation)
+* Swing detection
+* Blade Clash detection  
+* Wrist movement detection 
+* Full gapless sound playing with "Hum Extended" soundfiles (see below)
+* Blaster Shot deflect 
+* Blade Lockup (long press on lockup button. Plays until release of the button)
+* Accent LED
+* Flash-on-Clash LEDString
+* Multiple ignition/retractation/flickering effects
+* Config Menu to modify some features without wiring the device to your PC/Mac 
+* EEPROM load/save of your config preferences
+* Soundfont adding supported (not automatic, you'll have little work to do ;) )
+* Low battery level warnings
+* Shutdown on critical battery level 
+* Automatic Powersaving mode when idle
+________________________________________________________________________________
+________________________________________________________________________________
+
+##10/03/2016 : The following my not be accurate since release of version 1.0  
+##Modification of this Readme is a "work in progress"
+##Thank you for your patience
+
+________________________________________________________________________________
+|
+|     
+|     
+|    
+|    
+|    
+|    
+|    
+|    
+|   
 
 
 ## Install / Config
