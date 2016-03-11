@@ -287,7 +287,7 @@ ________________________________________________________________________________
 
 ## THANK YOU !!!
 
-Thanks to Andras Kun (__Protonerd__ from Arduino Forum) for initiating this project and his big contribution to LSOS Code    
+Thanks to Andras Kun (__Protonerd__ from Arduino Forum) for initiating this project and his big contributions to LSOS Code    
 Thanks to __Jakesoft__ from Arduino Forum for :    
 * his initial idea of using Arduino device to build a lightsaber.   
 * his idea of using Aux Switch as a triger mode for Blaster Blocks.   
@@ -295,7 +295,7 @@ and many more source of inspirations.
 
 Thanks to [__Joe Barlow__](https://www.freesound.org/people/joe93barlow/) for his excellent opensource soundfont that I did remix for our needs.    
 Thanks to __Scott Daniels__ for his [code that allows to monitor the battery charge] (http://provideyourown.com/2012/secret-arduino-voltmeter-measure-battery-voltage/)    
-Thanks to you for using it ;)
+Thanks to __you__ for using it ;)
 
 ________________________________________________________________________________   
 
