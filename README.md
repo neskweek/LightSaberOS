@@ -1,4 +1,11 @@
 # LightSaberOS
+
+________________________________________________________________________________   
+
+## VIDEOS
+
+[![DIYino demo of Neopixel lightsaber blade with LSOS] (http://img.youtube.com/vi/lyk8riXgIzM/0.jpg)](http://www.youtube.com/watch?v=lyk8riXgIzM)[![DIYino prototype demo with LSOS by neskweek - Swings] (http://img.youtube.com/vi/tU3GZzV9I6E/0.jpg)](http://www.youtube.com/watch?v=tU3GZzV9I6E)[![Motion Detection Demo (made under v1.0 RC5)] (http://img.youtube.com/vi/wY8BSSEyYLY/0.jpg)](http://www.youtube.com/watch?v=wY8BSSEyYLY)[![Quick tour (made under v1.0 RC4)] (http://img.youtube.com/vi/mc8scn_qyFM/0.jpg)](http://www.youtube.com/watch?v=mc8scn_qyFM)
+
 ________________________________________________________________________________   
 
 ### FEATURES :
@@ -116,7 +123,7 @@ ________________________________________________________________________________
 #### 1. IMU calibration 
  First, you'll need (if not already done) to calibrate your MPU6050.  
  [I recommend you use the AutoCalibration script you can find here](http://www.i2cdevlib.com/forums/topic/96-arduino-sketch-to-automatically-calculate-mpu6050-offsets/)  
- Note the offset values it will give you and replace those you'll find inside setup()function  in __Lightsaber.ino__ : 
+ Note the offset values it will give you and replace those you'll find inside setup() function  in __Lightsaber.ino__ : 
 ```c++
 	/*
 	 * Those offsets are specific to each MPU6050 device.
@@ -142,16 +149,18 @@ ________________________________________________________________________________
 
 
 #### 3. Prepare your SDCard
-Then, put the content of SDCard.zip on your SDCard:  
+Then, put the content of _SDCard.7z_ on your SDCard:  
 
-1. Format your SDCard. I insist !  (explanation to come)
+1. Format your SDCard. __I insist !__  (go read __HOW TO MANAGE YOUR SDRCARD__ section for further explanation)
 2. Unzip SDCard.7z to a folder
 3. Select all the files from this folder and __"Drag and Drop"__ them to your SDCard. __NO COPY AND PASTE !!!__ :
 We need to have this file copied in the same order as their filename order. On Microsoft Windows, Copy/paste produce an anarchic copy order, but Drag and Drop produce an ordered copy...  
 
 
 #### 4. Check Wirings
-Use of original Protonerd's wirings since 1.0RC3  
+_If you use DIYno board, don't mind that paragraph._   
+
+Using  **Protonerd's** wirings.    
 Don't forget to wire those ones which were added :  
 * DFPLAYER TX to D7
 * DFPLAYER SPK+ to A0
@@ -356,15 +365,6 @@ By priority :
 	* double clik on Aux switch in action/config/standby mode.
 * Rewrite some function in Assembler
 * Pitch shifting on movements (don't know if it's feasable)
-
-________________________________________________________________________________   
-
-## VIDEOS
-
-* [DIYino demo of Neopixel lightsaber blade with LSOS](https://www.youtube.com/watch?v=lyk8riXgIzM)  
-* [DIYino prototype demo with LSOS by neskweek - Swings](https://www.youtube.com/watch?v=tU3GZzV9I6E)  
-* [Motion Detection Demo (made under v1.0 RC5)] (https://www.youtube.com/watch?v=wY8BSSEyYLY)  
-* [Quick tour (made under v1.0 RC4)] (https://youtu.be/mc8scn_qyFM)  
 
 ________________________________________________________________________________   
 
