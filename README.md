@@ -64,9 +64,9 @@ Download the right file for your OS
 2. Download [Arduino Eclipse v.2016-03-11_03-29-38](http://www.baeyens.it/eclipse/download.php)      
 Again, download the right file for your OS   
 3. Uncompress this archive inside c:\Program Files   
-4. Start C:\Program Files\eclipseArduino\eclipseArduinoIDE.exe
+4. Start C:\Program Files\eclipseArduino\eclipseArduinoIDE.exe    
 On first start up you will be ask where to put your prject workspace.   
-I advise you to put it there (off course replace "nesk" by your username) :   
+I advise you to put it there (off course replace "neskw" by your username) :   
 ![Set workspace destination](https://raw.githubusercontent.com/neskweek/LightSaberOS/master/README/eclipse1.PNG)   
 On first startup it will download a bunch of stuff related to Arduino Libraries.   
 Wait until it finishes   
@@ -90,9 +90,9 @@ ________________________________________________________________________________
 ## IMPORT GITHUB FILES INSIDE ECLIPSE PROJECT:
 
 1. Uncompress LightSaberOS-master.zip archive
-2. If not already done create this directory : C:\Users\neskw\Arduino
-3. Copy and Paste LightSaberOS-master\Libraries directory inside C:\Users\neskw\Arduino
-4. Inside Eclipse Right click on LightSaberOS project  > Import
+2. If not already done create this directory : C:\Users\neskw\Arduino   
+3. Copy and Paste LightSaberOS-master\Libraries directory inside C:\Users\neskw\Arduino   
+4. Inside Eclipse Right click on LightSaberOS project  > Import    
 ![Import source files](https://raw.githubusercontent.com/neskweek/LightSaberOS/master/README/eclipse5.PNG)   
 Then press Next  
 ![Select source directory](https://raw.githubusercontent.com/neskweek/LightSaberOS/master/README/eclipse6.PNG)   
@@ -100,13 +100,13 @@ Then press Next
 In "Eclipse Project explorer" open the new created LightSaberOS-master and select those files :   
 ![Select source directory](https://raw.githubusercontent.com/neskweek/LightSaberOS/master/README/eclipse7.PNG)   
 Then drag and drop them to the root structure of the project   
-5. Inside Eclipse Right click on LightSaberOS project  > Import
+5. Inside Eclipse Right click on LightSaberOS project  > Import   
 ![Import Libraries](https://raw.githubusercontent.com/neskweek/LightSaberOS/master/README/eclipse8.PNG)   
-Then press Next 
-Select those libraries :
+Then press Next    
+Select those libraries :     
 ![Select Libraries](https://raw.githubusercontent.com/neskweek/LightSaberOS/master/README/eclipse9.PNG)   
-Then press Finish 
-6. Delete LightSaberOS-master directory from Eclipse Project explorer   
+Then press Finish    
+6. Delete LightSaberOS-master directory from Eclipse Project explorer    
     
    
 You should end up with this Project explorer structure :   
@@ -118,10 +118,10 @@ ________________________________________________________________________________
    
    
  
-### SETUP PROJECT 
+### SETUP PROJECT    
 
 #### 1. IMU calibration 
- First, you'll need (if not already done) to calibrate your MPU6050.  
+ First, you'll need (if not already done) to calibrate your MPU6050.   
  [I recommend you use the AutoCalibration script you can find here](http://www.i2cdevlib.com/forums/topic/96-arduino-sketch-to-automatically-calculate-mpu6050-offsets/)  
  Note the offset values it will give you and replace those you'll find inside setup() function  in __Lightsaber.ino__ : 
 ```c++
