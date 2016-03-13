@@ -254,6 +254,89 @@ ________________________________________________________________________________
 
 ________________________________________________________________________________  
 
+### HOW TO MANAGE YOUR SDCRAD
+#### 1. For DFPlayer Mini
+
+While there are several ways to make DFPlayer Mini plays your sound files from your SDard, only one can provide full gapless sound "enqueuing" : we need to call each sound file by their copy order number.    
+
+Let's say you have a fresh formatted SDcard.   
+You copy one file on it : its copy order is 1.   
+You copy another one: its copy order is 2. 
+You copy another one: its copy order is 3.   
+
+Now the main "problem" to be aware of is : you remove file 2 (because you maybe want to replace it) : file 3 keep is order number.
+You copy another one: its copy order is 4.    
+
+In that case the only proper way to manage your SDCard I found is he following :    
+1. You create a folder called _sdcard_ on your computer    
+2. Using a batch renamer utility (I personnaly use [Bulk Rename Utility](http://www.bulkrenameutility.co.uk/Main_Intro.php)) you rename and copy your sound files to that folder in the order you planned     
+3. You format your SDCard   
+4. You select all your files from _sdcard_ directory and __DRAG AND DROP__ them to your SDCard.   
+
+Drag and drop on windows genereate a ordered copy following file name sorting.    
+Copy and paste (Crtl+C/Ctrl+V) generate an anarchic ordered copy. Don't use it !  
+
+Each time you will want to modify one file you'll have to do it that way. Adding files on he other hand can be done without formatting.   
+
+Files MUST be named that way :   
+_XXXX[-myfileName].wav_   
+where :   
+* XXXX is the order number planned (ex.: 0001, 0002, 2568,...)    
+* [-myfileName] is OPTIONNAL. But I encourage you to put one to ease up organisation.    
+__YOU MUST ABSOLUTLY AVOID ALL GAPS IN THE ORDER NUMBER YOU PLANNED !!!__    
+
+You can put files in different folders if you like. You don't necessarily need to let them on SDCard root.     
+__BUT STILL BEWARE OF THOSE NUMBERS !!!!__   
+Here are different examples of organisation you can use :
+
+* All in SDCard root (like SDCard.7z example provided)   
+* 1 folder for each SoundFonts. For example :    
+	* **_CONFIG_** folder containing files numbered 0001 to 0020
+	* **_Barlow's_** folder containing files numbered 0021 to 0053
+	* **_MySoundfont_** folder containing files numbered 0079 to 0124
+	* **_ZZZZZ_** folder containing files numbered 0054 to 0078
+In this example files in ZZZZZ have been copied BEFORE those in MySoundfont
+* an other example of organisation :
+	* **_CONFIG_** folder containing files numbered 0001 to 0020
+	* **_Barlow's_** folder containing files  0021-PowerOn.wav, 0022-PowerOff.wav,0023-Hum.wav,0024-Boot.wav
+	* **_Swing_** folder containing only swing sound files numbered 0025 to 1075
+	* **_Clash_** folder containing only clash sound files numbered 1076 to 1078
+	* **_Blaster_** folder containing only blaster sound files numbered 1079 to 2001
+	* **_Lockup_** folder containing only lockup sound files numbered 2002 to 2024   
+	* **_MySoundFont_** folder containing files numbered 2025-Hum.wav, 2026-Boot.wav 2027-PowerOff.wav,2028-PowerOn.wav      
+In that case, the user wants to be able to use all of his swing/clash/blaster/lockup/etc. sounds with every of its soundfont.   
+He can also configure some soundfont to use just a part like for example Swings 0100 to 0153.   
+
+________________________________________________________________________________ 
+
+### HOW TO PERSONNALIZE CONFIG MENU SOUNDS
+
+Let's say you want to change the lady voice or ladies usres may want their saber with a male voice or you may want her to talk in Dutch or French or Italian or Spanish (name your langage here).    
+
+
+I used [this online free Text-To-Speech generator](http://www.fromtexttospeech.com/) to produce those sounds.   
+You can produce your own sentences with it or use any other Text-To-Speech program.  
+For example :    
+"Hello Master! You just entered into Config Mode !"    
+Then rename the file it produces : 0001-CONFIG-ConfigMode.mp3. Remove old 0001-CONFIG-ConfigMode.wav file.    
+
+
+**_N.B.:_** _Only in Config Mode case_, mp3 are OK to use. We don't care in this mode if there's sound gap.
+
+________________________________________________________________________________ 
+
+### HOW TO MAKE YOUR OWN SOUNDFONT
+
+[In this video](https://www.youtube.com/watch?v=Q_6VITJT0-w), you'll learn how to create the differents lightsabers sounds-effects.   
+
+You can experiment with different device to produce some unique sounds.   
+
+Then use Audacity to mix them.    
+
+Final sounds **MUST BE** in WAV format (**_NO MP3 ! NO WMA!_**)!   
+When encoding a sound to those format (MP3 or WMA) the encoder will automaticly put a silence at start.
+________________________________________________________________________________ 
+
 ## License:
 
 This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License.  
@@ -339,21 +422,12 @@ ________________________________________________________________________________
 
 ________________________________________________________________________________ 
 
-### HOW TO MANAGE YOUR SDCRAD
-
-________________________________________________________________________________ 
-
 ### HOW TO ADD A SOUNDFONT
 
-________________________________________________________________________________ 
-
-### HOW TO PERSONNALIZE CONFIG MENU SOUNDS
+Edit SoundFont.h
 
 ________________________________________________________________________________ 
 
-### HOW TO MAKE YOUR OWN SOUNDFONT
-
-________________________________________________________________________________ 
 
 ### NOTES :
 
