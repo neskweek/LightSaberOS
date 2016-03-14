@@ -410,6 +410,21 @@ void lightFlicker(uint8_t ledPins[], uint8_t type, uint8_t value) {
 #endif
 #ifdef LUXEON
 
+void lightOn(uint8_t ledPins[], uint8_t color[]) {
+// Light On
+	for (uint8_t i = 0; i <= 2; i++) {
+		analogWrite(ledPins[i], MAX_BRIGHTNESS * color[i] / rgbFactor);
+	}
+} //lightOn
+
+void lightOff(uint8_t ledPins[]) {
+// shut Off
+	for (uint8_t i = 0; i <= 2; i++) {
+		analogWrite(ledPins[i], LOW);
+	}
+} //lightOff
+
+
 void lightIgnition(uint8_t ledPins[], uint8_t color[], uint16_t time) {
 
 // Fade in to Maximum brightness
@@ -435,20 +450,6 @@ void lightRetract(uint8_t ledPins[], uint8_t color[], uint16_t time) {
 
 	lightOff(ledPins);
 } //lightRetract
-
-void lightOn(uint8_t ledPins[], uint8_t color[]) {
-// Light On
-	for (uint8_t i = 0; i <= 2; i++) {
-		analogWrite(ledPins[i], MAX_BRIGHTNESS * color[i] / rgbFactor);
-	}
-} //lightOn
-
-void lightOff(uint8_t ledPins[]) {
-// shut Off
-	for (uint8_t i = 0; i <= 2; i++) {
-		analogWrite(ledPins[i], LOW);
-	}
-} //lightOff
 
 void lightFlicker(uint8_t ledPins[], uint8_t color[], uint8_t value) {
 	uint8_t brightness;

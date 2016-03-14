@@ -1294,7 +1294,7 @@ ISR(TIMER2_COMPA_vect, ISR_NOBLOCK) {
 #endif
 
 #ifdef LUXEON
-	lightFlicker(ledPins, currentColor);
+	lightFlicker(ledPins, currentColor,0);
 #endif
 	if (clash) {
 
