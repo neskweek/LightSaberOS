@@ -90,8 +90,8 @@ ________________________________________________________________________________
 ## IMPORT GITHUB FILES INSIDE ECLIPSE PROJECT:
 
 1. Uncompress LightSaberOS-master.zip archive
-2. If not already done create this directory : C:\Users\neskw\Arduino   
-3. Copy and Paste LightSaberOS-master\Libraries directory inside C:\Users\neskw\Arduino   
+2. If not already done create this directory : C:\Users\__[YOUR USERNAME]__\Arduino   
+3. Copy and Paste LightSaberOS-master\Libraries directory inside C:\Users\__[YOUR USERNAME]__\Arduino   
 4. Inside Eclipse Right click on LightSaberOS project  > Import    
 ![Import source files](https://raw.githubusercontent.com/neskweek/LightSaberOS/master/README/eclipse5.PNG)   
 Then press Next  
@@ -118,7 +118,7 @@ ________________________________________________________________________________
    
    
  
-### SETUP PROJECT    
+### PROJECT SETUP   
 
 #### 1. IMU calibration 
  First, you'll need (if not already done) to calibrate your MPU6050.   
