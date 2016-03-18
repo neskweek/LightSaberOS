@@ -76,6 +76,14 @@ static const uint8_t rgbFactor = 100;
  ************************************/
 #define MAX_BRIGHTNESS		200
 
+/* LIGHT_EFFECTS
+ *
+ * Enable / disable  all light and
+ * color effects of the blade
+ * If you a device with a CPU wich is not
+ * an Atmega328 : COMMENT THIS
+ ************************************/
+#define LIGHT_EFFECTS
 
 
 #define BLASTER_FLASH_TIME  3
@@ -93,6 +101,8 @@ static const uint8_t rgbFactor = 100;
 /* DEEP_SLEEP
  * If you want to enable/disable
  * deep sleep capabalities
+ * If you a device with a CPU wich is not
+ * an Atmega328 : COMMENT THIS
  *************************************/
 #define DEEP_SLEEP
 #ifdef DEEP_SLEEP

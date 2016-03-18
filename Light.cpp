@@ -241,7 +241,7 @@ void lightRetract(uint8_t ledPins[], uint16_t time, uint8_t type) {
 	switch (type) {
 	case 0:
 // Light off the ledstrings Movie Like
-		for (uint8_t i = 5; i >= 0; i--) {
+		for (int8_t i = 5; i >= 0; i--) {
 			digitalWrite(ledPins[i], LOW);
 			delay(time / 5);
 		}

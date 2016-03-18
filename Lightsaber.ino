@@ -388,8 +388,10 @@ void setup() {
 	/***** LED SEGMENT INITIALISATION  *****/
 
 	/***** BUTTONS INITIALISATION  *****/
-	PCMSK0 |= (1 << PCINT4); // set PCINT4 (PIN 12) to trigger an interrupt on state change
-	PCMSK2 |= (1 << PCINT20); // set PCINT20 (PIN 4) to trigger an interrupt on state change
+#ifdef DEEP_SLEEP
+	PCMSK0 = (1 << PCINT4); // set PCINT4 (PIN 12) to trigger an interrupt on state change
+	PCMSK2 = (1 << PCINT20); // set PCINT20 (PIN 4) to trigger an interrupt on state change
+#endif
 
 	// link the Main button functions.
 	mainButton.setClickTicks(CLICK);
@@ -443,7 +445,9 @@ void loop() {
 			if (actionMode) {
 				delay(500);
 				actionMode = false;
+#ifdef LIGHT_EFFECTS
 				TIMSK2 = 0;
+#endif
 				dfplayer.playPhysicalTrack(soundFont.getPowerOff());
 				changeMenu = false;
 				ignition = false;
@@ -544,7 +548,7 @@ void loop() {
 #endif
 
 			sndSuppress = millis();
-
+#ifdef LIGHT_EFFECTS
 			/*
 			 *  Interrupt Timer2 configuration
 			 */
@@ -554,6 +558,7 @@ void loop() {
 			TCCR2B |= (1 << CS21) | (1 << CS22);
 			// start timer2 compare interrupt:
 			TIMSK2 |= (1 << OCIE2A);
+#endif
 
 			// Get the initial position of the motion detector
 			motionEngine();
@@ -943,7 +948,9 @@ void loop() {
 
 		if (ignition) { // we just leaved Action Mode
 			detachInterrupt(0);
-			TIMSK2 = 0;
+#ifdef LIGHT_EFFECTS
+			TIMSK2 &= ~(1<<OCIE2A);
+#endif
 			dfplayer.playPhysicalTrack(soundFont.getPowerOff());
 			changeMenu = false;
 			ignition = false;
@@ -1287,6 +1294,7 @@ void fadeAccent() {
  * each 22 µs this method is called and modifies the blade brightness
  * The parameter is defined in ignition block
  */
+#ifdef LIGHT_EFFECTS
 ISR(TIMER2_COMPA_vect, ISR_NOBLOCK) {
 
 #ifdef LEDSTRINGS
@@ -1421,7 +1429,8 @@ ISR(TIMER2_COMPA_vect, ISR_NOBLOCK) {
 			FoCOff(FoCSTRING);
 #endif
 			blink++;
-		} else if (blink == 24) {
+		}
+			else if (blink == 24) {
 #ifdef LUXEON
 			getColor(currentColor, storage.mainColor);
 			lightOn(ledPins, currentColor);
@@ -1436,6 +1445,7 @@ ISR(TIMER2_COMPA_vect, ISR_NOBLOCK) {
 			blink = 0;
 			blaster--;
 		}
+
 	} else if (lowBattery) {
 		uint8_t brightness;
 		if (blink == 0) {
@@ -1461,3 +1471,4 @@ ISR(TIMER2_COMPA_vect, ISR_NOBLOCK) {
 
 }
 
+#endif //LIGHT_EFFECTS
