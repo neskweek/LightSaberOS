@@ -1110,14 +1110,14 @@ inline void motionEngine() {
 		return;
 
 // wait for MPU interrupt or extra packet(s) available
-	while (!mpuInterrupt && mpuFifoCount < packetSize) {
+//	while (!mpuInterrupt && mpuFifoCount < packetSize) {
 		/* other program behavior stuff here
 		 *
 		 * If you are really paranoid you can frequently test in between other
 		 * stuff to see if mpuInterrupt is true, and if so, "break;" from the
 		 * while() loop to immediately process the MPU data
 		 */
-	}
+//	}
 
 // reset interrupt flag and get INT_STATUS byte
 	mpuInterrupt = false;
@@ -1291,7 +1291,7 @@ void fadeAccent() {
 /*
  * If no other interrupt has been triggered, and if my calculation are right
  * this timer has an almost 44100 khz frequency triggering :
- * each 22 µs this method is called and modifies the blade brightness
+ * each 22 Âµs this method is called and modifies the blade brightness
  * The parameter is defined in ignition block
  */
 #ifdef LIGHT_EFFECTS
