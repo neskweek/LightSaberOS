@@ -31,7 +31,7 @@ ________________________________________________________________________________
 
 ### WHAT YOU WILL NEED :
 * [Java Runtime Environment 8](http://www.oracle.com/technetwork/java/javase/downloads/jre8-downloads-2133155.html) Download the right file for your architecture
-* [Arduino Eclipse v.2016-03-11_03-29-38](http://www.baeyens.it/eclipse/download.php) Again, download the right file for your architecture
+* [Arduino Eclipse v3.0](http://www.baeyens.it/) Again, download the right file for your architecture
 * my new DFPlayer library (Included in zip file)
 * [I2Cdev and MPU6050 (Included in zip file)](https://codeload.github.com/jrowberg/i2cdevlib/zip/master) 
 * [EEPROMex9.1 (Included in zip file)](http://thijs.elenbaas.net/wp-content/uploads/downloads/2013/12/EEPROMEx-9.1.zip)
@@ -61,7 +61,7 @@ ________________________________________________________________________________
 ## SET UP YOUR PC:
 1. Download and install [Java Runtime Environment 8](http://www.oracle.com/technetwork/java/javase/downloads/jre8-downloads-2133155.html)   
 Download the right file for your OS   
-2. Download [Arduino Eclipse v.2016-03-11_03-29-38](http://www.baeyens.it/eclipse/download.php)      
+2. Download [Arduino Eclipse v3.0](http://www.baeyens.it/)      
 Again, download the right file for your OS   
 3. Uncompress this archive inside c:\Program Files   
 4. Start C:\Program Files\eclipseArduino\eclipseArduinoIDE.exe    
