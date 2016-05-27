@@ -60,7 +60,7 @@ ________________________________________________________________________________
 
 ## SET UP YOUR PC:
 
-For people who don't want to use Eclipse Arduino, and prefer use Arduino IDE (which is really simpler if you d'on't plan to code) please click [this link to download Pert (per1234) fork of LSOS] (https://github.com/per1234/LightSaberOS)
+For people who don't want to use Eclipse Arduino, and prefer use Arduino IDE (which is really simpler if you d'on't plan to code) please click [this link to download Pert (per1234) fork of LSOS] https://github.com/per1234/LightSaberOS/tree/all-Arduino-IDE-compatibility)
 
 
 1. Download and install [Java Runtime Environment 8](http://www.oracle.com/technetwork/java/javase/downloads/jre8-downloads-2133155.html)   
