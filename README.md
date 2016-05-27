@@ -59,6 +59,10 @@ I would be glad to see other modules added. If you're interested to make your de
 ________________________________________________________________________________   
 
 ## SET UP YOUR PC:
+
+For people who don't want to use Eclipse Arduino, and prefer use Arduino IDE (which is really simpler if you d'on't plan to code) please click [this link to download Pert (per1234) fork of LSOS] (https://github.com/per1234/LightSaberOS)
+
+
 1. Download and install [Java Runtime Environment 8](http://www.oracle.com/technetwork/java/javase/downloads/jre8-downloads-2133155.html)   
 Download the right file for your OS   
 2. Download [Arduino Eclipse v3.0](http://www.baeyens.it/)      
