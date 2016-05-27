@@ -30,8 +30,12 @@ ________________________________________________________________________________
 ________________________________________________________________________________   
 
 ### WHAT YOU WILL NEED :
-* [Java Runtime Environment 8](http://www.oracle.com/technetwork/java/javase/downloads/jre8-downloads-2133155.html) Download the right file for your architecture
-* [Arduino Eclipse v3.0](http://www.baeyens.it/) Again, download the right file for your architecture
+* [Java Runtime Environment 8](http://www.oracle.com/technetwork/java/javase/downloads/jre8-downloads-2133155.html)    
+Download the right file for your architecture
+* [Arduino IDE](https://www.arduino.cc/en/Main/Software) (advised for end user)   
+OR    
+  [Arduino Eclipse v3.0](http://www.baeyens.it/) (advised for developpers)  
+Again, download the right files for your architecture
 * my new DFPlayer library (Included in zip file)
 * [I2Cdev and MPU6050 (Included in zip file)](https://codeload.github.com/jrowberg/i2cdevlib/zip/master) 
 * [EEPROMex9.1 (Included in zip file)](http://thijs.elenbaas.net/wp-content/uploads/downloads/2013/12/EEPROMEx-9.1.zip)
@@ -58,10 +62,11 @@ I would be glad to see other modules added. If you're interested to make your de
    
 ________________________________________________________________________________   
 
-## SET UP YOUR PC:
+## SET UP YOUR PC FOR ECLIPSE USE (OPTIONAL):
 
-For people who don't want to use Eclipse Arduino, and prefer use Arduino IDE (which is really simpler if you d'on't plan to code) please click [this link to download Pert (per1234) fork of LSOS] https://github.com/per1234/LightSaberOS/tree/all-Arduino-IDE-compatibility)
+For people who don't want to use Eclipse Arduino, and prefer use Arduino IDE (which is really simpler if you don't plan to code) you can jump off to project setup section.    
 
+LSOS is now fully compatible with Arduino IDE thanks to [Pert (per1234)] (https://github.com/per1234) 
 
 1. Download and install [Java Runtime Environment 8](http://www.oracle.com/technetwork/java/javase/downloads/jre8-downloads-2133155.html)   
 Download the right file for your OS   
