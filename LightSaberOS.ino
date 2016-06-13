@@ -440,7 +440,7 @@ void setup() {
 // ===               	   			LOOP ROUTINE  	 	                			===
 // ====================================================================================
 void loop() {
-
+	/* 1.0.4 BUGGED
 	//Check battery level
 	if (lastBatterycheck == 0 or millis() - lastBatterycheck >= 60000) {
 		uint16_t voltage = readVcc();
@@ -514,7 +514,7 @@ void loop() {
 		Serial.println(readVcc());
 #endif
 	}
-
+*/
 	// if MPU6050 DMP programming failed, don't try to do anything : EPIC FAIL !
 	if (!dmpReady) {
 		return;
