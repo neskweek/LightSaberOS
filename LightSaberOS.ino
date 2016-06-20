@@ -37,21 +37,8 @@
 #define CONFIG_VERSION 		"L01"
 #define MEMORYBASE 			32
 #define SWING_SUPPRESS 		400
-#ifdef WRIST_MOVEMENTS
-#define	WRIST_SENSIBILITY	1000
-#endif
 /************************************/
 
-/*
- * BATTERY SAFETY MONITOR
- * Modify to match your baterries specs
- * rule of thumbs for serial wired batteries:
- * LOW_BATTERY = 3200 * Nb_of_battery_cells
- * CRITICAL_BATTERY = 3050 * Nb_of_battery_cells
- *************************************/
-#define LOW_BATTERY 		3200
-#define CRITICAL_BATTERY 	3050
-/************************************/
 
 /*
  * DEFAULT CONFIG PARAMETERS
@@ -60,7 +47,7 @@
  *************************************/
 #define VOL					13
 #define SOUNDFONT 			2
-#define	SWING 				800
+#define	SWING 				140
 /************************************/
 
 /***************************************************************************************************
@@ -77,9 +64,9 @@ uint8_t fifoBuffer[64]; // FIFO storage buffer
 uint16_t mpuFifoCount;     // count of all bytes currently in FIFO
 // orientation/motion vars
 Quaternion quaternion;           // [w, x, y, z]         quaternion container
-VectorInt16 aaWorld; // [x, y, z]            world-frame accel sensor measurements
 static Quaternion quaternion_last;  // [w, x, y, z]         quaternion container
 static Quaternion quaternion_reading; // [w, x, y, z]         quaternion container
+VectorInt16 aaWorld; // [x, y, z]            world-frame accel sensor measurements
 static VectorInt16 aaWorld_last; // [x, y, z]            world-frame accel sensor measurements
 static VectorInt16 aaWorld_reading; // [x, y, z]            world-frame accel sensor measurements
 
@@ -142,11 +129,6 @@ bool enterMenu = false;
 bool changeMenu = false;
 bool play = false;
 unsigned int configAdress = 0;
-long lastBatterycheck = 0;
-bool lowBattery = false;
-#ifdef DEEP_SLEEP
-static long timeToDeepSleep = millis();
-#endif
 volatile uint8_t portbhistory = 0xFF;     // default is high because the pull-up
 #ifdef LEDSTRINGS
 struct StoreStruct {
@@ -331,12 +313,11 @@ void setup() {
 	mpu.setI2CBypassEnabled(false);
 	// Enable/disable interrupt sources - enable only motion interrupt
 	mpu.setIntFreefallEnabled(false);
-	mpu.setIntMotionEnabled(true);
+	mpu.setIntMotionEnabled(true); // INT_ENABLE register enable interrupt source  motion detection
 	mpu.setIntZeroMotionEnabled(false);
 	mpu.setIntFIFOBufferOverflowEnabled(false);
 	mpu.setIntI2CMasterEnabled(false);
 	mpu.setIntDataReadyEnabled(false);
-	mpu.setIntMotionEnabled(true); // INT_ENABLE register enable interrupt source  motion detection
 	mpu.setMotionDetectionThreshold(10); // 1mg/LSB
 	mpu.setMotionDetectionDuration(2); // number of consecutive samples above threshold to trigger int
 	mpuIntStatus = mpu.getIntStatus();
@@ -396,10 +377,6 @@ void setup() {
 	/***** LED SEGMENT INITIALISATION  *****/
 
 	/***** BUTTONS INITIALISATION  *****/
-#ifdef DEEP_SLEEP
-	PCMSK0 = (1 << PCINT4); // set PCINT4 (PIN 12) to trigger an interrupt on state change
-	PCMSK2 = (1 << PCINT20); // set PCINT20 (PIN 4) to trigger an interrupt on state change
-#endif
 
 	// link the Main button functions.
 	mainButton.setClickTicks(CLICK);
@@ -440,81 +417,6 @@ void setup() {
 // ===               	   			LOOP ROUTINE  	 	                			===
 // ====================================================================================
 void loop() {
-	/* 1.0.4 BUGGED
-	//Check battery level
-	if (lastBatterycheck == 0 or millis() - lastBatterycheck >= 60000) {
-		uint16_t voltage = readVcc();
-		if (voltage <= CRITICAL_BATTERY) {
-			dfplayer.playPhysicalTrack(7);
-#ifdef DEEP_SLEEP
-			timeToDeepSleep = millis();
-#endif
-			delay(500);
-			if (actionMode) {
-				delay(500);
-				actionMode = false;
-#ifdef LIGHT_EFFECTS
-				TIMSK2 = 0;
-#endif
-				dfplayer.playPhysicalTrack(soundFont.getPowerOff());
-				changeMenu = false;
-				ignition = false;
-				blasterBlocks = false;
-				modification = 0;
-#ifdef LS_INFO
-				Serial.println(F("CRITICAL BATTERY !!!"));
-#endif
-#ifdef LUXEON
-				lightRetract(ledPins, currentColor, soundFont.getPowerOffTime());
-#endif
-#ifdef LEDSTRINGS
-				lightRetract(ledPins, soundFont.getPowerOffTime(),
-						storage.soundStringPreset[storage.soundFont][1]);
-#endif
-			}
-			delay(70);
-			dfplayer.setVolume(15);
-			delay(70);
-			dfplayer.playPhysicalTrack(8); // Critical Battery Alert
-			delay(50);
-			dfplayer.setSingleLoop(true);
-
-			while (lastBatterycheck == lastBatterycheck) {
-				// volontary infinite loop
-				// WE WANT to lock the user so HE/SHE MUST change/charge
-				// his/her battery before ruining it
-
-#ifdef DEEP_SLEEP
-				timeToDeepSleep = millis() - (2 * SLEEP_TIMER);
-				deepSleep();
-#endif
-			}
-		} else if (voltage <= LOW_BATTERY) {
-			dfplayer.playPhysicalTrack(7); // Low Battery warning
-			if (actionMode) {
-				lowBattery = true;
-			}
-			delay(1000);
-			dfplayer.playPhysicalTrack(soundFont.getHum());
-			delay(40);
-			if (actionMode) {
-
-				dfplayer.setSingleLoop(true);
-				delay(40);
-				lowBattery = false;
-				randomBlink = 0;
-				blink = 0;
-			}
-		}
-
-		lastBatterycheck = millis();
-
-#ifdef LS_DEBUG
-		Serial.print(F("Vcc:"));
-		Serial.println(readVcc());
-#endif
-	}
-*/
 	// if MPU6050 DMP programming failed, don't try to do anything : EPIC FAIL !
 	if (!dmpReady) {
 		return;
@@ -614,34 +516,9 @@ void loop() {
 		 * We detect swings as hilt's orientation change
 		 * since IMUs sucks at determining relative position in space
 		 */
-#ifdef BLADE_Z
+
 		else if ((millis() - sndSuppress >= SWING_SUPPRESS) and not lockup
-				and abs(quaternion.w) > storage.swingTreshold and aaWorld.z < 0
-				and abs(quaternion.z) < (9 / 2) * storage.swingTreshold
-				and (abs(quaternion.x) > 3 * storage.swingTreshold
-						or abs(quaternion.y) > 3 * storage.swingTreshold) // We don't want to treat blade Z axe rotations as a swing
-				)
-#endif
-#ifdef BLADE_Y
-				else if ((millis() - sndSuppress >= SWING_SUPPRESS)
-						and not lockup
-						and abs(quaternion.w) > storage.swingTreshold
-						and aaWorld.y < 0
-						and abs(quaternion.y) < (9 / 2) * storage.swingTreshold
-						and (abs(quaternion.x) > 3 * storage.swingTreshold
-								or abs(quaternion.z) > 3 * storage.swingTreshold) // We don't want to treat blade Y axe rotations as a swing
-				)
-#endif
-#ifdef BLADE_X
-				else if ((millis() - sndSuppress >= SWING_SUPPRESS)
-						and not lockup
-						and abs(quaternion.w) > storage.swingTreshold
-						and aaWorld.x < 0
-						and abs(quaternion.x) < (9 / 2) * storage.swingTreshold
-						and (abs(quaternion.z) > 3 * storage.swingTreshold
-								or abs(quaternion.y) > 3 * storage.swingTreshold) // We don't want to treat blade X axe rotations as a swing
-				)
-#endif
+				and abs(quaternion.w) > storage.swingTreshold	)
 				{
 
 			if (!blasterBlocks) {
@@ -677,57 +554,6 @@ void loop() {
 				}
 			}
 		}
-
-#ifdef WRIST_MOVEMENTS
-
-#ifdef BLADE_Z
-		else if ((millis() - sndSuppress >= SWING_SUPPRESS)
-				and not lockup
-				and abs(quaternion.w) > storage.swingTreshold
-				and (aaWorld.z > 0
-						and abs(quaternion.z) > (13 / 2) * WRIST_SENSIBILITY
-						and abs(quaternion.x) < 3 * storage.swingTreshold
-						and abs(quaternion.y) < 3 * storage.swingTreshold)) // We specifically  treat blade Z axe rotations as a swing
-#endif
-#ifdef BLADE_Y
-		else if ((millis() - sndSuppress >= SWING_SUPPRESS)
-				and not lockup
-				and abs(quaternion.w) > storage.swingTreshold
-				and (aaWorld.y > 0
-						and abs(quaternion.y) > (13 / 2) * WRIST_SENSIBILITY
-						and abs(quaternion.x) < 3 * storage.swingTreshold
-						and abs(quaternion.z) < 3 * storage.swingTreshold) ) // We specifically  treat blade Z axe rotations as a swing
-#endif
-#ifdef BLADE_X
-		else if ((millis() - sndSuppress >= SWING_SUPPRESS)
-				and not lockup
-				and abs(quaternion.w) > storage.swingTreshold
-				and (aaWorld.x > 0
-						and abs(quaternion.x) > (13 / 2) * WRIST_SENSIBILITY
-						and abs(quaternion.z) < 3 * storage.swingTreshold
-						and abs(quaternion.y) < 3 * storage.swingTreshold)) // We specifically  treat blade Z axe rotations as a swing
-#endif
-		{
-			/*
-			 *  THIS IS A WRIST TWIST !
-			 *  The blade did rotate around its own axe
-			 */
-
-			if (soundFont.getWrist()) {
-				// Some Soundfont may not have Wrist sounds
-#ifdef LS_SWING_DEBUG
-				Serial.print(F("WRIST\ttime="));
-				Serial.print(millis() - sndSuppress);
-				Serial.print(F("\t"));
-				printAcceleration(aaWorld);
-				printQuaternion(quaternion, 1);
-#endif
-				dfplayer.playPhysicalTrack(soundFont.getWrist());
-				sndSuppress = millis();
-			}
-
-		}
-#endif
 		// ************************* blade movement detection ends***********************************
 
 	} ////END ACTION MODE HANDLER///////////////////////////////////////////////////////////////////////////////////////
@@ -931,7 +757,7 @@ void loop() {
 		case 5: //SWING SENSIBILITY
 			confMenuStart(storage.swingTreshold, 6, dfplayer);
 
-			confParseValue(storage.swingTreshold, 500, 3000, -100, dfplayer);
+			confParseValue(storage.swingTreshold, 50, 250, -10, dfplayer);
 
 			if (modification) {
 
@@ -964,9 +790,6 @@ void loop() {
 			ignition = false;
 			blasterBlocks = false;
 			modification = 0;
-#ifdef DEEP_SLEEP
-			timeToDeepSleep = millis();
-#endif
 
 #ifdef LS_INFO
 			Serial.println(F("END ACTION"));
@@ -987,9 +810,6 @@ void loop() {
 			browsing = false;
 			enterMenu = false;
 			modification = 0;
-#ifdef DEEP_SLEEP
-			timeToDeepSleep = millis();
-#endif
 			//dfplayer.setVolume(storage.volume);
 			menu = 0;
 #ifdef LUXEON
@@ -1024,93 +844,19 @@ void loop() {
 #endif
 #endif
 
-#ifdef DEEP_SLEEP
-		deepSleep();
-		timeToDeepSleep = millis();
-#endif
 
 	} // END STANDBY MODE
 } //loop
 
-// ====================================================================================
-// ===           	  			POWER MANAGEMENT	            		        	===
-// ====================================================================================
 
-/*
- * DEEP SLEEP FUNCTION
- * NEEDS TESTING
- *  I have difficulties to get out of deep sleep mode
- */
-#ifdef DEEP_SLEEP
-void deepSleep() {
-
-	if (millis() - timeToDeepSleep >= SLEEP_TIMER) {
-#ifdef LS_INFO
-		Serial.println(F("Powersave mode"));
-#endif
-		delay(20);
-
-		set_sleep_mode(SLEEP_MODE_PWR_DOWN); // sleep mode is set here
-		noInterrupts ();
-		// timed sequence follows
-
-		// enables the sleep bit in the mcucr register
-		sleep_enable()
-		;
-		// disable ADC
-		byte old_ADCSRA = ADCSRA;
-		ADCSRA = 0;
-
-		// turn off various modules
-		power_all_disable ();
-
-		//Reduce processor frequency
-		byte oldCLKPR = CLKPR;
-		CLKPR = bit(CLKPCE);
-		CLKPR = clock_div_256;
-
-		// turn off brown-out enable in software
-		MCUCR = bit (BODS) | bit(BODSE);  // turn on brown-out enable select
-		MCUCR = bit(BODS);   // this must be done within 4 clock cycles of above
-		// guarantees next instruction executed
-		// sleep within 3 clock cycles of above
-		interrupts ();
-		sleep_cpu ()
-		;
-
-		PCIFR |= bit (PCIF0) | bit(PCIF1) | bit(PCIF2); // clear any outstanding interrupts
-		PCICR |= bit (PCIE0) | bit(PCIE2); // enable pin change interrupts
-
-		sleep_mode()
-		;
-
-		// THE PROGRAM CONTINUES FROM HERE AFTER WAKING UP
-		// cancel sleep as a precaution
-		sleep_disable()
-		;
-		CLKPR = oldCLKPR;
-		power_all_enable ();
-		ADCSRA = old_ADCSRA;
-		CLKPR = bit(CLKPCE);
-		CLKPR = clock_div_1;
-		interrupts ();
-		delay(20);
-#ifdef LS_INFO
-		Serial.println(F("Normal mode"));
-#endif
-		delay(20);
-
-	}
-}
-#endif
 
 // ====================================================================================
 // ===           	  			MOTION DETECTION FUNCTIONS	            			===
 // ====================================================================================
 inline void motionEngine() {
-	long multiplier = 100000;
-	VectorInt16 aa;    // [x, y, z]            accel sensor measurements
-	VectorInt16 aaReal; // [x, y, z]            gravity-free accel sensor measurements
+	long multiplier = 1000;
+//	VectorInt16 aa;    // [x, y, z]            accel sensor measurements
+//	VectorInt16 aaReal; // [x, y, z]            gravity-free accel sensor measurements
 
 	VectorFloat gravity;    // [x, y, z]            gravity vector
 // if programming failed, don't try to do anything
@@ -1154,14 +900,14 @@ inline void motionEngine() {
 
 //Save last values
 		quaternion_last = quaternion_reading;
-		aaWorld_last = aaWorld_reading;
+//		aaWorld_last = aaWorld_reading;
 
 //retrieve values
 		mpu.dmpGetQuaternion(&quaternion_reading, fifoBuffer);
-		mpu.dmpGetGravity(&gravity, &quaternion_reading);
-		mpu.dmpGetAccel(&aa, fifoBuffer);
-		mpu.dmpGetLinearAccel(&aaReal, &aa, &gravity);
-		mpu.dmpGetLinearAccelInWorld(&aaWorld, &aaReal, &quaternion_reading);
+//		mpu.dmpGetGravity(&gravity, &quaternion_reading);
+//		mpu.dmpGetAccel(&aa, fifoBuffer);
+//		mpu.dmpGetLinearAccel(&aaReal, &aa, &gravity);
+//		mpu.dmpGetLinearAccelInWorld(&aaWorld, &aaReal, &quaternion_reading);
 #ifdef LS_MOTION_HEAVY_DEBUG
 // display quaternion values in easy matrix form: w x y z
 		printQuaternion(quaternion,multiplier);
@@ -1174,12 +920,12 @@ inline void motionEngine() {
 //We multiply by multiplier to obtain a more precise detection
 		quaternion.w = quaternion_reading.w * multiplier
 				- quaternion_last.w * multiplier;
-		quaternion.x = quaternion_reading.x * multiplier
-				- quaternion_last.x * multiplier;
-		quaternion.y = quaternion_reading.y * multiplier
-				- quaternion_last.y * multiplier;
-		quaternion.z = quaternion_reading.z * multiplier
-				- quaternion_last.z * multiplier;
+//		quaternion.x = quaternion_reading.x * multiplier
+//				- quaternion_last.x * multiplier;
+//		quaternion.y = quaternion_reading.y * multiplier
+//				- quaternion_last.y * multiplier;
+//		quaternion.z = quaternion_reading.z * multiplier
+//				- quaternion_last.z * multiplier;
 	}
 } //motionEngine
 
@@ -1229,32 +975,7 @@ inline void saveConfig() {
 	EEPROM.updateBlock(configAdress, storage);
 } //saveConfig
 
-inline uint16_t readVcc() { // courtesy of Scott Daniels : http://provideyourown.com/2012/secret-arduino-voltmeter-measure-battery-voltage/
-// Read 1.1V reference against AVcc
-// set the reference to Vcc and the measurement to the internal 1.1V reference
-#if defined(__AVR_ATmega32U4__) || defined(__AVR_ATmega1280__) || defined(__AVR_ATmega2560__)
-ADMUX = _BV(REFS0) | _BV(MUX4) | _BV(MUX3) | _BV(MUX2) | _BV(MUX1);
-#elif defined (__AVR_ATtiny24__) || defined(__AVR_ATtiny44__) || defined(__AVR_ATtiny84__)
-ADMUX = _BV(MUX5) | _BV(MUX0);
-#elif defined (__AVR_ATtiny25__) || defined(__AVR_ATtiny45__) || defined(__AVR_ATtiny85__)
-ADMUX = _BV(MUX3) | _BV(MUX2);
-#else
-	ADMUX = _BV(REFS0) | _BV(MUX3) | _BV(MUX2) | _BV(MUX1);
-#endif
 
-	delay(2); // Wait for Vref to settle
-	ADCSRA |= _BV(ADSC); // Start conversion
-	while (bit_is_set(ADCSRA, ADSC))
-		; // measuring
-
-	uint8_t low = ADCL; // must read ADCL first - it then locks ADCH
-	uint8_t high = ADCH; // unlocks both
-
-	long result = (high << 8) | low;
-
-	result = 1125300L / result; // Calculate Vcc (in mV); 1125300 = 1.1*1023*1000
-	return result; // Vcc in millivolts
-}
 // ====================================================================================
 // ===              	    			LED FUNCTIONS		                		===
 // ====================================================================================
@@ -1456,29 +1177,7 @@ ISR(TIMER2_COMPA_vect, ISR_NOBLOCK) {
 			blaster--;
 		}
 
-	} else if (lowBattery) {
-		uint8_t brightness;
-		if (blink == 0) {
-			randomBlink = random(7, 15);
-			blink++;
-			brightness = random(MAX_BRIGHTNESS - 50, MAX_BRIGHTNESS - 70);
-		} else if (blink < randomBlink) {
-			blink++;
-		} else if (blink == randomBlink and randomBlink >= 14) {
-			blink = 0;
-		} else if (blink == randomBlink and randomBlink < 14) {
-			randomBlink += random(7, 15);
-			brightness = 0;
-		}
-#ifdef LEDSTRINGS
-		lightFlicker(ledPins, storage.soundStringPreset[storage.soundFont][2],
-				brightness);
-#endif
-#ifdef LUXEON
-		lightFlicker(ledPins, currentColor, brightness);
-#endif
 	}
-
 }
 
 #endif //LIGHT_EFFECTS

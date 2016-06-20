@@ -6,20 +6,9 @@
  * Source : 	https://github.com/neskweek/LightSaberOS
  */
 
-#ifndef CONFIG_H_
+#if not defined CONFIG_H_
 #define CONFIG_H_
 
-
-/*!!!!!IMPORTANT IMPORTANT IMPORTANT IMPORTANT IMPORTANT!!!
- *
- * MPU6050 device ORIENTATION
- * Choose which MPU's axis is parallel
- * to your blade axis
- *************************************/
-//#define BLADE_X
-//#define BLADE_Y
-#define BLADE_Z
-/************************************/
 
 /*
  * BLADE TYPE
@@ -58,8 +47,8 @@ static const uint8_t rgbFactor = 100;
  * Default: 48
  */
 #define COLORS		 		48
-#endif
-#endif
+#endif //MY_OWN_COLORS
+#endif  //LUXEON
 /************************************/ // BLADE TYPE
 
 
@@ -91,26 +80,6 @@ static const uint8_t rgbFactor = 100;
 
 
 
-/* WRIST_MOVEMENTS
- * If you want to enable/disable
- * wrists twists movements
- *************************************/
-//#define WRIST_MOVEMENTS
-
-
-/* DEEP_SLEEP
- * If you want to enable/disable
- * deep sleep capabalities
- * If you a device with a CPU wich is not
- * an Atmega328 : COMMENT THIS
- *************************************/
-#define DEEP_SLEEP
-#ifdef DEEP_SLEEP
-#define SLEEP_TIMER			300000 //5min = 300000 millisecs
-#endif
-
-
-
 
 /*
  * PINS DEFINITION
@@ -131,8 +100,10 @@ static const uint8_t rgbFactor = 100;
  * single Flash On Clash ledstring
  *************************************/
 //
-#define FoCSTRING			13
-#endif
+//#define FoCSTRING			13
+
+
+#endif //LEDSTRINGS
 
 #ifdef LUXEON
 
@@ -202,7 +173,7 @@ static const uint8_t rgbFactor = 100;
  * For daily use I recommend you comment LS_INFO
  * When you plug your device to USB uncomment LS_INFO !
  */
-#define LS_INFO
+//#define LS_INFO
 #ifndef LS_INFO
 //#define LS_DEBUG
 #endif
