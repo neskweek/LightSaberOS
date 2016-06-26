@@ -59,7 +59,25 @@ Designed to be used on Arduino Nano (ATmega328 processors)
 	* Single LED
 
 I would be glad to see other modules added. If you're interested to make your device compatible, please contact me.
-   
+
+________________________________________________________________________________   
+
+## SET UP FOR ARDUINO IDE:
+
+These instructions should work for IDE version 1.6.0 and greater and may work with 1.5.x also. If compiling hangs with 1.6.4, try again with File > Preferences > Compiler warnings: None.
+
+0. Download and install Arduino IDE
+1. Download https://github.com/neskweek/LightSaberOS/archive/master.zip.
+2. Unzip the downloaded file LightSaberOS-master.zip.
+3. Rename the unzipped folder from LightSaberOS-master to LightSaberOS.
+4. Move all folders inside LightSaberOS/Libraries to {sketchbook folder}/libraries. You can find the location of your sketchbook folder at File > Preferences > Sketchbook location.
+5. Open the file LightSaberOS/LightSaberOS.ino.
+6. Connect the USB cable to your Arduino.
+7. Select the correct board in Tools > Board.
+8. Select the correct port in Tools > Port.
+9. Follow the Project Setup instructions at https://github.com/neskweek/LightSaberOS.
+10. Once all configuration changes have been made to LightSaberOS.ino, do Sketch > Upload.
+
 ________________________________________________________________________________   
 
 ## SET UP YOUR PC FOR ECLIPSE USE (OPTIONAL):
