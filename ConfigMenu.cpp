@@ -39,46 +39,49 @@ void confParseValue(uint16_t variable, uint16_t min, uint16_t max,
 
 void confMenuStart(uint16_t variable, uint16_t sound, DFPlayer& dfplayer) {
 	extern uint8_t ledPins[];
-#ifdef LUXEON
+#if defined LUXEON
 	extern uint8_t currentColor[];
+#endif
+#if defined NEOPIXEL
+	extern cRGB currentColor;
 #endif
 	extern bool enterMenu;
 	if (enterMenu) {
 		dfplayer.playPhysicalTrack(sound);
-		delay(100);
+		delay(500);
 
 		switch (sound) {
 		case 4:
-#ifdef LS_INFO
+#if defined LS_INFO
 			Serial.print(F("VOL\nCur:"));
 #endif
-#ifdef LEDSTRINGS
-			lightOff(ledPins);
+#if defined LEDSTRINGS
+			lightOff();
 			lightOn(ledPins, 0);
 #endif
 			break;
 		case 5:
-#ifdef LS_INFO
+#if defined LS_INFO
 			Serial.print(F("SNDFT\nCur:"));
 #endif
-#ifdef LEDSTRINGS
-			lightOff(ledPins);
+#if defined LEDSTRINGS
+			lightOff();
 			lightOn(ledPins, 1);
 #endif
 			break;
 		case 6:
-#ifdef LS_INFO
+#if defined LS_INFO
 			Serial.print(F("SWING\nCur:"));
 #endif
-#ifdef LEDSTRINGS
-			lightOff(ledPins);
-			lightOn(ledPins, 2);
+#if defined LEDSTRINGS
+			lightOff();
+			lightOn(ledPins, 5);
 #endif
 			break;
-#ifdef LUXEON
+#if defined LUXEON
 			case 9:
 			lightOff(ledPins);
-#ifdef LS_INFO
+#if defined LS_INFO
 			Serial.print(F("COLOR1\nCur:"));
 #endif
 			getColor(currentColor, variable);
@@ -86,7 +89,7 @@ void confMenuStart(uint16_t variable, uint16_t sound, DFPlayer& dfplayer) {
 			break;
 			case 10:
 			lightOff(ledPins);
-#ifdef LS_INFO
+#if defined LS_INFO
 			Serial.print(F("COLOR2\nCur:"));
 #endif
 			getColor(currentColor, variable);
@@ -94,39 +97,87 @@ void confMenuStart(uint16_t variable, uint16_t sound, DFPlayer& dfplayer) {
 			break;
 			case 11:
 			lightOff(ledPins);
-#ifdef LS_INFO
+#if defined LS_INFO
 			Serial.println(F("SAVE?\n"));
 #endif
 			break;
 #endif
-#ifdef LEDSTRINGS
-		case 17:
-#ifdef LS_INFO
+#if defined LEDSTRINGS
+			case 17:
+#if defined LS_INFO
 			Serial.print(F("PWRON\nCur:"));
 #endif
-			lightOff(ledPins);
-			lightOn(ledPins, 3);
+			lightOff();
+			lightOn(ledPins, 2);
 			break;
-		case 18:
-#ifdef LS_INFO
+			case 18:
+#if defined LS_INFO
 			Serial.print(F("PWROFF\nCur:"));
 #endif
-			lightOff(ledPins);
+			lightOff();
+			lightOn(ledPins, 3);
+			break;
+			case 19:
+#if defined LS_INFO
+			Serial.print(F("FLICK\nCur:"));
+#endif
+			lightOff();
 			lightOn(ledPins, 4);
+			break;
+#endif //LEDSTRINGS
+#if defined NEOPIXEL
+		case 9:
+			lightOff();
+
+#if defined LS_INFO
+			Serial.print(F("COLOR1\nCur:"));
+#endif
+			getColor(variable);
+			for (uint8_t i = 0; i < 3; i++) {
+				digitalWrite(ledPins[i], HIGH);
+			}
+			lightOn(currentColor);
+			break;
+		case 10:
+			lightOff();
+#if defined LS_INFO
+			Serial.print(F("COLOR2\nCur:"));
+#endif
+			getColor(variable);
+			lightOn(currentColor);
+			break;
+//			case 11:
+//
+//#if defined LS_INFO
+//			Serial.println(F("SAVE?\n"));
+//#endif
+//			break;
+		case 17:
+			lightOff();
+			for (uint8_t i = 0; i < 3; i++) {
+				digitalWrite(ledPins[i], LOW);
+			}
+#if defined LS_INFO
+			Serial.print(F("PWRON\nCur:"));
+#endif
+			break;
+		case 18:
+#if defined LS_INFO
+			Serial.print(F("PWROFF\nCur:"));
+#endif
 			break;
 		case 19:
 
-
-#ifdef LS_INFO
+#if defined LS_INFO
 			Serial.print(F("FLICK\nCur:"));
 #endif
-			lightOff(ledPins);
-			lightOn(ledPins, 5);
+			lightOff();
+			lightOn(currentColor);
 			break;
 #endif
 		}
 
-#ifdef LS_INFO
+#if defined LS_INFO
 		Serial.println(variable);
 #endif
 		value = variable;

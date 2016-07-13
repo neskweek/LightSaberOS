@@ -29,7 +29,7 @@ extern bool enterMenu;
 // ====================================================================================
 
 void mainClick() {
-#ifdef LS_BUTTON_DEBUG
+#if defined LS_BUTTON_DEBUG
 	Serial.println(F("Main button click."));
 #endif
 	if (actionMode) {
@@ -53,7 +53,7 @@ void mainClick() {
 } // mainClick
 
 void mainDoubleClick() {
-#ifdef LS_BUTTON_DEBUG
+#if defined LS_BUTTON_DEBUG
 	Serial.println(F("Main button double click."));
 #endif
 	if (actionMode) {
@@ -75,7 +75,7 @@ void mainDoubleClick() {
 } // mainDoubleClick
 
 void mainLongPressStart() {
-#ifdef LS_BUTTON_DEBUG
+#if defined LS_BUTTON_DEBUG
 	Serial.println(F("Main button longPress start"));
 #endif
 	if (actionMode) {
@@ -86,6 +86,12 @@ void mainLongPressStart() {
 		changeMenu = true;
 		enterMenu = true;
 		menu++;
+#if defined LUXEON
+			if (menu==4){menu=7;}
+#endif
+#if defined LEDSTRINGS
+			if (menu==2){menu=4;}
+#endif
 	} else if (!configMode && !actionMode) {
 		/*
 		 * ACTION TO DEFINE
@@ -94,7 +100,7 @@ void mainLongPressStart() {
 } // mainLongPressStart
 
 void mainLongPress() {
-#ifdef LS_BUTTON_DEBUG
+#if defined LS_BUTTON_DEBUG
 	Serial.println(F("Main button longPress..."));
 #endif
 	if (actionMode) {
@@ -114,7 +120,7 @@ void mainLongPress() {
 } // mainLongPress
 
 void mainLongPressStop() {
-#ifdef LS_BUTTON_DEBUG
+#if defined LS_BUTTON_DEBUG
 	Serial.println(F("Main button longPress stop"));
 #endif
 	if (!configMode && !actionMode) {
@@ -125,7 +131,7 @@ void mainLongPressStop() {
 } // mainLongPressStop
 
 void lockupClick() {
-#ifdef LS_BUTTON_DEBUG
+#if defined LS_BUTTON_DEBUG
 	Serial.println(F("Lockup button click."));
 #endif
 	if (actionMode) {
@@ -145,7 +151,7 @@ void lockupClick() {
 } // lockupClick
 
 void lockupDoubleClick() {
-#ifdef LS_BUTTON_DEBUG
+#if defined LS_BUTTON_DEBUG
 	Serial.println(F("Lockup button double click."));
 #endif
 	if (actionMode) {
@@ -158,7 +164,7 @@ void lockupDoubleClick() {
 } // lockupDoubleClick
 
 void lockupLongPressStart() {
-#ifdef LS_BUTTON_DEBUG
+#if defined LS_BUTTON_DEBUG
 	Serial.println(F("Lockup button longPress start"));
 #endif
 	if (actionMode) {
@@ -190,7 +196,7 @@ void lockupLongPressStart() {
 } // lockupLongPressStart
 
 void lockupLongPress() {
-#ifdef LS_BUTTON_DEBUG
+#if defined LS_BUTTON_DEBUG
 	Serial.println(F("Lockup button longPress..."));
 #endif
 	if (actionMode) {
@@ -209,7 +215,7 @@ void lockupLongPress() {
 } // lockupLongPress
 
 void lockupLongPressStop() {
-#ifdef LS_BUTTON_DEBUG
+#if defined LS_BUTTON_DEBUG
 	Serial.println(F("Lockup button longPress stop"));
 #endif
 	if (actionMode) {

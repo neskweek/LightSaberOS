@@ -10,6 +10,17 @@
 #define CONFIG_H_
 
 
+/*!!!!!IMPORTANT IMPORTANT IMPORTANT IMPORTANT IMPORTANT!!!
+ *
+ * MPU6050 device ORIENTATION
+ * Choose which MPU's axis is parallel
+ * to your blade axis
+ *************************************/
+#define BLADE_X
+//#define BLADE_Y
+//#define BLADE_Z
+/************************************/
+
 /*
  * BLADE TYPE
  *
@@ -19,12 +30,35 @@
  * blocks from compile
  *************************************/
 #define LEDSTRINGS
-#ifndef LEDSTRINGS
-#define LUXEON
+//#define LUXEON
+//#define NEOPIXEL
+
+
+
+#if defined NEOPIXEL
+// How many leds in one strip?
+#define NUMPIXELS 114
+
+// Number of color defined
+#define COLORS 14
+static const uint8_t rgbFactor = 100;
+
+// For led chips like NEOPIXELs, which have a data line, ground, and power, you just
+// need to define DATA_PIN.  For led chipsets that are SPI based (four wires - data, clock,
+// ground, and power), like the LPD8806 define both DATA_PIN and CLOCK_PIN
+#define DATA_PIN 			14 //A0
+#define STRING1				5
+#define STRING2 			6
+#define STRING3 			9
 #endif
 
 
-#ifdef LUXEON
+
+
+
+
+
+#if defined LUXEON
 /*
  * MY_OWN_COLORS
  * If you want to manually specify your own colors
@@ -35,7 +69,7 @@
 static const uint8_t rgbFactor = 100;
 
 
-# ifdef MY_OWN_COLORS
+# if defined MY_OWN_COLORS
 /* COLORS
  * Number of colors YOU defined in getColor function
  */
@@ -47,8 +81,8 @@ static const uint8_t rgbFactor = 100;
  * Default: 48
  */
 #define COLORS		 		48
-#endif //MY_OWN_COLORS
-#endif  //LUXEON
+#endif
+#endif
 /************************************/ // BLADE TYPE
 
 
@@ -63,7 +97,7 @@ static const uint8_t rgbFactor = 100;
  * WARNING ! A too high value may burn
  * your leds. Please make your maths !
  ************************************/
-#define MAX_BRIGHTNESS		200
+#define MAX_BRIGHTNESS		180
 
 /* LIGHT_EFFECTS
  *
@@ -80,37 +114,57 @@ static const uint8_t rgbFactor = 100;
 
 
 
+/* WRIST_MOVEMENTS
+ * If you want to enable/disable
+ * wrists twists movements
+ *************************************/
+//#define WRIST_MOVEMENTS
+
+
+/* DEEP_SLEEP
+ * If you want to enable/disable
+ * deep sleep capabalities
+ * If you a device with a CPU wich is not
+ * an Atmega328 : COMMENT THIS
+ *************************************/
+//#define DEEP_SLEEP
+#if defined DEEP_SLEEP
+#define SLEEP_TIMER			300000 //5min = 300000 millisecs
+#endif
+
+
+
 
 /*
  * PINS DEFINITION
  */
 
-#ifdef LEDSTRINGS
+#if defined LEDSTRINGS
 
-#define LEDSTRING1 			3
-#define LEDSTRING2 			5
-#define LEDSTRING3 			6
-#define LEDSTRING4 			9
-#define LEDSTRING5 			10
-#define LEDSTRING6 			11
+#define LEDSTRING1 			3 //3
+#define LEDSTRING2 			5 //5
+#define LEDSTRING3 			6  //6
+#define LEDSTRING4 			9  //9
+#define LEDSTRING5 			10  //10
+#define LEDSTRING6 			11 //11
 
 /*
  * FoCSTRING
  * Enable/disable management of
  * single Flash On Clash ledstring
  *************************************/
-//
-//#define FoCSTRING			13
+//#define FoCSTRING			14
+#endif
 
-
-#endif //LEDSTRINGS
-
-#ifdef LUXEON
+#if defined LUXEON
 
 #define LED_RED 			3
 #define LED_GREEN 			5
 #define LED_BLUE 			6
 #endif
+
+
+
 
 /*
  * ACCENT_LED
@@ -128,13 +182,13 @@ static const uint8_t rgbFactor = 100;
  * LEDSTRINGS users have no choice :
  * your forced to use Software Accent LED
  *************************************/
-//#define ACCENT_LED  16  //A2
-#ifdef ACCENT_LED
+#define ACCENT_LED  15 //A1
+#if defined ACCENT_LED
 /*
  * Soft or Had PWM for Accent
  */
 #define SOFT_ACCENT
-#ifndef SOFT_ACCENT
+#if not defined SOFT_ACCENT
 #define HARD_ACCENT
 #endif
 #endif //ACCENT_LED
@@ -148,7 +202,7 @@ static const uint8_t rgbFactor = 100;
  * a button accent led
  *************************************/
 //#define MULTICOLOR_ACCENT_LED
-#ifdef MULTICOLOR_ACCENT_LED
+#if defined MULTICOLOR_ACCENT_LED
 #define RED_ACCENT_LED  16 //A2
 #define GREEN_ACCENT_LED  17 //A3
 #define BLUE_ACCENT_LED  A7  //.... A7 is input only ...
@@ -158,8 +212,10 @@ static const uint8_t rgbFactor = 100;
 
 #define DFPLAYER_RX			8
 #define DFPLAYER_TX			7
-#define SPK1				14 //A0
-#define SPK2				15 //A1
+//#define SPK1				14 //A0
+//#define SPK2				15 //A1
+#define SPK1				A6 //A6
+#define SPK2				A7 //A7
 
 
 #define MAIN_BUTTON			12
@@ -174,21 +230,21 @@ static const uint8_t rgbFactor = 100;
  * When you plug your device to USB uncomment LS_INFO !
  */
 //#define LS_INFO
-#ifndef LS_INFO
+#if not defined LS_INFO
 //#define LS_DEBUG
 #endif
 
-#ifdef LS_DEBUG
+#if defined LS_DEBUG
 //#define LS_BUTTON_DEBUG
 #define LS_MOTION_DEBUG
-//#define LS_MOTION_HEAVY_DEBUG
+#define LS_MOTION_HEAVY_DEBUG
 //#define LS_RELAUNCH_DEBUG
 //#define LS_DEBUG_SLEEP
 #endif
 
-#ifdef LS_MOTION_DEBUG
+#if defined LS_MOTION_DEBUG
 #define LS_SWING_DEBUG
-//#define LS_SWING_HEAVY_DEBUG
+#define LS_SWING_HEAVY_DEBUG
 //#define LS_CLASH_DEBUG
 //#define LS_CLASH_HEAVY_DEBUG
 #endif

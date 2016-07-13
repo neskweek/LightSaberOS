@@ -6,7 +6,7 @@
  *  Source : 	https://github.com/neskweek/LightSaberOS
  */
 #include <Arduino.h>
-#ifndef BUTTONS_H_
+#if not defined BUTTONS_H_
 #define BUTTONS_H_
 
 

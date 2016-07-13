@@ -11,7 +11,7 @@
  */
 #include <LinkedList.h>
 
-#ifndef SOUNDFONT_H_
+#if not defined SOUNDFONT_H_
 #define SOUNDFONT_H_
 
 class SoundFont {
@@ -27,6 +27,7 @@ public:
 		powerOff = LinkedList<uint16_t>();
 		hum = LinkedList<uint16_t>();
 		swing = LinkedList<uint16_t>();
+		spin = LinkedList<uint16_t>();
 		clash = LinkedList<uint16_t>();
 		lockup = LinkedList<uint16_t>();
 		blaster = LinkedList<uint16_t>();
@@ -59,6 +60,7 @@ public:
 		uint16_t powerOff[2];
 		uint16_t hum[2];
 		uint16_t swing[2];
+		uint16_t spin[2];
 		uint16_t clash[2];
 		uint16_t lockup[2];
 		uint16_t blaster[2];
@@ -109,6 +111,8 @@ public:
 			hum[1] = 23;
 			swing[0] = 24;
 			swing[1] = 31;
+			spin[0] = 24;
+			spin[1] = 24;
 			clash[0] = 32;
 			clash[1] = 34;
 			lockup[0] = 38;
@@ -160,6 +164,7 @@ public:
 		fill(&this->powerOff, powerOff);
 		fill(&this->hum, hum);
 		fill(&this->swing, swing);
+		fill(&this->spin, spin);
 		fill(&this->clash, clash);
 		fill(&this->lockup, lockup);
 		fill(&this->blaster, blaster);
@@ -203,6 +208,10 @@ public:
 		return this->swing.get(random(0, this->swing.size()));
 	}
 
+	const uint16_t getSpin() {
+			return this->spin.get(random(0, this->spin.size()));
+		}
+
 	const uint16_t getForce() {
 		return this->force.get(random(0, this->force.size()));
 	}
@@ -227,6 +236,7 @@ private:
 	uint16_t powerOffTime;
 	LinkedList<uint16_t> hum;
 	LinkedList<uint16_t> swing;
+	LinkedList<uint16_t> spin;
 	LinkedList<uint16_t> clash;
 	LinkedList<uint16_t> lockup;
 	LinkedList<uint16_t> blaster;

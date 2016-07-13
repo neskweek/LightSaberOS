@@ -7,7 +7,7 @@
 
 #include <Arduino.h>
 #include "DFPlayer.h"
-#ifndef CONFIGMENU_H_
+#if not defined CONFIGMENU_H_
 #define CONFIGMENU_H_
 
 // ====================================================================================
