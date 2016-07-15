@@ -1094,90 +1094,6 @@ void loop() {
 			break;
 #endif //LEDSTRINGS
 
-/*LUXEON*/
-#if defined LUXEON
-			case 2: // BLADE MAIN COLOR
-			confMenuStart(storage.mainColor, 9, dfplayer);
-			confParseValue(storage.mainColor, 0, COLORS - 1, 1, dfplayer);
-			if (modification) {
-				modification = 0;
-				storage.mainColor = value;
-				getColor(currentColor, storage.mainColor);
-				lightOn(ledPins, currentColor);
-#ifdef LS_INFO
-				Serial.print(storage.mainColor);
-				Serial.print("\tR:");
-				Serial.print(currentColor[0]);
-				Serial.print("\tG:");
-				Serial.print(currentColor[1]);
-				Serial.print(" \tB:");
-				Serial.println(currentColor[2]);
-#endif //LS_INFO
-			}
-			break;
-			case 3: //BLADE CLASH COLOR
-			confMenuStart(storage.clashColor, 10, dfplayer);
-
-			confParseValue(storage.clashColor, 0, COLORS - 1, 1, dfplayer);
-
-			if (modification) {
-
-				modification = 0;
-				storage.clashColor = value;
-				getColor(currentColor, storage.clashColor);
-				lightOn(ledPins, currentColor);
-#ifdef LS_INFO
-				Serial.print(storage.clashColor);
-				Serial.print("\tR:");
-				Serial.print(currentColor[0]);
-				Serial.print("\tG:");
-				Serial.print(currentColor[1]);
-				Serial.print(" \tB:");
-				Serial.println(currentColor[2]);
-#endif //LS_INFO
-			}
-
-			break;
-			case 4: //SAVE TO SOUNDFONT ?
-			confMenuStart(0, 11, dfplayer);
-
-			if (modification > 0) {
-				//Yes
-				//We save color values to this Soundfount
-				Serial.println(F("Yes"));
-				dfplayer.playPhysicalTrack(12);
-				storage.soundFontColorPreset[storage.soundFont][0] =
-				storage.mainColor;
-				storage.soundFontColorPreset[storage.soundFont][1] =
-				storage.clashColor;
-				menu++;
-				changeMenu = true;
-				enterMenu = true;
-				delay(500);
-				modification = 0;
-			} else if (modification < 0) {
-				//No
-				// we do nothing and leave this menu
-				Serial.println(F("No"));
-				dfplayer.playPhysicalTrack(13);
-				menu++;
-				changeMenu = true;
-				enterMenu = true;
-				delay(20);
-				modification = 0;
-			}
-			break;
-#endif 
-/*LUXEON*/
-
-
-
-
-
-
-
-
-
 
 
 
@@ -1354,7 +1270,12 @@ void loop() {
 //				EEPROM.update(i, 0);
 //				//			 }
 //			}
+#if defined LUXEON
+			lightOff(ledPins);
+#else
 			lightOff();
+#endif
+
 			dfplayer.playPhysicalTrack(3);
 			browsing = false;
 			enterMenu = false;
