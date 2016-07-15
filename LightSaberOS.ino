@@ -1006,6 +1006,7 @@ void loop() {
 
 				modification = 0;
 				storage.mainColor = value;
+				storage.sndProfile[storage.soundFont][0] =storage.mainColor;
 				getColor(currentColor, storage.mainColor);
 				lightOn(ledPins, currentColor);
 #if defined LS_INFO
@@ -1028,6 +1029,7 @@ void loop() {
 
 				modification = 0;
 				storage.clashColor = value;
+				storage.sndProfile[storage.soundFont][1] =storage.clashColor;
 				getColor(currentColor, storage.clashColor);
 				lightOn(ledPins, currentColor);
 #if defined LS_INFO
