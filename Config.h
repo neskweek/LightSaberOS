@@ -92,12 +92,14 @@ static const uint8_t rgbFactor = 100;
 /* MAX_BRIGHTNESS
  *
  * Maximum output voltage to apply to LEDS
- * Default = 200 (78,4%) Max=255 Min=0(Off)
+ * Default = 100 (39,2%) Max=255 Min=0(Off)
  *
  * WARNING ! A too high value may burn
  * your leds. Please make your maths !
+ * BE VERY CAREFULL WITH THIS ONE OR 
+ * YOU'LL BURN YOUR BLADE'S LED 
  ************************************/
-#define MAX_BRIGHTNESS		180
+#define MAX_BRIGHTNESS		100
 
 /* LIGHT_EFFECTS
  *
