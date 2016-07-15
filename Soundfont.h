@@ -16,7 +16,7 @@
 
 class SoundFont {
 
-#define SOUNDFONT_QUANTITY 2
+#define SOUNDFONT_QUANTITY 1
 
 public:
 
@@ -123,30 +123,6 @@ public:
 			wrist[1] = 39;
 			force[0] = 0;
 			force[1] = 0;
-			break;
-		case 3:
-			this->powerOnTime = 400;
-			this->powerOffTime = 400;
-			boot[0] = 40;
-			boot[1] = 40;
-			powerOn[0] = 41;
-			powerOn[1] = 41;
-			powerOff[0] = 42;
-			powerOff[1] = 42;
-			hum[0] = 43;
-			hum[1] = 43;
-			swing[0] = 45;
-			swing[1] = 56;
-			clash[0] = 57;
-			clash[1] = 68;
-			lockup[0] = 44;
-			lockup[1] = 44;
-			blaster[0] = 69;
-			blaster[1] = 69;
-			wrist[0] = 71;
-			wrist[1] = 71;
-			force[0] = 70;
-			force[1] = 70;
 			break;
 		}
 		this->boot.clear();
