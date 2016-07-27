@@ -147,6 +147,22 @@ ________________________________________________________________________________
  
 ### PROJECT SETUP   
 
+#### 0. General Warnings   
+
+You are decided to build your lightsaber. Cool !   
+Don't think I want to deceive you from your goal but you 'll have to keep those things in mind :    
+    
+* ___This project is not plug and play !___ It's tough, time consuming and you'll spend some times in trial and errors. But it's also highly rewarding once completed with success.     
+* ___This project might be cheap___, but it's highly unlikely. If you don't make mistake it can be. If you do you'll have to go on spare parts,etc... and costs can grew up.     
+* ___Think twice about your power supply/LED relations ! This is CRUCIAL!___ A power supply that gives to much voltage for your LEDs will result in burned LEDs. We don't recommend the use of power supply that exceed total LED's voltage capacity. While it's still possible, if you do go down this path, calculate, think, ask questions and USE A MULTIMETER ! 
+Beware of MAX_BRIGHTNESS setting. While this can remove some voltage from your LEDs it's certainly can not remove too much. Each MOSFETs can take a certain amount of voltage but it will heat up. And too much it can ruin your MOSFET or your DIYNO card.     
+This choice is ___THE MOST IMPORTANT CHOICE___ for your device !!!!    
+Also mind the intensity (Amps) your setup will require...     
+I told you it will be tough !  
+* ___You will have shorts !!!___ Well I hope you don't, in fact. Keep in mind that solders on your board are not bullet proof, even for experienced people. The more your board will move, the more these solderings will be exposed to breakage and that will lead to short cuts. On a fully completed blade, this mostly results in unresponsivness : the blade will stops flickering, you won't hear anymore swings and you won't be able to retract the blade until you cut the power off (remove battery, or plug a kill key).
+Isolate your buttons leads too, contact with metal hull => short cut. You'll want thermoretractable sheath and maybe hot glue.  
+* ___Consider a kill key !___ They'll preserve your batteries from draining out when you're not using your saber, allows you to recharge your saber, allows you to quickly shut down your saber.... You want to put a kill key !     
+
 #### 1. IMU calibration 
  First, you'll need (if not already done) to calibrate your MPU6050.   
  [I recommend you use the AutoCalibration script you can find here](http://www.i2cdevlib.com/forums/topic/96-arduino-sketch-to-automatically-calculate-mpu6050-offsets/)  
@@ -181,17 +197,18 @@ Then, put the content of _SDCard.7z_ on your SDCard:
 1. Format your SDCard. __I insist !__  (go read __HOW TO MANAGE YOUR SDRCARD__ section for further explanation)
 2. Unzip SDCard.7z to a folder
 3. Select all the files from this folder and __"Drag and Drop"__ them to your SDCard. __NO COPY AND PASTE !!!__ :
-We need to have this file copied in the same order as their filename order. On Microsoft Windows, Copy/paste produce an anarchic copy order, but Drag and Drop produce an ordered copy...  
+We need to have this file copied in the same order as their filename order. On Microsoft Windows, Copy/paste produce an anarchic copy order, but Drag and Drop produce an ordered copy as long as you select the first file to init the drag...  
 
 
 #### 4. Check Wirings
-_If you use DIYno board, don't mind that paragraph._   
+_If you use DIYino board, don't mind that paragraph._[Go there instead and read user manual](https://github.com/Protonerd/DIYino)     
+_If you use DIYino board, and want flicker effect wire SPK+ to A6 and SPK- to A7._
 
 Using  **Protonerd's** wirings.    
 Don't forget to wire those ones which were added :  
 * DFPLAYER TX to D7
-* DFPLAYER SPK+ to A0
-* DFPLAYER SPK- to A1     
+* DFPLAYER SPK+ to A6
+* DFPLAYER SPK- to A7     
 ![Schematics](http://i1073.photobucket.com/albums/w385/cest_bastien1/Lightsaber/AS2_LEDstringSaberArduino_NeskweekRevised_zpsu5k0ljck.png)    
 Wiring of busy pin is optional since LightSaberOS doesn't use it.  
 
@@ -347,7 +364,7 @@ ________________________________________________________________________________
 
 ### HOW TO PERSONNALIZE CONFIG MENU SOUNDS
 
-Let's say you want to change the lady voice or ladies usres may want their saber with a male voice or you may want her to talk in Dutch or French or Italian or Spanish (name your langage here).    
+Let's say you want to change the lady voice or ladies users may want their saber with a male voice or you may want her to talk in Dutch or French or Italian or Spanish (name your langage here).    
 
 
 I used [this online free Text-To-Speech generator](http://www.fromtexttospeech.com/) to produce those sounds.   
@@ -357,8 +374,9 @@ For example :
 Then rename the file it produces : 0001-CONFIG-ConfigMode.mp3. Remove old 0001-CONFIG-ConfigMode.wav file.    
 
 
-**_N.B.:_** _Only in Config Mode case_, mp3 are OK to use. We don't care in this mode if there's sound gap.
-
+**_N.B.:_**       
+1. _Only in Config Mode case_, mp3 are OK to use. We don't care in this mode if there's sound gap.   
+2. Every changes in sounds file will force you to format your SDCard and copy the whole lot again.
 ________________________________________________________________________________ 
 
 ### HOW TO MAKE YOUR OWN SOUNDFONT
@@ -382,30 +400,28 @@ ________________________________________________________________________________
 
 ## TODO :
 By priority :
-* NEOPIXEL code integration
 * Better README.md (Work in progress)
 * Try to reduce compiled hex file 
-* Rewrite to Object Oriented form, using JakeSoft Library
+* Rewrite to Object Oriented form, using JakeSoft's [USaber Library](https://github.com/JakeS0ft/USaber)
 * Find a use to:
 	* short press Aux switch in standby mode 
 	* double click on Main switch in action/config/standby mode
 	* double clik on Aux switch in action/config/standby mode.
 * Rewrite some function in Assembler
-* Pitch shifting on movements (don't know if it's feasable)
+* Pitch shifting on movements (don't know if it's feasable)...
 
 ________________________________________________________________________________   
 
 ## THANK YOU !!!
 
-Thanks to Andras Kun (__Protonerd__ from Arduino Forum) for initiating this project and his big contributions to LSOS Code    
+Thanks to Andras Kun (__Protonerd__ from Arduino Forum) for initiating this project, providing [DIYino Boards](https://github.com/Protonerd/DIYino) and his big contributions to LSOS Code    
 Thanks to __Jakesoft__ from Arduino Forum for :    
 * his initial idea of using Arduino device to build a lightsaber.   
 * his idea of using Aux Switch as a triger mode for Blaster Blocks.   
-and many more source of inspirations.
+and many more source of inspirations. You can also use his [USaber lib](https://github.com/JakeS0ft/USaber) to build your own code to operate your saber.
 
 Thanks to [__Joe Barlow__](https://www.freesound.org/people/joe93barlow/) for his excellent opensource soundfont that I did remix for our needs.    
-Thanks to __Scott Daniels__ for his [code that allows to monitor the battery charge] (http://provideyourown.com/2012/secret-arduino-voltmeter-measure-battery-voltage/)    
-Thanks to __you__ for using it ;)
+Thanks to __YOU__ for using it ;)
 
 ________________________________________________________________________________   
 
