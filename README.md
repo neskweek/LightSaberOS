@@ -47,7 +47,8 @@ ________________________________________________________________________________
 
 ### DEVICE CURRENTLY SUPPORTED :
 
-Designed to be used on Arduino Nano (ATmega328 processors)
+Designed to be used on [DIYino boards](https://github.com/Protonerd/DIYino) (recommended)
+Designed to be used on Arduino Nano, Arduino Pro mini (ATmega328 processors)
 
 * IMU (accelerometer + gyroscope) modules :
 	* MPU6050
@@ -57,6 +58,7 @@ Designed to be used on Arduino Nano (ATmega328 processors)
 	* homemade LEDstrings
 	* RGB LEDs (Luxeon/Cree styled)
 	* Single LED
+	* Neopixel strings
 
 I would be glad to see other modules added. If you're interested to make your device compatible, please contact me.
 
