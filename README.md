@@ -4,7 +4,10 @@ ________________________________________________________________________________
 
 ## VIDEOS
 
-[![DIYino demo of Neopixel lightsaber blade with LSOS] (http://img.youtube.com/vi/PjXLKvWpA8A/0.jpg)](https://www.youtube.com/watch?v=PjXLKvWpA8A)[![DIYino prototype demo with LSOS by neskweek - Swings] (http://img.youtube.com/vi/tU3GZzV9I6E/0.jpg)](http://www.youtube.com/watch?v=tU3GZzV9I6E)[![Motion Detection Demo (made under v1.0 RC5)] (http://img.youtube.com/vi/wY8BSSEyYLY/0.jpg)](http://www.youtube.com/watch?v=wY8BSSEyYLY)[![Quick tour (made under v1.0 RC4)] (http://img.youtube.com/vi/mc8scn_qyFM/0.jpg)](http://www.youtube.com/watch?v=mc8scn_qyFM)
+[![DIYino demo of Neopixel lightsaber blade with LSOS] (http://img.youtube.com/vi/PjXLKvWpA8A/0.jpg)](https://www.youtube.com/watch?v=PjXLKvWpA8A)      
+_This is a modified version of the neopixel code. LSOS doesn't come with this fire effect out of the box ;)_   
+
+[![DIYino prototype demo with LSOS by neskweek - Swings] (http://img.youtube.com/vi/tU3GZzV9I6E/0.jpg)](http://www.youtube.com/watch?v=tU3GZzV9I6E)[![Motion Detection Demo (made under v1.0 RC5)] (http://img.youtube.com/vi/wY8BSSEyYLY/0.jpg)](http://www.youtube.com/watch?v=wY8BSSEyYLY)[![Quick tour (made under v1.0 RC4)] (http://img.youtube.com/vi/mc8scn_qyFM/0.jpg)](http://www.youtube.com/watch?v=mc8scn_qyFM)
 
 ________________________________________________________________________________   
 
