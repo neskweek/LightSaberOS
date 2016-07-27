@@ -23,9 +23,6 @@ ________________________________________________________________________________
 * Config Menu to modify some features without wiring the device to your PC/Mac 
 * EEPROM load/save of your config preferences
 * Soundfont adding supported (not automatic, you'll have little work to do ;) )
-* Low battery level warnings
-* Shutdown on critical battery level 
-* Automatic Powersaving mode when idle
 
 ________________________________________________________________________________   
 
