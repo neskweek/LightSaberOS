@@ -1,7 +1,7 @@
 /*
  * Config.cpp
  *
- * author: 		Sebastien CAPOU (neskweek@gmail.com)
+ * author: 		Sebastien CAPOU (neskweek@gmail.com) and Andras Kun (kun.andras@yahoo.de)
  * Source : 	https://github.com/neskweek/LightSaberOS
  *      Author: neskw
  */
@@ -12,13 +12,17 @@
 extern int8_t modification;
 extern bool play;
 extern int16_t value;
-
+extern void SinglePlay_Sound(uint8_t track);
+extern void LoopPlay_Sound(uint8_t track);
 // ====================================================================================
 // ===           	  	 			CONFIG MODE FUNCTIONS	                		===
 // ====================================================================================
 
+// this function ensures that config menu items which have values between a min and a max value
+// wrap back to min/max upon reaching max/min. It also plays a sound notifying the user if either min or max value has beeb reached.
+// This function is also in charge of changing the actual value of a setting via the value global variable.
 void confParseValue(uint16_t variable, uint16_t min, uint16_t max,
-		short int multiplier, DFPlayer& dfplayer) {
+		short int multiplier) {
 
 	value = variable + (multiplier * modification);
 
@@ -28,16 +32,17 @@ void confParseValue(uint16_t variable, uint16_t min, uint16_t max,
 		value = min;
 	} else if (value == (int) min and play) {
 		play = false;
-		dfplayer.playPhysicalTrack(15);
+		SinglePlay_Sound(10);
 		delay(150);
 	} else if (value == (int) max and play) {
 		play = false;
-		dfplayer.playPhysicalTrack(14);
+		SinglePlay_Sound(9);
 		delay(150);
 	}
 } //confParseValue
 
-void confMenuStart(uint16_t variable, uint16_t sound, DFPlayer& dfplayer) {
+// this functions parses in the value of the config variable and based on it plays sounds or activates LEDs
+void confMenuStart(uint16_t variable, uint16_t sound) {
 	extern uint8_t ledPins[];
 #if defined LUXEON
 	extern uint8_t currentColor[];
@@ -47,7 +52,7 @@ void confMenuStart(uint16_t variable, uint16_t sound, DFPlayer& dfplayer) {
 #endif
 	extern bool enterMenu;
 	if (enterMenu) {
-		dfplayer.playPhysicalTrack(sound);
+		SinglePlay_Sound(sound);
 		delay(500);
 
 		switch (sound) {
@@ -126,7 +131,19 @@ void confMenuStart(uint16_t variable, uint16_t sound, DFPlayer& dfplayer) {
 			break;
 #endif //LEDSTRINGS
 #if defined NEOPIXEL
-		case 9:
+    case 8:
+      lightOff();
+
+#if defined LS_INFO
+      Serial.print(F("COLOR3\nCur:"));
+#endif
+      getColor(variable);
+      for (uint8_t i = 0; i < 3; i++) {
+        digitalWrite(ledPins[i], HIGH);
+      }
+      lightOn(currentColor);
+      break;
+    case 9:
 			lightOff();
 
 #if defined LS_INFO
@@ -185,3 +202,4 @@ void confMenuStart(uint16_t variable, uint16_t sound, DFPlayer& dfplayer) {
 		delay(100);
 	}
 } //confMenuStart
+
