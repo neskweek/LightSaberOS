@@ -16,7 +16,7 @@
 void confParseValue(uint16_t variable, uint16_t min, uint16_t max,
 		short int multiplier);
 
-void confMenuStart(uint16_t variable, uint16_t sound);
+void confMenuStart(uint16_t variable, uint16_t sound, uint8_t menu);
 
 #endif /* CONFIG_H_ */
 

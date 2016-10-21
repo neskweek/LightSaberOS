@@ -279,27 +279,27 @@ void JukeBox_Stroboscope(uint8_t ledPins[]) {
   temp_variation=temp_variation + abs(analogRead(SPK1) - analogRead(SPK2));
  }
  variation=temp_variation/SAMPLESIZEAVERAGE;
-  if (variation>=30) {
+  if (variation>=80) {
     analogWrite(ledPins[0], MAX_BRIGHTNESS);
   }
   else analogWrite(ledPins[0], 0);
-  if (variation>=80) {
+  if (variation>=110) {
     analogWrite(ledPins[1], MAX_BRIGHTNESS);
   }
   else analogWrite(ledPins[1], 0);  
-  if (variation>=130) {
+  if (variation>=140) {
     analogWrite(ledPins[2], MAX_BRIGHTNESS);
   }
   else analogWrite(ledPins[2], 0);  
-  if (variation>=180) {
+  if (variation>=170) {
     analogWrite(ledPins[3], MAX_BRIGHTNESS);
   }
   else analogWrite(ledPins[3], 0);
-  if (variation>=230) {
+  if (variation>=200) {
     analogWrite(ledPins[4], MAX_BRIGHTNESS);
   }
   else analogWrite(ledPins[4], 0);
-  if (variation>=280) {
+  if (variation>=250) {
     analogWrite(ledPins[5], MAX_BRIGHTNESS);
   }
   else analogWrite(ledPins[5], 0);
@@ -525,7 +525,6 @@ void lightIgnition(cRGB color, uint16_t time, uint8_t type) {
       //delay(time/NUMPIXELS);
 			delayMicroseconds((time * 1000) / NUMPIXELS);
 		}*/
-		//Serial.println(pixels.getBrightness());
 		break;
 		/*
 		 case 1:

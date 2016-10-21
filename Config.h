@@ -47,9 +47,9 @@
  * disable and remove all LEDSTRINGS
  * blocks from compile
  *************************************/
-//#define LEDSTRINGS
+#define LEDSTRINGS
 //#define LUXEON
-#define NEOPIXEL
+//#define NEOPIXEL
 
 /************************************/
 /*
@@ -162,15 +162,6 @@ static const uint8_t rgbFactor = 100;
  * YOU'LL BURN YOUR BLADE'S LED 
  ************************************/
 #define MAX_BRIGHTNESS		150
-
-/* LIGHT_EFFECTS
- *
- * Enable / disable  all light and
- * color effects of the blade
- * If you a device with a CPU wich is not
- * an Atmega328 : COMMENT THIS
- ************************************/
-//#define LIGHT_EFFECTS
 
 // How long do the light effect last for the different FX's
 #define CLASH_FX_DURATION 200
@@ -356,7 +347,7 @@ static const uint8_t rgbFactor = 100;
  * For daily use I recommend you comment LS_INFO
  * When you plug your device to USB uncomment LS_INFO !
  */
-#define LS_SERIAL  //enable serial communication using Wire library
+//#define LS_SERIAL  //enable serial communication using Wire library
 #if defined LS_SERIAL
 //#define LS_INFO
 //#define LS_DEBUG
