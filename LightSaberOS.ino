@@ -202,7 +202,6 @@ inline void printAcceleration(VectorInt16 aaWorld);
 // ====================================================================================
 void setup() {
 
-#ifdef LS_SERIAL
 	// join I2C bus (I2Cdev library doesn't do this automatically)
 #if I2CDEV_IMPLEMENTATION == I2CDEV_ARDUINO_WIRE
 	Wire.begin();
@@ -212,7 +211,6 @@ void setup() {
 #endif
 	// Serial line for debug
 	Serial.begin(115200);
-#endif
 
 
 	/***** LOAD CONFIG *****/
@@ -522,7 +520,7 @@ void loop() {
 			/*
 			 *  This is the very first loop after Action Mode has been turned on
 			 */
-			attachInterrupt(0, dmpDataReady, RISING);
+			//attachInterrupt(0, dmpDataReady, RISING);
 			// Reduce lockup trigger time for faster lockup response
 			lockupButton.setPressTicks(PRESS_ACTION);
 #if defined NEOPIXEL
@@ -1206,7 +1204,7 @@ void loop() {
 	else if (SaberState==S_STANDBY) {
 
 		if (ActionModeSubStates==AS_RETRACTION) { // we just leaved Action Mode
-			detachInterrupt(0);
+			//detachInterrupt(0);
 
 			SinglePlay_Sound(soundFont.getPowerOff());
       ActionModeSubStates=AS_HUM;

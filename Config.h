@@ -347,11 +347,8 @@ static const uint8_t rgbFactor = 100;
  * For daily use I recommend you comment LS_INFO
  * When you plug your device to USB uncomment LS_INFO !
  */
-//#define LS_SERIAL  //enable serial communication using Wire library
-#if defined LS_SERIAL
 //#define LS_INFO
 //#define LS_DEBUG
-#endif
 
 #if defined LS_DEBUG
 #define LS_BUTTON_DEBUG

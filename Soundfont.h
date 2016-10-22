@@ -16,11 +16,14 @@
 
 class SoundFont {
 
-#define SOUNDFONT_QUANTITY 1
+#define SOUNDFONT_QUANTITY 5
 #define NR_CONFIGFOLDERFILES 14
-#define NR_JUKEBOXSONGS 1
-#define NR_SF1_FILES 20
-
+#define NR_JUKEBOXSONGS 5
+#define NR_SF1_FILES 30
+#define NR_SF2_FILES 30
+#define NR_SF3_FILES 30
+#define NR_SF4_FILES 30
+#define NR_SF5_FILES 30
 
 public:
 
@@ -119,25 +122,157 @@ public:
       this->swingthreshold=700;
       boot[0] = NR_CONFIGFOLDERFILES + NR_JUKEBOXSONGS + 1; // 1 boot sound (1)
       boot[1] = boot[0];
-      powerOn[0] = boot[1]+1; // 1 power-on sound
-      powerOn[1] = powerOn[0];
-      powerOff[0] = powerOn[1]+1; // 1 power-off sounds
-      powerOff[1] = powerOff[0];
-      swing[0] = powerOff[1]+1; // 8 swing sounds
+      powerOn[0] = boot[1]+1; // 4 power-on sounds (2-5)
+      powerOn[1] = powerOn[0]+3;
+      powerOff[0] = powerOn[1]+1; // 2 power-off sounds (6-7)
+      powerOff[1] = powerOff[0]+1;
+      swing[0] = powerOff[1]+1; // 8 swing sounds (8-15)
       swing[1] = swing[0]+7;
       spin[0] = 0;
       spin[1] = 0;
-      clash[0] = swing[1]+1; // 3 clash sounds
-      clash[1] = clash[0]+2;
-      lockup[0] = clash[1]+1; // 1 lockup sound
+      clash[0] = swing[1]+1; // 8 clash sounds (16-23)
+      clash[1] = clash[0]+7;
+      lockup[0] = clash[1]+1; // 1 lockup sound (24)
       lockup[1] = lockup[0];
-      blaster[0] = lockup[1]+1; // 3 blaster deflect sound
-      blaster[1] = blaster[0]+2;
+      blaster[0] = lockup[1]+1; // 4 blaster deflect sound (25-28)
+      blaster[1] = blaster[0]+3;
       wrist[0] = 0;
       wrist[1] = 0;
       force[0] = 0;
       force[1] = 0;
-      menu[0] = blaster[1]+1; // 1 menu sound file
+      menu[0] = blaster[1]+1; // 1 menu sound file (29)
+      menu[1] = menu[0];
+      // hum must be the last file in the sound font for proper hum relaunch
+      hum[0] = menu[1]+1; // 1 hum relaunch sound (30)
+      hum[1] = hum[0];
+      break;
+    case 3:
+      this->powerOnTime = 1050;
+      this->powerOffTime = 900;
+      this->powerOnEffect=0;
+      this->powerOffEffect=0;
+      this->flickerEffect=1;
+      this->swingthreshold=900;
+      boot[0] = NR_CONFIGFOLDERFILES + NR_JUKEBOXSONGS + NR_SF1_FILES + 1;
+      boot[1] = boot[0];
+      powerOn[0] = boot[1]+1; // 4 power-on sounds (2-5)
+      powerOn[1] = powerOn[0]+3;
+      powerOff[0] = powerOn[1]+1; // 2 power-off sounds (6-7)
+      powerOff[1] = powerOff[0]+1;
+      swing[0] = powerOff[1]+1; // 8 swing sounds (8-15)
+      swing[1] = swing[0]+7;
+      spin[0] = 0;
+      spin[1] = 0;
+      clash[0] = swing[1]+1; // 8 clash sounds (16-23)
+      clash[1] = clash[0]+7;
+      lockup[0] = clash[1]+1; // 1 lockup sound (24)
+      lockup[1] = lockup[0];
+      blaster[0] = lockup[1]+1; // 4 blaster deflect sound (25-28)
+      blaster[1] = blaster[0]+3;
+      wrist[0] = 0;
+      wrist[1] = 0;
+      force[0] = 0;
+      force[1] = 0;
+      menu[0] = blaster[1]+1; // 1 menu sound file (29)
+      menu[1] = menu[0];
+      // hum must be the last file in the sound font for proper hum relaunch
+      hum[0] = menu[1]+1; // 1 hum relaunch sound (30)
+      hum[1] = hum[0];
+      break;
+   case 4:
+      this->powerOnTime = 1200;
+      this->powerOffTime = 1200;
+      this->powerOnEffect=1;
+      this->powerOffEffect=1;
+      this->flickerEffect=2;
+      this->swingthreshold=1100;
+      boot[0] = NR_CONFIGFOLDERFILES + NR_JUKEBOXSONGS + NR_SF1_FILES + NR_SF2_FILES + 1;
+      boot[1] = boot[0];
+      powerOn[0] = boot[1]+1; // 4 power-on sounds (2-5)
+      powerOn[1] = powerOn[0]+3;
+      powerOff[0] = powerOn[1]+1; // 2 power-off sounds (6-7)
+      powerOff[1] = powerOff[0]+1;
+      swing[0] = powerOff[1]+1; // 8 swing sounds (8-15)
+      swing[1] = swing[0]+7;
+      spin[0] = 0;
+      spin[1] = 0;
+      clash[0] = swing[1]+1; // 8 clash sounds (16-23)
+      clash[1] = clash[0]+7;
+      lockup[0] = clash[1]+1; // 1 lockup sound (24)
+      lockup[1] = lockup[0];
+      blaster[0] = lockup[1]+1; // 4 blaster deflect sound (25-28)
+      blaster[1] = blaster[0]+3;
+      wrist[0] = 0;
+      wrist[1] = 0;
+      force[0] = 0;
+      force[1] = 0;
+      menu[0] = blaster[1]+1; // 1 menu sound file (29)
+      menu[1] = menu[0];
+      // hum must be the last file in the sound font for proper hum relaunch
+      hum[0] = menu[1]+1; // 1 hum relaunch sound (30)
+      hum[1] = hum[0];
+      break;
+    case 5:
+      this->powerOnTime = 2500;
+      this->powerOffTime = 2000;
+      this->powerOnEffect=0;
+      this->powerOffEffect=0;
+      this->flickerEffect=2;
+      this->swingthreshold=1300;
+      boot[0] = NR_CONFIGFOLDERFILES + NR_JUKEBOXSONGS + NR_SF1_FILES + NR_SF2_FILES + NR_SF3_FILES + 1;
+      boot[1] = boot[0];
+      powerOn[0] = boot[1]+1; // 4 power-on sounds (2-5)
+      powerOn[1] = powerOn[0]+3;
+      powerOff[0] = powerOn[1]+1; // 2 power-off sounds (6-7)
+      powerOff[1] = powerOff[0]+1;
+      swing[0] = powerOff[1]+1; // 8 swing sounds (8-15)
+      swing[1] = swing[0]+7;
+      spin[0] = 0;
+      spin[1] = 0;
+      clash[0] = swing[1]+1; // 8 clash sounds (16-23)
+      clash[1] = clash[0]+7;
+      lockup[0] = clash[1]+1; // 1 lockup sound (24)
+      lockup[1] = lockup[0];
+      blaster[0] = lockup[1]+1; // 4 blaster deflect sound (25-28)
+      blaster[1] = blaster[0]+3;
+      wrist[0] = 0;
+      wrist[1] = 0;
+      force[0] = 0;
+      force[1] = 0;
+      menu[0] = blaster[1]+1; // 1 menu sound file (29)
+      menu[1] = menu[0];
+      // hum must be the last file in the sound font for proper hum relaunch
+      hum[0] = menu[1]+1; // 1 hum relaunch sound (30)
+      hum[1] = hum[0];
+      break;
+    case 6:
+      this->powerOnTime = 700;
+      this->powerOffTime = 1500;
+      this->powerOnEffect=1;
+      this->powerOffEffect=1;
+      this->flickerEffect=2;
+      this->swingthreshold=1500;
+      boot[0] = NR_CONFIGFOLDERFILES + NR_JUKEBOXSONGS + NR_SF1_FILES + NR_SF2_FILES + NR_SF3_FILES + NR_SF4_FILES + 1;
+      boot[1] = boot[0];
+      powerOn[0] = boot[1]+1; // 4 power-on sounds (2-5)
+      powerOn[1] = powerOn[0]+3;
+      powerOff[0] = powerOn[1]+1; // 2 power-off sounds (6-7)
+      powerOff[1] = powerOff[0]+1;
+      swing[0] = powerOff[1]+1; // 8 swing sounds (8-15)
+      swing[1] = swing[0]+7;
+      spin[0] = 0;
+      spin[1] = 0;
+      clash[0] = swing[1]+1; // 8 clash sounds (16-23)
+      clash[1] = clash[0]+7;
+      lockup[0] = clash[1]+1; // 1 lockup sound (24)
+      lockup[1] = lockup[0];
+      blaster[0] = lockup[1]+1; // 4 blaster deflect sound (25-28)
+      blaster[1] = blaster[0]+3;
+      wrist[0] = 0;
+      wrist[1] = 0;
+      force[0] = 0;
+      force[1] = 0;
+      menu[0] = blaster[1]+1; // 1 menu sound file (29)
       menu[1] = menu[0];
       // hum must be the last file in the sound font for proper hum relaunch
       hum[0] = menu[1]+1; // 1 hum relaunch sound (30)
