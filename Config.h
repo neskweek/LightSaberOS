@@ -1,7 +1,7 @@
 /*
  * Config.h
  *
- * Created on: 6 mars 2016
+ * Created on: 21 Octber 2016
  * author: 		Sebastien CAPOU (neskweek@gmail.com) and Andras Kun (kun.andras@yahoo.de)
  * Source : 	https://github.com/neskweek/LightSaberOS
  */
@@ -47,9 +47,9 @@
  * disable and remove all LEDSTRINGS
  * blocks from compile
  *************************************/
-#define LEDSTRINGS
+//#define LEDSTRINGS
 //#define LUXEON
-//#define NEOPIXEL
+#define NEOPIXEL
 
 /************************************/
 /*
@@ -91,7 +91,7 @@
 
 #if defined NEOPIXEL
 // How many leds in one strip?
-#define NUMPIXELS 120  // can go up to 120, could lead to memory problems if further increased
+#define NUMPIXELS 60  // can go up to 120, could lead to memory problems if further increased
 
 #ifdef CROSSGUARDSABER
 // define how many pixels are used for the crossguard and how many for the main blade
@@ -99,7 +99,7 @@
 #define MN_STRIPE 50
 #endif
 
-#define FIREBLADE
+//#define FIREBLADE
 
 // Number of color defined
 #define COLORS 14
@@ -121,29 +121,15 @@ static const uint8_t rgbFactor = 255;
 
 
 #if defined LUXEON
-/*
- * MY_OWN_COLORS
- * If you want to manually specify your own colors
- */
-#define MY_OWN_COLORS
-//#define FIXED_RANGE_COLORS
 
 static const uint8_t rgbFactor = 100;
 
-
-# if defined MY_OWN_COLORS
-/* COLORS
- * Number of colors YOU defined in getColor function
- */
-#define COLORS		 		3
-#else
 /* COLORS
  * Number of colors to chose from
  * Range : 6<->600
  * Default: 48
  */
-#define COLORS		 		48
-#endif
+#define COLORS		 		14
 #endif
 /************************************/ // BLADE TYPE
 
@@ -162,6 +148,15 @@ static const uint8_t rgbFactor = 100;
  * YOU'LL BURN YOUR BLADE'S LED 
  ************************************/
 #define MAX_BRIGHTNESS		150
+
+/* LIGHT_EFFECTS
+ *
+ * Enable / disable  all light and
+ * color effects of the blade
+ * If you a device with a CPU wich is not
+ * an Atmega328 : COMMENT THIS
+ ************************************/
+//#define LIGHT_EFFECTS
 
 // How long do the light effect last for the different FX's
 #define CLASH_FX_DURATION 200
@@ -347,8 +342,11 @@ static const uint8_t rgbFactor = 100;
  * For daily use I recommend you comment LS_INFO
  * When you plug your device to USB uncomment LS_INFO !
  */
+#define LS_SERIAL  //enable serial communication using Wire library
+#if defined LS_SERIAL
 //#define LS_INFO
 //#define LS_DEBUG
+#endif
 
 #if defined LS_DEBUG
 #define LS_BUTTON_DEBUG

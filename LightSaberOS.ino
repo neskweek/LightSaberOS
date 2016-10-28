@@ -1,7 +1,7 @@
 /*
  * LightSaberOS V1.3
  *
- * released on: 10 mar 2016
+ * released on: 21 Octber 2016
  * author: 		Sebastien CAPOU (neskweek@gmail.com) and Andras Kun (kun.andras@yahoo.de)
  * Source : 	https://github.com/neskweek/LightSaberOS
  * Description:	Operating System for Arduino based LightSaber
@@ -170,6 +170,7 @@ struct StoreStruct {
   struct Profile {
     uint8_t mainColor;  //colorID
     uint8_t clashColor;//colorID
+    uint8_t blasterboltColor;
   }sndProfile[SOUNDFONT_QUANTITY + 2];
 }storage;
 #endif
@@ -218,7 +219,7 @@ void setup() {
 	// or initialise value with default ones set in StoreStruct
 	EEPROM.setMemPool(MEMORYBASE, EEPROMSizeATmega328); //Set memorypool base to 32, assume Arduino Uno board
 	configAdress = EEPROM.getAddress(sizeof(StoreStruct)); // Size of config object
-
+ 
 	if (!loadConfig()) {
 		for (uint8_t i = 0; i <= 2; i++)
 			storage.version[i] = CONFIG_VERSION[i];
@@ -230,6 +231,7 @@ void setup() {
     for (uint8_t i=2; i<SOUNDFONT_QUANTITY+2;i++){
       storage.sndProfile[i].mainColor=1;
       storage.sndProfile[i].clashColor=1;
+      storage.sndProfile[i].blasterboltColor=1;
     }
 #endif
 #if defined NEOPIXEL
@@ -239,7 +241,7 @@ void setup() {
       storage.sndProfile[i].blasterboltColor=1;
     }
 #endif
-
+saveConfig();
 #if defined LS_INFO
 		Serial.println(F("DEFAULT VALUE"));
 #endif
@@ -273,7 +275,7 @@ void setup() {
 	Serial.println(F("Initializing DMP..."));
 #endif
 	//devStatus = mpu.dmpInitialize();  // this command alone eats up 18% of program storage space!!!
-  devStatus = mpu.dmpInitialize_light();  // this command alone eats up 18% of program storage space!!!
+  devStatus = mpu.dmpInitialize_light();  // this is a ligter version of the above
 
 	/*
 	 * Those offsets are specific to each MPU6050 device.
@@ -422,7 +424,7 @@ void setup() {
 
 #if defined LUXEON
 	//initialise start color
-	getColor(currentColor, storage.mainColor);
+	getColor(currentColor, storage.sndProfile[storage.soundFont].mainColor);
 #endif
 
 #if defined NEOPIXEL
@@ -953,6 +955,7 @@ void loop() {
 
 				}/* SPIN DETECTION */
 				else{ /* NORMAL SWING */
+          Serial.println("swing");
           ActionModeSubStates=AS_SWING;
 					SinglePlay_Sound(soundFont.getSwing());
 				}/* NORMAL SWING */
@@ -982,6 +985,7 @@ void loop() {
 #endif
 
 #ifdef LUXEON
+      getColor(currentColor, storage.sndProfile[storage.soundFont].mainColor);
       lightFlicker(ledPins, currentColor,0);
 #endif
 
@@ -1117,6 +1121,29 @@ void loop() {
 #endif
 			}
 			break;
+      case 4: //BLADE BLASTER BLOCK COLOR
+      confMenuStart(storage.sndProfile[storage.soundFont].blasterboltColor, 8, menu);
+
+      confParseValue(storage.sndProfile[storage.soundFont].blasterboltColor, 0,
+          COLORS - 1, 1);
+
+      if (modification) {
+
+        modification = 0;
+        storage.sndProfile[storage.soundFont].blasterboltColor = value;
+        getColor(currentColor, storage.sndProfile[storage.soundFont].blasterboltColor);
+        lightOn(ledPins, currentColor);
+#if defined LS_INFO
+        Serial.print(storage.sndProfile[storage.soundFont].blasterboltColor);
+        Serial.print("\tR:");
+        Serial.print(currentColor[0]);
+        Serial.print("\tG:");
+        Serial.print(currentColor[1]);
+        Serial.print(" \tB:");
+        Serial.println(currentColor[2]);
+#endif
+      }
+      break;
 #endif
 
 /*NEOPIXEL*/

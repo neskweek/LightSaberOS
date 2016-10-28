@@ -1,7 +1,7 @@
 /*
  * Light.h
  *
- *  Created on: 6 mars 2016
+ *  Created on: 21 Octber 2016
  * author: 		Sebastien CAPOU (neskweek@gmail.com) and Andras Kun (kun.andras@yahoo.de)
  * Source : 	https://github.com/neskweek/LightSaberOS
  */
@@ -46,16 +46,11 @@ void lightRetract(uint8_t ledPins[], uint8_t color[], uint16_t time);
 
 void lightFlicker(uint8_t ledPins[], uint8_t color[], uint8_t value = 0);
 
-
-#if defined MY_OWN_COLORS
 void getColor(uint8_t color[], uint8_t colorID); //getColor
-#endif
-#if defined FIXED_RANGE_COLORS
-void getColor(uint8_t color[], uint16_t colorID); //getColor
-#endif
-  #ifdef JUKEBOX
+
+#ifdef JUKEBOX
     void JukeBox_Stroboscope();
-  #endif
+#endif
 #endif
 
 #if defined NEOPIXEL

@@ -91,10 +91,16 @@ void confMenuStart(uint16_t variable, uint16_t sound, uint8_t menu) {
 			getColor(currentColor, variable);
 			lightOn(ledPins, currentColor);
 			break;
+    case 4:
+      lightOff(ledPins);
+#if defined LS_INFO
+      Serial.print(F("COLOR3\nCur:"));
 #endif
-#if defined LEDSTRINGS
+      getColor(currentColor, variable);
+      lightOn(ledPins, currentColor);
+      break;
+#endif
 
-#endif //LEDSTRINGS
 #if defined NEOPIXEL
     case 2:
       lightOff();
@@ -103,7 +109,7 @@ void confMenuStart(uint16_t variable, uint16_t sound, uint8_t menu) {
       Serial.print(F("COLOR1\nCur:"));
 #endif
       getColor(variable);
-      for (uint8_t i = 0; i < 3; i++) {
+      for (uint8_t i = 0; i < 6; i++) {
         digitalWrite(ledPins[i], HIGH);
       }
       lightOn(currentColor);
@@ -115,7 +121,7 @@ void confMenuStart(uint16_t variable, uint16_t sound, uint8_t menu) {
 			Serial.print(F("COLOR2\nCur:"));
 #endif
 			getColor(variable);
-			for (uint8_t i = 0; i < 3; i++) {
+			for (uint8_t i = 0; i < 6; i++) {
 				digitalWrite(ledPins[i], HIGH);
 			}
 			lightOn(currentColor);
@@ -126,7 +132,7 @@ void confMenuStart(uint16_t variable, uint16_t sound, uint8_t menu) {
 			Serial.print(F("COLOR3\nCur:"));
 #endif
 			getColor(variable);
-      for (uint8_t i = 0; i < 3; i++) {
+      for (uint8_t i = 0; i < 6; i++) {
         digitalWrite(ledPins[i], HIGH);
       }
       lightOn(currentColor);

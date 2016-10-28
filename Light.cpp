@@ -19,7 +19,7 @@ extern ActionModeSubStatesEnum ActionModeSubStates;
 
 
 #ifdef JUKEBOX
-#define SAMPLESIZEAVERAGE 100
+#define SAMPLESIZEAVERAGE 30
 #endif
 
 #ifdef FIREBLADE
@@ -299,7 +299,7 @@ void JukeBox_Stroboscope(uint8_t ledPins[]) {
     analogWrite(ledPins[4], MAX_BRIGHTNESS);
   }
   else analogWrite(ledPins[4], 0);
-  if (variation>=250) {
+  if (variation>=230) {
     analogWrite(ledPins[5], MAX_BRIGHTNESS);
   }
   else analogWrite(ledPins[5], 0);
@@ -372,37 +372,7 @@ void lightFlicker(uint8_t ledPins[], uint8_t color[], uint8_t value) {
 	}
 } //lightFlicker
 
-#if defined MY_OWN_COLORS
-void getColor(uint8_t color[], uint8_t colorID) {
-	color[3] = colorID;
-	switch (colorID) {
-		case 0:
-//Red
-		color[0] = 100;
-		color[1] = 0;
-		color[2] = 0;
-		break;
-		case 1:
-//Green
-		color[0] = 0;
-		color[1] = 100;
-		color[2] = 0;
-		break;
-		case 2:
-//Blue
-		color[0] = 0;
-		color[1] = 0;
-		color[2] = 100;
-		break;
-		default:
-// White?
-		color[0] = 100;
-		color[1] = 100;
-		color[2] = 100;
-		break;
-	}
-} //getColor
-#else
+/*
 void getColor(uint8_t color[], uint16_t colorID) {
 	uint8_t tint = (COLORS / 6);
 	uint8_t step = rgbFactor / tint;
@@ -440,7 +410,103 @@ void getColor(uint8_t color[], uint16_t colorID) {
 	}
 
 } //getColor
-#endif
+*/
+void getColor(uint8_t color[], uint8_t colorID) {
+  color[3] = colorID;
+  switch (colorID) {
+    case 0:
+//Red
+    color[0] = 200;
+    color[1] = 0;
+    color[2] = 0;
+    break;
+  case 1:
+//Yellow
+    color[0] = 200;
+    color[1] = 200;
+    color[2] = 0;
+    break;
+  case 2:
+//Green
+    color[0] = 0;
+    color[1] = 200;
+    color[2] = 0;
+    break;
+  case 3:
+//Aqua
+    color[0] = 0;
+    color[1] = 200;
+    color[2] = 200;
+    break;
+  case 4:
+//Blue
+    color[0] = 0;
+    color[1] = 0;
+    color[2] = 200;
+    break;
+  case 5:
+//Fuschia
+    color[0] = 200;
+    color[1] = 0;
+    color[2] = 200;
+    break;
+  case 6:
+//DarkGrey
+    color[0] = 150;
+    color[1] = 150;
+    color[2] = 150;
+    break;
+  case 7:
+//DarkOrange
+    color[0] = 200;
+    color[1] = 102;
+    color[2] = 0;
+    break;
+  case 8:
+//DarkViolet
+    color[0] = 116;
+    color[1] = 0;
+    color[2] = 166;
+    break;
+  case 9:
+//DodgerBlue
+    color[0] = 24;
+    color[1] = 112;
+    color[2] = 200;
+    break;
+  case 10:
+//Gold
+    color[0] = 200;
+    color[1] = 168;
+    color[2] = 0;
+    break;
+  case 11:
+//GoldenRod
+    color[0] = 170;
+    color[1] = 130;
+    color[2] = 24;
+    break;
+  case 12:
+//Indigo
+    color[0] = 116;
+    color[1] = 0;
+    color[2] = 204;
+    break;
+  case 13:
+//LightGreen
+    color[0] = 112;
+    color[1] = 186;
+    color[2] = 112;
+    break;
+
+  default:
+// White (if enough voltage)
+    color[0] = 200;
+    color[1] = 200;
+    color[2] = 200;
+    break;
+  }
+} //getColor
 
 #ifdef JUKEBOX
 void JukeBox_Stroboscope() {
@@ -525,6 +591,7 @@ void lightIgnition(cRGB color, uint16_t time, uint8_t type) {
       //delay(time/NUMPIXELS);
 			delayMicroseconds((time * 1000) / NUMPIXELS);
 		}*/
+		//Serial.println(pixels.getBrightness());
 		break;
 		/*
 		 case 1:

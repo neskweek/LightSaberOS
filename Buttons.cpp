@@ -1,7 +1,7 @@
 /*
  * Buttons.c
  *
- *  Created on: 6 mars 2016
+ *  Created on: 21 Octber 2016
  * author: 		Sebastien CAPOU (neskweek@gmail.com) and Andras Kun (kun.andras@yahoo.de)
  * Source : 	https://github.com/neskweek/LightSaberOS
  */
@@ -127,7 +127,7 @@ void mainLongPressStart() {
 		enterMenu = true;
 		menu++;
 #if defined LUXEON
-			if (menu==4){menu=0;}  // 3 menu items
+			if (menu==5){menu=0;}  // 3 menu items
 #endif
 #if defined LEDSTRINGS
 			if (menu==2){menu=0;}  // 2 menu items
