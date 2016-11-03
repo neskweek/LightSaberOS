@@ -214,7 +214,7 @@ public:
 		return this->force.get(random(0, this->force.size()));
 	}
 	const uint16_t getWrist() {
-#endif /* SOUNDFONT_H_ */		return this->wrist.get(random(0, this->wrist.size()));
+   return this->wrist.get(random(0, this->wrist.size()));
 	}
 
   const uint16_t getMenu() {
