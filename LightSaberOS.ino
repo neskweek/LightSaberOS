@@ -1,22 +1,35 @@
 /*
- * LightSaberOS V1.0
+ * LightSaberOS V1.3
  *
- * released on: 10 mar 2016
- * author: 		Sebastien CAPOU (neskweek@gmail.com)
+ * released on: 21 Octber 2016
+ * author: 		Sebastien CAPOU (neskweek@gmail.com) and Andras Kun (kun.andras@yahoo.de)
  * Source : 	https://github.com/neskweek/LightSaberOS
  * Description:	Operating System for Arduino based LightSaber
  *
  * This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License.
  * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-sa/4.0/.
  */
+/***************************************************************************************************
+ * DFPLAYER variables
+ */
+//#define OLD_DPFPLAYER_LIB
+#ifdef OLD_DPFPLAYER_LIB
+  #include <SoftwareSerial.h> // interestingly the DFPlayer lib refuses
+  #include "DFPlayer_Mini_Mp3.h"
+  //SoftwareSerial mp3player(DFPLAYER_TX, DFPLAYER_RX); // TX, RX
+  SoftwareSerial mp3player(7, 8); // TX, RX
+#else
+  #include <DFPlayer.h>
+  DFPlayer dfplayer;
+#endif
 
 #include <Arduino.h>
-#include <DFPlayer.h>
 #include <I2Cdev.h>
 #include <MPU6050_6Axis_MotionApps20.h>
 #include <EEPROMex.h>
 #include <OneButton.h>
 #include <LinkedList.h>
+
 
 #include "Buttons.h"
 #include "Config.h"
@@ -31,24 +44,29 @@
 #include <WS2812.h>
 #endif
 
-/*
- * DO NOT MODIFY
- * Unless you know what you're doing
- *************************************/
-#define CONFIG_VERSION 		"L01"
-#define MEMORYBASE 			32
-#define SWING_SUPPRESS 		420
-/************************************/
 
-/*
- * DEFAULT CONFIG PARAMETERS
- * Will be overriden by EEPROM settings
- * once the first save will be done
- *************************************/
-#define VOL					13
-#define SOUNDFONT 			2
-#define	SWING 				300
-/************************************/
+
+SoundFont soundFont;
+unsigned long sndSuppress = millis();
+unsigned long sndSuppress2 = millis();
+bool hum_playing=false; // variable to store whether hum is being played
+#ifdef JUKEBOX
+bool jukebox_play=false; // indicate whether a song is being played in JukeBox mode
+uint8_t jb_track;  // sound file track number in the directory designated for music playback
+#endif  
+
+
+
+
+/***************************************************************************************************
+ * Saber Finite State Machine Custom Type and State Variable
+ */
+enum SaberStateEnum {S_STANDBY, S_SABERON, S_CONFIG, S_SLEEP, S_JUKEBOX};
+SaberStateEnum SaberState;
+SaberStateEnum PrevSaberState;
+
+enum ActionModeSubStatesEnum {AS_HUM, AS_IGNITION, AS_RETRACTION, AS_BLADELOCKUP, AS_PREBLADELOCKUP, AS_BLASTERDEFLECTMOTION, AS_BLASTERDEFLECTPRESS, AS_CLASH, AS_SWING, AS_SPIN, AS_FORCE};
+ActionModeSubStatesEnum ActionModeSubStates;
 
 /***************************************************************************************************
  * Motion detection Variables
@@ -92,43 +110,25 @@ volatile bool isFlickering = false;
 cRGB currentColor;
 uint8_t blasterPixel;
 #endif
-# if defined ACCENT_LED
-unsigned long lastAccent = millis();
-#if defined SOFT_ACCENT
-unsigned long lastAccentTick = micros();
 
-struct softPWM {
-	uint8_t dutyCycle; // in percent
-	bool revertCycle;
-	uint8_t state;
-	uint16_t tick;
-} pwmPin = { 100, false, LOW, 0 };
-#endif
-#endif
 uint8_t blaster = 0;
-bool blasterBlocks = false;
+//bool blasterBlocks = false;
 uint8_t clash = 0;
-bool lockup = false;
+bool lockuponclash = false;
 uint8_t blink = 0;
 uint8_t randomBlink = 0;
-
 /***************************************************************************************************
  * Buttons variables
  */
 OneButton mainButton(MAIN_BUTTON, true);
+#ifndef SINGLEBUTTON
 OneButton lockupButton(LOCKUP_BUTTON, true);
-bool actionMode = false; // Play with your saber
-bool configMode = false; // Configure your saber
-static bool ignition = false;
-static bool browsing = false;
-
-/***************************************************************************************************
- * DFPLAYER variables
- */
-DFPlayer dfplayer;
-SoundFont soundFont;
-unsigned long sndSuppress = millis();
-unsigned long sndSuppress2 = millis();
+#endif
+// replaced by Saber State Machine Variables
+//bool actionMode = false; // Play with your saber
+//bool configMode = false; // Configure your saber
+//static bool ignition = false;
+//static bool browsing = false;
 
 /***************************************************************************************************
  * ConfigMode Variables
@@ -146,12 +146,8 @@ struct StoreStruct {
 	// This is for mere detection if they are our settings
 	char version[5];
 	// The settings
-	uint8_t volume;     // 0 to 30
+	uint8_t volume;     // 0 to 31
 	uint8_t soundFont; // as many Sound font you have defined in Soundfont.h Max:253
-	uint16_t swingTreshold;     // treshold acceleration for Swing
-	uint8_t sndProfile[SOUNDFONT_QUANTITY + 2][3]; // sndProfile[sndft][0] : PowerOn effect
-						       // sndProfile[sndft][1] : PowerOff effect
-						       // sndProfile[sndft][2] : Flicker effect
 } storage;
 #endif
 #if defined LUXEON
@@ -159,13 +155,13 @@ struct StoreStruct {
 	// This is for mere detection if they are our settings
 	char version[5];
 	// The settings
-	uint8_t volume;// 0 to 30
+	uint8_t volume;// 0 to 31
 	uint8_t soundFont;// as many as Sound font you have defined in Soundfont.h Max:253
-	uint16_t swingTreshold;// treshold acceleration for Swing
-	uint8_t mainColor;//colorID
-	uint8_t clashColor;//colorID
-	uint8_t sndProfile[SOUNDFONT_QUANTITY + 2][2];	// sndProfile[sndft][0] : main colorID
-							// sndProfile[sndft][1] : clash colorID
+  struct Profile {
+    uint8_t mainColor;  //colorID
+    uint8_t clashColor;//colorID
+    uint8_t blasterboltColor;
+  }sndProfile[SOUNDFONT_QUANTITY + 2];
 }storage;
 #endif
 
@@ -174,16 +170,13 @@ struct StoreStruct {
 	// This is for mere detection if they are our settings
 	char version[5];
 	// The settings
-	uint8_t volume;// 0 to 30
+	uint8_t volume;// 0 to 31
 	uint8_t soundFont;// as many as Sound font you have defined in Soundfont.h Max:253
-	uint16_t swingTreshold;// treshold acceleration for Swing
-	struct Profile {
-		uint8_t mainColor;	//colorID
-		uint8_t clashColor;//colorID
-		uint8_t pwrOn;
-		uint8_t pwrOff;
-		uint8_t flicker;
-	}sndProfile[SOUNDFONT_QUANTITY + 2];
+  struct Profile {
+    uint8_t mainColor;  //colorID
+    uint8_t clashColor;//colorID
+    uint8_t blasterboltColor;
+  }sndProfile[SOUNDFONT_QUANTITY + 2];
 }storage;
 
 #endif
@@ -207,51 +200,38 @@ void setup() {
 #elif I2CDEV_IMPLEMENTATION == I2CDEV_BUILTIN_FASTWIRE
 			Fastwire::setup(400, true);
 #endif
-
-//#if defined LS_INFO
 	// Serial line for debug
-	Serial.begin(9600);
-//#endif
+	Serial.begin(115200);
 
-#if defined LS_DEBUG
-	// Serial line for debug
-	Serial.begin(9600);
-#endif
+
 	/***** LOAD CONFIG *****/
 	// Get config from EEPROM if there is one
 	// or initialise value with default ones set in StoreStruct
 	EEPROM.setMemPool(MEMORYBASE, EEPROMSizeATmega328); //Set memorypool base to 32, assume Arduino Uno board
 	configAdress = EEPROM.getAddress(sizeof(StoreStruct)); // Size of config object
-
+ 
 	if (!loadConfig()) {
-		for (uint8_t i = 0; i <= 3; i++)
+		for (uint8_t i = 0; i <= 2; i++)
 			storage.version[i] = CONFIG_VERSION[i];
 		storage.soundFont = SOUNDFONT;
 		storage.volume = VOL;
-		storage.swingTreshold = SWING;
 #if defined LEDSTRINGS
-		storage.sndProfile[2][0] = 0; //PowerOn
-		storage.sndProfile[2][1] = 0; //PowerOff
-		storage.sndProfile[2][2] = 0; //Flickering
-		storage.sndProfile[3][0] = 1;
-		storage.sndProfile[3][1] = 1;
-		storage.sndProfile[3][2] = 0;
 #endif
 #if defined LUXEON
-		storage.mainColor = 4;
-		storage.clashColor = 5;
-		storage.sndProfile[2][0] = 2;
-		storage.sndProfile[2][1] = 0;
-		storage.sndProfile[3][0] = 0;
-		storage.sndProfile[3][1] = 5;
+    for (uint8_t i=2; i<SOUNDFONT_QUANTITY+2;i++){
+      storage.sndProfile[i].mainColor=1;
+      storage.sndProfile[i].clashColor=1;
+      storage.sndProfile[i].blasterboltColor=1;
+    }
 #endif
 #if defined NEOPIXEL
-		storage.sndProfile[2].mainColor = 1;
-		storage.sndProfile[2].clashColor = 0;
-//		storage.sndProfile[3].mainColor = 0;
-//		storage.sndProfile[3].clashColor = 2;
+    for (uint8_t i=2; i<SOUNDFONT_QUANTITY+2;i++){
+      storage.sndProfile[i].mainColor=1;
+      storage.sndProfile[i].clashColor=1;
+      storage.sndProfile[i].blasterboltColor=1;
+    }
 #endif
-
+saveConfig();
 #if defined LS_INFO
 		Serial.println(F("DEFAULT VALUE"));
 #endif
@@ -261,6 +241,7 @@ void setup() {
 		Serial.println(F("EEPROM LOADED"));
 	}
 #endif
+  soundFont.setID(storage.soundFont);
 
 	/***** LOAD CONFIG *****/
 
@@ -283,14 +264,55 @@ void setup() {
 	// load and configure the DMP
 	Serial.println(F("Initializing DMP..."));
 #endif
-	devStatus = mpu.dmpInitialize();
+  devStatus = mpu.dmpInitialize_light();  // this is a ligter version of the above
 
 	/*
 	 * Those offsets are specific to each MPU6050 device.
 	 * they are found via calibration process.
 	 * See this script http://www.i2cdevlib.com/forums/index.php?app=core&module=attach&section=attach&attach_id=27
 	 */
-	/* UNIT1 */
+#ifdef MPUCALOFFSETEEPROM
+        // retreive MPU6050 calibrated offset values from EEPROM
+        EEPROM.setMemPool(MEMORYBASEMPUCALIBOFFSET, EEPROMSizeATmega328);
+        int addressInt=MEMORYBASEMPUCALIBOFFSET;
+       mpu.setXAccelOffset(EEPROM.readInt(addressInt));
+        #ifdef LS_INFO
+          int16_t output;
+          output = EEPROM.readInt(addressInt);
+          Serial.print("address: ");Serial.println(addressInt);Serial.print("output: ");Serial.println(output);Serial.println("");
+        #endif
+         addressInt = addressInt + 2; //EEPROM.getAddress(sizeof(int));        
+       mpu.setYAccelOffset(EEPROM.readInt(addressInt));
+        #ifdef LS_INFO
+          output = EEPROM.readInt(addressInt);
+          Serial.print("address: ");Serial.println(addressInt);Serial.print("output: ");Serial.println(output);Serial.println("");
+        #endif
+         addressInt = addressInt + 2; //EEPROM.getAddress(sizeof(int));
+       mpu.setZAccelOffset(EEPROM.readInt(addressInt));
+        #ifdef LS_INFO
+          output = EEPROM.readInt(addressInt);
+          Serial.print("address: ");Serial.println(addressInt);Serial.print("output: ");Serial.println(output);Serial.println("");
+        #endif
+         addressInt = addressInt + 2; //EEPROM.getAddress(sizeof(int));
+       mpu.setXGyroOffset(EEPROM.readInt(addressInt));
+        #ifdef LS_INFO
+          output = EEPROM.readInt(addressInt);
+          Serial.print("address: ");Serial.println(addressInt);Serial.print("output: ");Serial.println(output);Serial.println("");
+        #endif
+        addressInt = addressInt + 2; //EEPROM.getAddress(sizeof(int));
+        mpu.setYGyroOffset(EEPROM.readInt(addressInt));
+        #ifdef LS_INFO
+          output = EEPROM.readInt(addressInt);
+          Serial.print("address: ");Serial.println(addressInt);Serial.print("output: ");Serial.println(output);Serial.println("");
+        #endif
+         addressInt = addressInt + 2; //EEPROM.getAddress(sizeof(int));
+       mpu.setZGyroOffset(EEPROM.readInt(addressInt));
+        #ifdef LS_INFO
+          output = EEPROM.readInt(addressInt);
+          Serial.print("address: ");Serial.println(addressInt);Serial.print("output: ");Serial.println(output);Serial.println("");
+        #endif
+ #else // assign calibrated offset values here:
+ /* UNIT1 */
 	mpu.setXAccelOffset(46);
 	mpu.setYAccelOffset(-4942);
 	mpu.setZAccelOffset(4721);
@@ -305,6 +327,10 @@ void setup() {
 //	mpu.setXGyroOffset(7);
 //	mpu.setYGyroOffset(6);
 //	mpu.setZGyroOffset(7);
+#endif
+
+
+  
 	// make sure it worked (returns 0 if so)
 	if (devStatus == 0) {
 		// turn on the DMP, now that it's ready
@@ -360,6 +386,7 @@ void setup() {
 //	mpu.setIntFIFOBufferOverflowEnabled(false);
 //	mpu.setIntI2CMasterEnabled(false);
 //	mpu.setIntDataReadyEnabled(false);
+
 	mpu.setDLPFMode(3);
 	mpu.setDHPFMode(0);
 	//mpu.setFullScaleAccelRange(3);
@@ -371,39 +398,11 @@ void setup() {
 	mpu.setMotionDetectionThreshold(10); // 1mg/LSB
 	mpu.setMotionDetectionDuration(2); // number of consecutive samples above threshold to trigger int
 	mpuIntStatus = mpu.getIntStatus();
-#if defined LS_CLASH_DEBUG
-	Serial.println("MPU6050 register setup:");
-	Serial.print("INT_PIN_CFG\t");
-	Serial.print(mpu.getInterruptMode());
-	Serial.print("\t");
-	Serial.print(mpu.getInterruptDrive());
-	Serial.print("\t");
-	Serial.print(mpu.getInterruptLatch());
-	Serial.print("\t");
-	Serial.print(mpu.getInterruptLatchClear());
-	Serial.print("\t");
-	Serial.print(mpu.getFSyncInterruptLevel());
-	Serial.print("\t");
-	Serial.print(mpu.getFSyncInterruptEnabled());
-	Serial.print("\t");
-	Serial.println(mpu.getI2CBypassEnabled());
-	// list INT_ENABLE register contents
-	Serial.print("INT_ENABLE\t");
-	Serial.print(mpu.getIntFreefallEnabled());
-	Serial.print("\t");
-	Serial.print(mpu.getIntMotionEnabled());
-	Serial.print("\t");
-	Serial.print(mpu.getIntZeroMotionEnabled());
-	Serial.print("\t");
-	Serial.print(mpu.getIntFIFOBufferOverflowEnabled());
-	Serial.print("\t");
-	Serial.print(mpu.getIntI2CMasterEnabled());
-	Serial.print("\t");
-	Serial.println(mpu.getIntDataReadyEnabled());
-#endif
+
 	/***** MP6050 MOTION DETECTOR INITIALISATION  *****/
 
 	/***** LED SEGMENT INITIALISATION  *****/
+
 	// initialize ledstrings segments
 	DDRD |= B01101000;
 	DDRB |= B00101110;
@@ -414,14 +413,14 @@ void setup() {
 
 #if defined LUXEON
 	//initialise start color
-	getColor(currentColor, storage.mainColor);
+	getColor(currentColor, storage.sndProfile[storage.soundFont].mainColor);
 #endif
 
 #if defined NEOPIXEL
 	pixels.setOutput(DATA_PIN); // This initializes the NeoPixel library.
-
 	lightOff();
 	getColor(storage.sndProfile[storage.soundFont].mainColor);
+  neopixels_stripeKillKey_Enable();
 #endif
 
 #if defined FoCSTRING
@@ -439,87 +438,105 @@ void setup() {
 	/***** LED SEGMENT INITIALISATION  *****/
 
 	/***** BUTTONS INITIALISATION  *****/
+ 
 	// link the Main button functions.
 	mainButton.setClickTicks(CLICK);
 	mainButton.setPressTicks(PRESS_CONFIG);
 	mainButton.attachClick(mainClick);
-	//mainButton.attachDoubleClick(mainDoubleClick);
+	mainButton.attachDoubleClick(mainDoubleClick);
 	mainButton.attachLongPressStart(mainLongPressStart);
 	mainButton.attachLongPressStop(mainLongPressStop);
 	mainButton.attachDuringLongPress(mainLongPress);
 
-	// link the Lockup button functions.
+#ifndef SINGLEBUTTON
+  // link the Lockup button functions.
 	lockupButton.setClickTicks(CLICK);
 	lockupButton.setPressTicks(PRESS_CONFIG);
 	lockupButton.attachClick(lockupClick);
-	//lockupButton.attachDoubleClick(lockupDoubleClick);
+	lockupButton.attachDoubleClick(lockupDoubleClick);
 	lockupButton.attachLongPressStart(lockupLongPressStart);
 	lockupButton.attachLongPressStop(lockupLongPressStop);
 	lockupButton.attachDuringLongPress(lockupLongPress);
+#endif
 	/***** BUTTONS INITIALISATION  *****/
 
 	/***** DF PLAYER INITIALISATION  *****/
-	dfplayer.setSerial(DFPLAYER_TX, DFPLAYER_RX);
-	dfplayer.setVolume(storage.volume);
-	delay(200);
-	pinMode(SPK1, INPUT);
-	pinMode(SPK2, INPUT);
+  InitDFPlayer();
 
-	soundFont.setID(storage.soundFont);
+  delay(200);
+  pinMode(SPK1, INPUT);
+  pinMode(SPK2, INPUT);
+  SinglePlay_Sound(11);
+  delay(20);
 
-	/***** DF PLAYER INITIALISATION  *****/
 
-	//setup finished. Boot ready. We notify !
-	dfplayer.playPhysicalTrack(16);
-	delay(20);
+  /****** INIT SABER STATE VARIABLE *****/
+  SaberState = S_STANDBY;
+  PrevSaberState=S_SLEEP;
+  ActionModeSubStates=AS_HUM;
 }
 
 // ====================================================================================
 // ===               	   			LOOP ROUTINE  	 	                			===
 // ====================================================================================
 void loop() {
+
 	// if MPU6050 DMP programming failed, don't try to do anything : EPIC FAIL !
 	if (!dmpReady) {
 		return;
 	}
 
 	mainButton.tick();
+#ifndef SINGLEBUTTON
 	lockupButton.tick();
+#endif
 
 	/*//////////////////////////////////////////////////////////////////////////////////////////////////////////
 	 * ACTION MODE HANDLER
 	 */ /////////////////////////////////////////////////////////////////////////////////////////////////////////
-	if (actionMode) {
+	if (SaberState == S_SABERON) {
 		/*
 		 // In case we want to time the loop
 		 Serial.print(F("Action Mode"));
 		 Serial.print(F(" time="));
 		 Serial.println(millis());
 		 */
+    if (ActionModeSubStates != AS_HUM) { // needed for hum relauch only in case it's not already being played
+      hum_playing=false;
+    }
+    else { // AS_HUM
+      if ((millis() - sndSuppress > HUM_RELAUNCH and not hum_playing)) {
+        HumRelaunch();
+      }
+    }
 
-		if (!ignition) {
+		if (ActionModeSubStates == AS_IGNITION) {
 			/*
 			 *  This is the very first loop after Action Mode has been turned on
 			 */
-			attachInterrupt(0, dmpDataReady, RISING);
+			//attachInterrupt(0, dmpDataReady, RISING);
 			// Reduce lockup trigger time for faster lockup response
+#ifndef SINGLEBUTTON
 			lockupButton.setPressTicks(PRESS_ACTION);
+#endif
+#if defined NEOPIXEL
+      neopixels_stripeKillKey_Disable();
+#endif
 #if defined LS_INFO
 			Serial.println(F("START ACTION"));
 #endif
 			//Play powerons wavs
-			dfplayer.playPhysicalTrack(soundFont.getPowerOn());
+			SinglePlay_Sound(soundFont.getPowerOn());
 			// Light up the ledstrings
 #if defined LEDSTRINGS
-			lightIgnition(ledPins, soundFont.getPowerOnTime(),
-					storage.sndProfile[storage.soundFont][0]);
-
+      lightIgnition(ledPins, soundFont.getPowerOnTime(),
+          soundFont.getPowerOnEffect());
 #endif
 #if defined LUXEON
 			lightIgnition(ledPins, currentColor, soundFont.getPowerOnTime());
 #endif
 #if defined NEOPIXEL
-			for (uint8_t i = 0; i < 3; i++) {
+			for (uint8_t i = 0; i <= 5; i++) {
 				digitalWrite(ledPins[i], HIGH);
 			}
 			lightIgnition(currentColor, soundFont.getPowerOnTime(), 0);
@@ -527,25 +544,16 @@ void loop() {
 #endif
 			sndSuppress = millis();
 			sndSuppress2 = millis();
-#if defined LIGHT_EFFECTS
-			/*
-			 *  Interrupt Timer2 configuration
-			 */
-			OCR2A = 2;  // Around 44100 Hz
-			TCCR2A |= (1 << WGM21); // Set to CTC Mode
-			// set prescaler to 256
-			TCCR2B |= (1 << CS21) | (1 << CS22);
-			// start timer2 compare interrupt:
-			TIMSK2 |= (1 << OCIE2A);
-#endif
 
 			// Get the initial position of the motion detector
 			motionEngine();
-			ignition = true;
+     ActionModeSubStates=AS_HUM;
+		//ignition = true;
 
 #if defined ACCENT_LED
 			// turns accent LED On
-			analogWrite(ACCENT_LED, HIGH);
+      accentLEDControl(AL_ON);
+			//digitalWrite(ACCENT_LED, HIGH);
 #endif
 		}
 
@@ -560,55 +568,131 @@ void loop() {
 		 * such a deceleration instantenously, which is only feasible
 		 * using the motion interrupt feature of the MPU6050.
 		 */
-		if (mpuIntStatus > 60 and mpuIntStatus < 70 and not lockup) {
-			/*
-			 * THIS IS A CLASH  !
-			 */
-#if defined LUXEON
-			getColor(currentColor, storage.clashColor);
-			lightOn(ledPins, currentColor);
-#endif
+		if (mpuIntStatus > 60 and mpuIntStatus < 70 and ActionModeSubStates != AS_BLADELOCKUP) {
+
 #if defined LS_CLASH_DEBUG
 			Serial.print(F("CLASH\tmpuIntStatus="));
 			Serial.println(mpuIntStatus);
 #endif
-			if (millis() - sndSuppress >= 100) {
-				blink = 0;
-				clash = CLASH_FLASH_TIME;
-				dfplayer.playPhysicalTrack(soundFont.getClash());
+    if (lockuponclash) {
+    //if (ActionModeSubStates==AS_PREBLADELOCKUP or lockuponclash) {
+      //Lockup Start
+        ActionModeSubStates=AS_BLADELOCKUP;
+        if (soundFont.getLockup()) {
+          LoopPlay_Sound(soundFont.getLockup());
+          //sndSuppress = millis();
+          //while (millis() - sndSuppress < 50) {
+          //}
+          //Set_Loop_Playback();
+          //sndSuppress = millis();
+          //while (millis() - sndSuppress < 50) {
+          //}
+        }    
+    }
+    else { // ordinary clash
+			if (millis() - sndSuppress >= CLASH_SUPRESS) {
+				//blink = 0;
+				//clash = CLASH_FLASH_TIME;
+				SinglePlay_Sound(soundFont.getClash());
 				sndSuppress = millis();
 				sndSuppress2 = millis();
-			}
+        /*
+         * THIS IS A CLASH  !
+         */
+        ActionModeSubStates=AS_CLASH;
+  #if defined LUXEON
+        getColor(currentColor, storage.sndProfile[storage.soundFont].clashColor);
+        lightOn(ledPins, currentColor);
+  #endif
+  #if defined LEDSTRINGS
+      for (uint8_t i = 0; i <= 5; i++) {
+        analogWrite(ledPins[i], 255);
+      }
+  #endif
+  #if defined NEOPIXEL
+    #ifdef FIREBLADE  // simply flash white
+        getColor(14);
+        lightOn(currentColor);
+    #else
+        getColor(storage.sndProfile[storage.soundFont].clashColor);
+        lightOn(currentColor);
+    #endif
+  #endif			
+        delay(CLASH_FX_DURATION);  // clash duration
+
+      }
+    }
 		}
+    /*
+     * SIMPLE BLADE MOVEMENT DETECTION FOR MOTION  TRIGGERED BLASTER FEDLECT
+     * We detect swings as hilt's orientation change
+     * since IMUs sucks at determining relative position in space
+     */
+   // movement of the hilt while blaster move deflect is activated can trigger a blaster deflect
+   else if ((ActionModeSubStates==AS_BLASTERDEFLECTPRESS or (ActionModeSubStates==AS_BLASTERDEFLECTMOTION and (abs(curDeltAccel.y) > soundFont.getSwingThreshold()  // and it has suffisent power on a certain axis
+                   or abs(curDeltAccel.z) > soundFont.getSwingThreshold()
+                    or abs(curDeltAccel.x) > soundFont.getSwingThreshold()))) and (millis() - sndSuppress >= BLASTERBLOCK_SUPRESS)) {
+    
+          if (soundFont.getBlaster()) {
+             SinglePlay_Sound(soundFont.getBlaster());
+#if defined LEDSTRINGS
+            blasterPin = random(6); //momentary shut off one led segment
+            blink = 0;
+            analogWrite(ledPins[blasterPin], LOW);
+#endif
+#if defined LUXEON
+            getColor(currentColor, storage.sndProfile[storage.soundFont].blasterboltColor);
+            lightOn(ledPins, currentColor);
+#endif //LUXEON
+#if defined NEOPIXEL
+  #ifdef FIREBLADE
+            getColor(14);
+            lightOn(currentColor);
+  #else
+            blasterPixel = random(20, NUMPIXELS - 3); //momentary shut off one led segment
+            blink = 0;
+            getColor(storage.sndProfile[storage.soundFont].blasterboltColor);
+            lightBlasterEffect(blasterPixel, 3, storage.sndProfile[storage.soundFont].mainColor);
+  #endif
+#endif
+            delay(BLASTER_FX_DURATION);  // blaster bolt deflect duration
+            blaster = BLASTER_FLASH_TIME;
+            // Some Soundfont may not have Blaster sounds
+            if (millis() - sndSuppress > 50) {
+              //SinglePlay_Sound(soundFont.getBlaster());
+              sndSuppress = millis();
+            }
+          }
+  }
 		/*
 		 * SWING DETECTION
 		 * We detect swings as hilt's orientation change
 		 * since IMUs sucks at determining relative position in space
 		 */
 		else if (
-				 not lockup
+				 ActionModeSubStates != AS_BLADELOCKUP
 				 and abs(curRotation.w * 1000) < 999 // some rotation movement have been initiated
 				 and (
 #if defined BLADE_X
 
 						(
 								(millis() - sndSuppress > SWING_SUPPRESS) // The movement doesn't follow another to closely
-								and (abs(curDeltAccel.y) > storage.swingTreshold  // and it has suffisent power on a certain axis
-										or abs(curDeltAccel.z) > storage.swingTreshold
-										or abs(curDeltAccel.x) > storage.swingTreshold*10)
+								and (abs(curDeltAccel.y) > soundFont.getSwingThreshold()  // and it has suffisent power on a certain axis
+										or abs(curDeltAccel.z) > soundFont.getSwingThreshold()
+										or abs(curDeltAccel.x) > soundFont.getSwingThreshold()*10)
 						)
 						or (// A reverse movement follow a first one
 								(millis() - sndSuppress2 > SWING_SUPPRESS)   // The reverse movement doesn't follow another reverse movement to closely
 								// and it must be a reverse movement on Vertical axis
 								and (
 										abs(curDeltAccel.y) > abs(curDeltAccel.z)
-										and abs(prevDeltAccel.y) > storage.swingTreshold
+										and abs(prevDeltAccel.y) > soundFont.getSwingThreshold()
 										and (
 												(prevDeltAccel.y > 0
-												and curDeltAccel.y < -storage.swingTreshold)
+												and curDeltAccel.y < -soundFont.getSwingThreshold())
 												or (
 														prevDeltAccel.y < 0
-														and curDeltAccel.y	> storage.swingTreshold
+														and curDeltAccel.y	> soundFont.getSwingThreshold()
 													)
 											)
 									)
@@ -617,13 +701,13 @@ void loop() {
 									(millis() - sndSuppress2 > SWING_SUPPRESS)  // The reverse movement doesn't follow another reverse movement to closely
 									and ( // and it must be a reverse movement on Horizontal axis
 											abs(curDeltAccel.z) > abs(curDeltAccel.y)
-											and abs(prevDeltAccel.z) > storage.swingTreshold
+											and abs(prevDeltAccel.z) > soundFont.getSwingThreshold()
 											and (
 													(prevDeltAccel.z > 0
-													and curDeltAccel.z < -storage.swingTreshold)
+													and curDeltAccel.z < -soundFont.getSwingThreshold())
 													or (
 															prevDeltAccel.z < 0
-															and curDeltAccel.z	> storage.swingTreshold
+															and curDeltAccel.z	> soundFont.getSwingThreshold()
 														)
 												)
 										)
@@ -641,22 +725,22 @@ void loop() {
 #if defined BLADE_Y
 						(
 								(millis() - sndSuppress > SWING_SUPPRESS) // The movement doesn't follow another to closely
-								and (abs(curDeltAccel.x) > storage.swingTreshold  // and it has suffisent power on a certain axis
-										or abs(curDeltAccel.z) > storage.swingTreshold
-										or abs(curDeltAccel.y) > storage.swingTreshold*10)
+								and (abs(curDeltAccel.x) > soundFont.getSwingThreshold()  // and it has suffisent power on a certain axis
+										or abs(curDeltAccel.z) > soundFont.getSwingThreshold()
+										or abs(curDeltAccel.y) > soundFont.getSwingThreshold()*10)
 						)
 						or (// A reverse movement follow a first one
 								(millis() - sndSuppress2 > SWING_SUPPRESS)   // The reverse movement doesn't follow another reverse movement to closely
 								// and it must be a reverse movement on Vertical axis
 								and (
 										abs(curDeltAccel.x) > abs(curDeltAccel.z)
-										and abs(prevDeltAccel.x) > storage.swingTreshold
+										and abs(prevDeltAccel.x) > soundFont.getSwingThreshold()
 										and (
 												(prevDeltAccel.x > 0
-												and curDeltAccel.x < -storage.swingTreshold)
+												and curDeltAccel.x < -soundFont.getSwingThreshold())
 												or (
 														prevDeltAccel.x < 0
-														and curDeltAccel.x	> storage.swingTreshold
+														and curDeltAccel.x	> soundFont.getSwingThreshold()
 													)
 											)
 									)
@@ -665,13 +749,13 @@ void loop() {
 									(millis() - sndSuppress2 > SWING_SUPPRESS)  // The reverse movement doesn't follow another reverse movement to closely
 									and ( // and it must be a reverse movement on Horizontal axis
 											abs(curDeltAccel.z) > abs(curDeltAccel.x)
-											and abs(prevDeltAccel.z) > storage.swingTreshold
+											and abs(prevDeltAccel.z) > soundFont.getSwingThreshold()
 											and (
 													(prevDeltAccel.z > 0
-													and curDeltAccel.z < -storage.swingTreshold)
+													and curDeltAccel.z < -soundFont.getSwingThreshold())
 													or (
 															prevDeltAccel.z < 0
-															and curDeltAccel.z	> storage.swingTreshold
+															and curDeltAccel.z	> soundFont.getSwingThreshold()
 														)
 												)
 										)
@@ -688,22 +772,22 @@ void loop() {
 #if defined BLADE_Z
 						(
 								(millis() - sndSuppress > SWING_SUPPRESS) // The movement doesn't follow another to closely
-								and (abs(curDeltAccel.y) > storage.swingTreshold  // and it has suffisent power on a certain axis
-										or abs(curDeltAccel.x) > storage.swingTreshold
-										or abs(curDeltAccel.z) > storage.swingTreshold*10)
+								and (abs(curDeltAccel.y) > soundFont.getSwingThreshold()  // and it has suffisent power on a certain axis
+										or abs(curDeltAccel.x) > soundFont.getSwingThreshold()
+										or abs(curDeltAccel.z) > soundFont.getSwingThreshold()*10)
 						)
 						or (// A reverse movement follow a first one
 								(millis() - sndSuppress2 > SWING_SUPPRESS)   // The reverse movement doesn't follow another reverse movement to closely
 								// and it must be a reverse movement on Vertical axis
 								and (
 										abs(curDeltAccel.y) > abs(curDeltAccel.x)
-										and abs(prevDeltAccel.y) > storage.swingTreshold
+										and abs(prevDeltAccel.y) > soundFont.getSwingThreshold()
 										and (
 												(prevDeltAccel.y > 0
-												and curDeltAccel.y < -storage.swingTreshold)
+												and curDeltAccel.y < -soundFont.getSwingThreshold())
 												or (
 														prevDeltAccel.y < 0
-														and curDeltAccel.y	> storage.swingTreshold
+														and curDeltAccel.y	> soundFont.getSwingThreshold()
 													)
 											)
 									)
@@ -712,13 +796,13 @@ void loop() {
 									(millis() - sndSuppress2 > SWING_SUPPRESS)  // The reverse movement doesn't follow another reverse movement to closely
 									and ( // and it must be a reverse movement on Horizontal axis
 											abs(curDeltAccel.x) > abs(curDeltAccel.y)
-											and abs(prevDeltAccel.x) > storage.swingTreshold
+											and abs(prevDeltAccel.x) > soundFont.getSwingThreshold()
 											and (
 													(prevDeltAccel.x > 0
-													and curDeltAccel.x < -storage.swingTreshold)
+													and curDeltAccel.x < -soundFont.getSwingThreshold())
 													or (
 															prevDeltAccel.x < 0
-															and curDeltAccel.x	> storage.swingTreshold
+															and curDeltAccel.x	> soundFont.getSwingThreshold()
 														)
 												)
 										)
@@ -732,13 +816,13 @@ void loop() {
 						 abs(prevRotation.z * 1000 - curRotation.z * 1000) > abs(prevRotation.x * 1000 - curRotation.x * 1000)
 						 )
 #endif
-){
+){ // end of the condition definition for swings
 
 
 
-			if (!blasterBlocks) {
+			if ( ActionModeSubStates != AS_BLASTERDEFLECTMOTION and ActionModeSubStates != AS_BLASTERDEFLECTPRESS) {
 				/*
-				 *  THIS IS A SWING !
+		     *  THIS IS A SWING !
 				 */
 				prevDeltAccel = curDeltAccel;
 #if defined LS_SWING_DEBUG
@@ -777,114 +861,11 @@ void loop() {
 //				Serial.println(prevOrientation.z);
 #endif
 
-
-				/* SPIN DETECTION */
-				if(		soundFont.getSpin()
-						and (millis() - sndSuppress > SWING_SUPPRESS) // movement follow the precedent one shortly
-						and (millis() - sndSuppress <= SWING_SUPPRESS +10)
-						and (
-#if defined BLADE_X
-
-								(
-									abs(curDeltAccel.y) > abs(curDeltAccel.z)
-									and abs(prevDeltAccel.y) > storage.swingTreshold
-									and (
-											(
-													prevDeltAccel.y > 0
-													and curDeltAccel.y > storage.swingTreshold)
-													or (
-															prevDeltAccel.y < 0
-															and curDeltAccel.y	< -storage.swingTreshold
-														)
-											)
-									)
-								or
-								( // and it must be a reverse movement on Horizontal axis
-									abs(curDeltAccel.z) > abs(curDeltAccel.y)
-									and abs(prevDeltAccel.z) > storage.swingTreshold
-									and (
-											(
-													prevDeltAccel.z > 0
-													and curDeltAccel.z > storage.swingTreshold)
-													or (
-															prevDeltAccel.z < 0
-															and curDeltAccel.z	< -storage.swingTreshold
-														)
-											)
-										)
-
-
+          ActionModeSubStates=AS_SWING;
+#ifndef FIREBLADE // FIREBLADE triggers false swings due to a random() function all, not yet understood
+          SinglePlay_Sound(soundFont.getSwing());
 #endif
-#if defined BLADE_Y
-								(
-									abs(curDeltAccel.x) > abs(curDeltAccel.z)
-									and abs(prevDeltAccel.x) > storage.swingTreshold
-									and (
-											(
-													prevDeltAccel.x > 0
-													and curDeltAccel.x > storage.swingTreshold)
-													or (
-															prevDeltAccel.x < 0
-															and curDeltAccel.x	< -storage.swingTreshold
-														)
-											)
-									)
-								or
-								( // and it must be a reverse movement on Horizontal axis
-									abs(curDeltAccel.z) > abs(curDeltAccel.x)
-									and abs(prevDeltAccel.z) > storage.swingTreshold
-									and (
-											(
-													prevDeltAccel.z > 0
-													and curDeltAccel.z > storage.swingTreshold)
-													or (
-															prevDeltAccel.z < 0
-															and curDeltAccel.z	< -storage.swingTreshold
-														)
-											)
-										)
-
-#endif
-#if defined BLADE_Z
-								(
-									abs(curDeltAccel.y) > abs(curDeltAccel.x)
-									and abs(prevDeltAccel.y) > storage.swingTreshold
-									and (
-											(
-													prevDeltAccel.y > 0
-													and curDeltAccel.y > storage.swingTreshold)
-													or (
-															prevDeltAccel.y < 0
-															and curDeltAccel.y	< -storage.swingTreshold
-														)
-											)
-									)
-								or
-								( // and it must be a reverse movement on Horizontal axis
-									abs(curDeltAccel.x) > abs(curDeltAccel.y)
-									and abs(prevDeltAccel.x) > storage.swingTreshold
-									and (
-											(
-													prevDeltAccel.x > 0
-													and curDeltAccel.x > storage.swingTreshold)
-													or (
-															prevDeltAccel.x < 0
-															and curDeltAccel.x	< -storage.swingTreshold
-														)
-											)
-										)
-#endif
-						)
-
-			   ){
-
-
-					dfplayer.playPhysicalTrack(soundFont.getSpin());
-
-				}/* SPIN DETECTION */
-				else{ /* NORMAL SWING */
-					dfplayer.playPhysicalTrack(soundFont.getSwing());
-				}/* NORMAL SWING */
+    /* NORMAL SWING */
 
 
 
@@ -896,45 +877,55 @@ void loop() {
 					sndSuppress2 = millis();
 				}
 
-			} else { /* BLASTER MODE */
-				if (soundFont.getBlaster()) {
-#if defined LEDSTRINGS
-					blasterPin = random(6); //momentary shut off one led segment
-					blink = 0;
-#endif
-#if defined LUXEON
-					getColor(currentColor, storage.clashColor);
-					lightOn(ledPins, currentColor);
-#endif //LUXEON
-#if defined NEOPIXEL
-					blasterPixel = random(20, NUMPIXELS - 20); //momentary shut off one led segment
-					blink = 0;
-//					getColor(storage.sndProfile[storage.soundFont].clashColor);
-					getColor(255);//Pure white
-#endif
-					blaster = BLASTER_FLASH_TIME;
-					// Some Soundfont may not have #endifBlaster sounds
-					if (millis() - sndSuppress > 50) {
-						dfplayer.playPhysicalTrack(soundFont.getBlaster());
-						sndSuppress = millis();
-					}
-				}
-			} /* BLASTER MODE */
+			}
 		}
+    else { // simply flicker
+      if (ActionModeSubStates!=AS_BLASTERDEFLECTMOTION and ActionModeSubStates!=AS_BLADELOCKUP) { // do not deactivate blaster move deflect mode in case the saber is idling
+        ActionModeSubStates=AS_HUM;
+      }
+      else if (ActionModeSubStates==AS_BLASTERDEFLECTMOTION) {
+        accentLEDControl(AL_PULSE);
+      }
+      // relaunch hum if more than HUM_RELAUNCH time elapsed since entering AS_HUM state
+      if (millis() - sndSuppress > HUM_RELAUNCH and not hum_playing and ActionModeSubStates!=AS_BLADELOCKUP) {
+        HumRelaunch();
+      }
+#ifdef LEDSTRINGS
+      lightFlicker(ledPins, soundFont.getFlickerEffect(),0,ActionModeSubStates);
+#endif
+
+#ifdef LUXEON
+      getColor(currentColor, storage.sndProfile[storage.soundFont].mainColor);
+      lightFlicker(ledPins, currentColor,0);
+#endif
+
+#ifdef NEOPIXEL
+      getColor(storage.sndProfile[storage.soundFont].mainColor);
+      lightFlicker(0,ActionModeSubStates);
+#endif
+      if (lockuponclash) {
+        accentLEDControl(AL_PULSE);
+      }
+    }
 		// ************************* blade movement detection ends***********************************
 
 	} ////END ACTION MODE HANDLER///////////////////////////////////////////////////////////////////////////////////////
 	/*//////////////////////////////////////////////////////////////////////////////////////////////////////////
 	 * CONFIG MODE HANDLER
 	 *//////////////////////////////////////////////////////////////////////////////////////////////////////////
-	else if (configMode) {
-		if (!browsing) {
-			dfplayer.playPhysicalTrack(3);
+	else if (SaberState==S_CONFIG) {
+    if (PrevSaberState==S_STANDBY) { // entering config mode
+      PrevSaberState=S_CONFIG;
+			SinglePlay_Sound(3);
 			delay(600);
+
+#if defined NEOPIXEL
+      neopixels_stripeKillKey_Disable();
+#endif
+     
 #if defined LS_INFO
 			Serial.println(F("START CONF"));
 #endif
-			browsing = true;
 			enterMenu = true;
 		}
 
@@ -943,74 +934,75 @@ void loop() {
 #if defined LS_INFO
 			Serial.print(F("-:"));
 #endif
-			dfplayer.playPhysicalTrack(2);
+			SinglePlay_Sound(2);
 			delay(50);
 		} else if (modification == 1) {
 
 #if defined LS_INFO
 			Serial.print(F("+:"));
 #endif
-			dfplayer.playPhysicalTrack(1);
+			SinglePlay_Sound(1);
 			delay(50);
 		}
 
 		switch (menu) {
-		case 0: //VOLUME
-			confMenuStart(storage.volume, 4, dfplayer);
 
-			confParseValue(storage.volume, 0, 30, 1, dfplayer);
-
-			if (modification) {
-
-				modification = 0;
-				storage.volume = value;
-				dfplayer.setVolume(storage.volume); // Too Slow: we'll change volume on exit
-				delay(50);
-#if defined LS_INFO
-				Serial.println(storage.volume);
-#endif
-			}
-
-			break;
-		case 1: // SOUNDFONT
-			confMenuStart(storage.soundFont, 5, dfplayer);
+ 
+		case 0: // SOUNDFONT
+			confMenuStart(storage.soundFont, 5, menu);
 
 			play = false;
-			confParseValue(storage.soundFont, 2, SOUNDFONT_QUANTITY + 1, 1,
-					dfplayer);
+			confParseValue(storage.soundFont, 2, SOUNDFONT_QUANTITY + 1, 1);
 			if (modification) {
 
 				modification = 0;
 				storage.soundFont = value;
 				soundFont.setID(value);
-				dfplayer.playPhysicalTrack(soundFont.getBoot());
+				SinglePlay_Sound(soundFont.getMenu());
 				delay(150);
 
-#if defined LUXEON
-				storage.mainColor = storage.sndProfile[value][0];
-				storage.clashColor = storage.sndProfile[value][1];
-#endif
 #if defined LS_INFO
 				Serial.println(soundFont.getID());
 #endif
 			}
 			break;
 
+    case 1: //VOLUME
+      confMenuStart(storage.volume, 4, menu);
+
+      confParseValue(storage.volume, 0, 31, 1);
+
+      if (modification) {
+
+        modification = 0;
+        storage.volume = value;
+#ifdef OLD_DPFPLAYER_LIB
+  mp3_set_volume (storage.volume);
+#else
+  dfplayer.setVolume(storage.volume); // Too Slow: we'll change volume on exit
+#endif
+        delay(50);
+#if defined LS_INFO
+        Serial.println(storage.volume);
+#endif
+      }
+
+      break;
+      
 #if defined LUXEON
 			case 2: // BLADE MAIN COLOR
-			confMenuStart(storage.mainColor, 9, dfplayer);
+			confMenuStart(storage.sndProfile[storage.soundFont].mainColor, 6, menu);
 
-			confParseValue(storage.mainColor, 0, COLORS - 1, 1, dfplayer);
+			confParseValue(storage.sndProfile[storage.soundFont].mainColor, 0, COLORS - 1, 1);
 
 			if (modification) {
 
 				modification = 0;
-				storage.mainColor = value;
-				storage.sndProfile[storage.soundFont][0] =storage.mainColor;
-				getColor(currentColor, storage.mainColor);
+				storage.sndProfile[storage.soundFont].mainColor =value;
+				getColor(currentColor, storage.sndProfile[storage.soundFont].mainColor);
 				lightOn(ledPins, currentColor);
 #if defined LS_INFO
-				Serial.print(storage.mainColor);
+				Serial.print(storage.sndProfile[storage.soundFont].mainColor);
 				Serial.print("\tR:");
 				Serial.print(currentColor[0]);
 				Serial.print("\tG:");
@@ -1021,19 +1013,18 @@ void loop() {
 			}
 			break;
 			case 3: //BLADE CLASH COLOR
-			confMenuStart(storage.clashColor, 10, dfplayer);
+			confMenuStart(storage.sndProfile[storage.soundFont].clashColor, 7, menu);
 
-			confParseValue(storage.clashColor, 0, COLORS - 1, 1, dfplayer);
+			confParseValue(storage.sndProfile[storage.soundFont].clashColor, 0, COLORS - 1, 1);
 
 			if (modification) {
 
 				modification = 0;
-				storage.clashColor = value;
-				storage.sndProfile[storage.soundFont][1] =storage.clashColor;
-				getColor(currentColor, storage.clashColor);
+				storage.sndProfile[storage.soundFont].clashColor =value;
+				getColor(currentColor, storage.sndProfile[storage.soundFont].clashColor);
 				lightOn(ledPins, currentColor);
 #if defined LS_INFO
-				Serial.print(storage.clashColor);
+				Serial.print(storage.sndProfile[storage.soundFont].clashColor);
 				Serial.print("\tR:");
 				Serial.print(currentColor[0]);
 				Serial.print("\tG:");
@@ -1043,71 +1034,38 @@ void loop() {
 #endif
 			}
 			break;
-#endif
+      case 4: //BLADE BLASTER BLOCK COLOR
+      confMenuStart(storage.sndProfile[storage.soundFont].blasterboltColor, 8, menu);
 
-#if defined LEDSTRINGS
-		case 4: // POWERON EFFECT
-			confMenuStart(storage.sndProfile[storage.soundFont][0], 17,
-					dfplayer);
+      confParseValue(storage.sndProfile[storage.soundFont].blasterboltColor, 0,
+          COLORS - 1, 1);
 
-			confParseValue(storage.sndProfile[storage.soundFont][0], 0, 1, 1,
-					dfplayer);
+      if (modification) {
 
-			if (modification) {
-
-				modification = 0;
-				storage.sndProfile[storage.soundFont][0] = value;
+        modification = 0;
+        storage.sndProfile[storage.soundFont].blasterboltColor = value;
+        getColor(currentColor, storage.sndProfile[storage.soundFont].blasterboltColor);
+        lightOn(ledPins, currentColor);
 #if defined LS_INFO
-				Serial.println(storage.sndProfile[storage.soundFont][0]);
+        Serial.print(storage.sndProfile[storage.soundFont].blasterboltColor);
+        Serial.print("\tR:");
+        Serial.print(currentColor[0]);
+        Serial.print("\tG:");
+        Serial.print(currentColor[1]);
+        Serial.print(" \tB:");
+        Serial.println(currentColor[2]);
 #endif
-			}
-			break;
-		case 5: //POWEROFF EFFECT
-			confMenuStart(storage.sndProfile[storage.soundFont][1], 18,
-					dfplayer);
-
-			confParseValue(storage.sndProfile[storage.soundFont][1], 0, 1, 1,
-					dfplayer);
-
-			if (modification) {
-
-				modification = 0;
-				storage.sndProfile[storage.soundFont][1] = value;
-#if defined LS_INFO
-				Serial.println(storage.sndProfile[storage.soundFont][1]);
+      }
+      break;
 #endif
-			}
-			break;
-		case 6: //FLICKER EFFECT
-			confMenuStart(storage.sndProfile[storage.soundFont][2], 19,
-					dfplayer);
-
-			confParseValue(storage.sndProfile[storage.soundFont][2], 0, 2, 1,
-					dfplayer);
-
-			if (modification) {
-
-				modification = 0;
-				storage.sndProfile[storage.soundFont][2] = value;
-#if defined LS_INFO
-				Serial.println(storage.sndProfile[storage.soundFont][2]);
-#endif
-			}
-			break;
-#endif //LEDSTRINGS
-
-
-
-
 
 /*NEOPIXEL*/
 #if defined NEOPIXEL
 			case 2: // BLADE MAIN COLOR
-			confMenuStart(storage.sndProfile[storage.soundFont].mainColor, 9,
-					dfplayer);
+			confMenuStart(storage.sndProfile[storage.soundFont].mainColor, 6, menu);
 
 			confParseValue(storage.sndProfile[storage.soundFont].mainColor, 0,
-					COLORS - 1, 1, dfplayer);
+					COLORS - 1, 1);
 
 			if (modification) {
 
@@ -1127,11 +1085,10 @@ void loop() {
 			}
 			break;
 			case 3: //BLADE CLASH COLOR
-			confMenuStart(storage.sndProfile[storage.soundFont].clashColor, 10,
-					dfplayer);
+			confMenuStart(storage.sndProfile[storage.soundFont].clashColor, 7, menu);
 
 			confParseValue(storage.sndProfile[storage.soundFont].clashColor, 0,
-					COLORS - 1, 1, dfplayer);
+					COLORS - 1, 1);
 
 			if (modification) {
 
@@ -1140,7 +1097,7 @@ void loop() {
 				getColor(storage.sndProfile[storage.soundFont].clashColor);
 				lightOn(currentColor);
 #if defined LS_DEBUG
-				Serial.print(storage.sndProfile[storage.soundFont].mainColor);
+				Serial.print(storage.sndProfile[storage.soundFont].clashColor);
 				Serial.print("\tR:");
 				Serial.print(currentColor.r);
 				Serial.print("\tG:");
@@ -1150,73 +1107,30 @@ void loop() {
 #endif
 			}
 			break;
+      case 4: //BLADE BLASTER BLOCK COLOR
+      confMenuStart(storage.sndProfile[storage.soundFont].blasterboltColor, 8, menu);
 
-			case 4: // POWERON EFFECT
+      confParseValue(storage.sndProfile[storage.soundFont].blasterboltColor, 0,
+          COLORS - 1, 1);
 
-			confMenuStart(storage.sndProfile[storage.soundFont].pwrOn, 17,
-					dfplayer);
+      if (modification) {
 
-			confParseValue(storage.sndProfile[storage.soundFont].pwrOn, 0, 1, 1,
-					dfplayer);
-
-			if (modification) {
-
-				modification = 0;
-				storage.sndProfile[storage.soundFont].pwrOn = value;
-#if defined LS_INFO
-				Serial.println(storage.sndProfile[storage.soundFont].pwrOn);
+        modification = 0;
+        storage.sndProfile[storage.soundFont].blasterboltColor = value;
+        getColor(storage.sndProfile[storage.soundFont].blasterboltColor);
+        lightOn(currentColor);
+#if defined LS_DEBUG
+        Serial.print(storage.sndProfile[storage.soundFont].blasterboltColor);
+        Serial.print("\tR:");
+        Serial.print(currentColor.r);
+        Serial.print("\tG:");
+        Serial.print(currentColor.g);
+        Serial.print(" \tB:");
+        Serial.println(currentColor.b);
 #endif
-			}
-			break;
-			case 5: //POWEROFF EFFECT
-			confMenuStart(storage.sndProfile[storage.soundFont].pwrOff, 18,
-					dfplayer);
-
-			confParseValue(storage.sndProfile[storage.soundFont].pwrOff, 0, 1,
-					1, dfplayer);
-
-			if (modification) {
-
-				modification = 0;
-				storage.sndProfile[storage.soundFont].pwrOff = value;
-#if defined LS_INFO
-				Serial.println(storage.sndProfile[storage.soundFont].pwrOff);
+      }
+      break;
 #endif
-			}
-			break;
-			case 6: //FLICKER EFFECT
-			confMenuStart(storage.sndProfile[storage.soundFont].flicker, 19,
-					dfplayer);
-
-			confParseValue(storage.sndProfile[storage.soundFont].flicker, 0, 2,
-					1, dfplayer);
-
-			if (modification) {
-
-				modification = 0;
-				storage.sndProfile[storage.soundFont].flicker = value;
-#if defined LS_INFO
-				Serial.println(storage.sndProfile[storage.soundFont].flicker);
-#endif
-			}
-			break;
-#endif 
-/*NEOPIXEL*/
-
-		case 7: //SWING SENSIBILITY
-			confMenuStart(storage.swingTreshold, 6, dfplayer);
-
-			confParseValue(storage.swingTreshold, 200, 2000, -100, dfplayer);
-
-			if (modification) {
-
-				modification = 0;
-				storage.swingTreshold = value;
-#if defined LS_INFO
-				Serial.println(storage.swingTreshold);
-#endif
-			}
-			break;
 		default:
 			menu = 0;
 			break;
@@ -1227,42 +1141,39 @@ void loop() {
 	/*//////////////////////////////////////////////////////////////////////////////////////////////////////////
 	 * STANDBY MODE
 	 *//////////////////////////////////////////////////////////////////////////////////////////////////////////
-	else if (!actionMode && !configMode) {
+	else if (SaberState==S_STANDBY) {
 
-		if (ignition) { // we just leaved Action Mode
-			detachInterrupt(0);
-#if defined LIGHT_EFFECTS
-			TIMSK2 &= ~(1 << OCIE2A);
-#endif
-			dfplayer.playPhysicalTrack(soundFont.getPowerOff());
+		if (ActionModeSubStates==AS_RETRACTION) { // we just leaved Action Mode
+			//detachInterrupt(0);
+
+			SinglePlay_Sound(soundFont.getPowerOff());
+      ActionModeSubStates=AS_HUM;
 			changeMenu = false;
-			ignition = false;
-			blasterBlocks = false;
+			//ignition = false;
+			//blasterBlocks = false;
 			modification = 0;
-
 #if defined LS_INFO
 			Serial.println(F("END ACTION"));
 #endif
+#ifndef SINGLEBUTTON
 			lockupButton.setPressTicks(PRESS_CONFIG);
+#endif
 #if defined LUXEON
 			lightRetract(ledPins, currentColor, soundFont.getPowerOffTime());
 #endif
 #if defined LEDSTRINGS
-			lightRetract(ledPins, soundFont.getPowerOffTime(),
-					storage.sndProfile[storage.soundFont][1]);
+      lightRetract(ledPins, soundFont.getPowerOffTime(),
+          soundFont.getPowerOffEffect());
 #endif
 #if defined NEOPIXEL
-
-			lightRetract(soundFont.getPowerOffTime(), 0);
-			for (uint8_t i = 0; i < 3; i++) {
-				digitalWrite(ledPins[i], LOW);
-			}
-
+			lightRetract(soundFont.getPowerOffTime(), soundFont.getPowerOffEffect());
+      neopixels_stripeKillKey_Enable();
 #endif
 
 		}
-		if (browsing) { // we just leaved Config Mode
+   if (PrevSaberState==S_CONFIG) { // we just leaved Config Mode
 			saveConfig();
+      PrevSaberState=S_STANDBY;
 
 			/*
 			 * RESET CONFIG
@@ -1272,20 +1183,15 @@ void loop() {
 //				EEPROM.update(i, 0);
 //				//			 }
 //			}
-#if defined LUXEON
-			lightOff(ledPins);
-#else
-			lightOff();
-#endif
 
-			dfplayer.playPhysicalTrack(3);
-			browsing = false;
+			SinglePlay_Sound(3);
+			//browsing = false;
 			enterMenu = false;
 			modification = 0;
 			//dfplayer.setVolume(storage.volume);
 			menu = 0;
 #if defined LUXEON
-			getColor(currentColor, storage.mainColor);
+			getColor(currentColor, storage.sndProfile[storage.soundFont].mainColor);
 #endif
 #if defined NEOPIXEL
 			getColor(storage.sndProfile[storage.soundFont].mainColor);
@@ -1296,30 +1202,49 @@ void loop() {
 #endif
 		}
 
-#if defined ACCENT_LED
-#if defined HARD_ACCENT
-		if (millis() - lastAccent <= 400) {
-			analogWrite(ACCENT_LED, millis() - lastAccent);
-		} else if (millis() - lastAccent > 400
-				and millis() - lastAccent <= 800) {
-			analogWrite(ACCENT_LED, 800 - (millis() - lastAccent));
-		} else {
-			lastAccent = millis();
-		}
+// switch of light in Stand-by mode
+#if defined LUXEON
+      lightOff(ledPins);
+#else
+      lightOff();
 #endif
-#if defined SOFT_ACCENT
 
-		PWM();
+accentLEDControl(AL_ON);
 
-		if (millis() - lastAccent >= 20) {
-			// moved to own funciton for clarity
-			fadeAccent();
-			lastAccent = millis();
-		}
-#endif
-#endif
+
 
 	} // END STANDBY MODE
+#ifdef JUKEBOX
+  /*//////////////////////////////////////////////////////////////////////////////////////////////////////////
+   * JUKEBOX MODE (a.k.a. MP3 player mode
+   *//////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+  else if (SaberState==S_JUKEBOX) {
+    if (PrevSaberState==S_STANDBY) {  // just entered JukeBox mode
+      PrevSaberState=S_JUKEBOX;
+      SinglePlay_Sound(14);  // play intro sound of JukeBox mode
+      delay(2500);
+#if defined LS_INFO
+            Serial.println(F("START JUKEBOX"));
+#endif       
+      // start playing the first song
+      jb_track=NR_CONFIGFOLDERFILES+1;
+      SinglePlay_Sound(jb_track);  // JukeBox dir/files must be directly adjecent to config sounds on the SD card
+    }
+#ifdef LEDSTRINGS
+    JukeBox_Stroboscope(ledPins);
+#endif
+
+#ifdef LUXEON
+  JukeBox_Stroboscope();
+#endif
+
+#ifdef NEOPIXEL
+  getColor(storage.sndProfile[storage.soundFont].mainColor);
+  JukeBox_Stroboscope(currentColor);
+#endif
+  }
+#endif
 } //loop
 
 // ====================================================================================
@@ -1415,6 +1340,7 @@ inline bool loadConfig() {
 	for (uint8_t i = 0; i <= 2; i++) {
 		if (storage.version[i] != CONFIG_VERSION[i]) {
 			equals = false;
+     Serial.println("Wrong config!");
 		}
 	}
 	Serial.println(storage.version);
@@ -1423,287 +1349,88 @@ inline bool loadConfig() {
 
 inline void saveConfig() {
 	EEPROM.updateBlock(configAdress, storage);
+ #ifdef LS_DEBUG
+ // dump values stored in EEPROM
+ for (uint8_t i = 0; i < 255; i++) {
+   Serial.print(i);Serial.print("\t");Serial.println(EEPROM.readByte(i));
+ }
+ #endif
 } //saveConfig
 
 // ====================================================================================
 // ===              	    			LED FUNCTIONS		                		===
 // ====================================================================================
 
-#if defined SOFT_ACCENT
 
-void PWM() {
 
-	if (micros() - lastAccentTick >= 8) {
+// ====================================================================================
+// ===                          SOUND FUNCTIONS                                     ===
+// ====================================================================================
 
-		if (pwmPin.state == LOW) {
-			if (pwmPin.tick >= pwmPin.dutyCycle) {
-				pwmPin.state = HIGH;
-			}
-		} else {
-			if (pwmPin.tick >= abs(100 - pwmPin.dutyCycle)) {
-				pwmPin.state = LOW;
-				pwmPin.tick = 0;
-			}
-		}
-		pwmPin.tick++;
-		digitalWrite(ACCENT_LED, pwmPin.state);
-		lastAccentTick = micros();
-	}
+void HumRelaunch() {
+    LoopPlay_Sound(soundFont.getHum());
+    sndSuppress = millis();
+    hum_playing=true;
 }
 
-void fadeAccent() {
-	// go through each sw pwm pin, and increase
-	// the pwm value. this would be like
-	// calling analogWrite() on each hw pwm pin
-	if (not pwmPin.revertCycle) {
-		pwmPin.dutyCycle++;
-		if (pwmPin.dutyCycle == 100)
-			pwmPin.revertCycle = true;
-	} else {
-		pwmPin.dutyCycle--;
-		if (pwmPin.dutyCycle == 0)
-			pwmPin.revertCycle = false;
-	}
-}
+void SinglePlay_Sound(uint8_t track) {
+#ifdef OLD_DPFPLAYER_LIB
+  mp3_play_physical(track);
+#else // DFPlayer_LSOS
+  dfplayer.playPhysicalTrack(track);
 #endif
-/*
- * If no other interrupt has been triggered, and if my calculation are right
- * this timer has an almost 44100 khz frequency triggering :
- * each 22 \B5s this method is called and modifies the blade brightness
- * The parameter is defined in ignition block
- */
-#if defined LIGHT_EFFECTS
-ISR(TIMER2_COMPA_vect, ISR_NOBLOCK) {
-
-#ifdef LEDSTRINGS
-	lightFlicker(ledPins, storage.sndProfile[storage.soundFont][2]);
-#endif
-
-#ifdef LUXEON
-	lightFlicker(ledPins, currentColor,0);
-#endif
-	if (clash) {
-
-		if (blink == 0) {
-#if defined LUXEON
-			getColor(currentColor, storage.clashColor);
-			lightOn(ledPins, currentColor);
-#endif
-#if defined NEOPIXEL
-			if (not isFlickering) {
-				getColor(storage.sndProfile[storage.soundFont].clashColor);
-				lightOn(currentColor);
-			}
-#endif
-#if defined FoCSTRING
-			FoCOn(FoCSTRING);
-#endif
-			blink++;
-		} else if (blink < 14) {
-			blink++;
-#if defined LEDSTRINGS
-			lightFlicker(ledPins, storage.sndProfile[storage.soundFont][2],
-			MAX_BRIGHTNESS - (blink / 2));
-#endif
-#if defined LUXEON
-			lightFlicker(ledPins, currentColor, MAX_BRIGHTNESS - (blink / 2));
-#endif
-
-		} else if (blink == 14) {
-#if defined LUXEON
-			getColor(currentColor, storage.mainColor);
-			lightOn(ledPins, currentColor);
-#endif
-#if defined NEOPIXEL
-			if (not isFlickering) {
-				getColor(storage.sndProfile[storage.soundFont].mainColor);
-				lightOn(currentColor);
-			}
-#endif
-#if defined FoCSTRING
-			FoCOff(FoCSTRING);
-#endif
-			blink = 0;
-			clash = 0;
-		}
-	} else if (lockup) {
-		uint8_t brightness = 0;
-
-		if (blink == 0) {
-			brightness = random(MAX_BRIGHTNESS - 10, MAX_BRIGHTNESS);
-			randomBlink = random(7, 15);
-			blink++;
-#if defined FoCSTRING
-			FoCOn(FoCSTRING);
-#endif
-#if defined LUXEON
-			getColor(currentColor, storage.clashColor);
-			lightOn(ledPins, currentColor);
-#endif
-#if defined NEOPIXEL
-//			while (isFlickering) {
-//			}
-			getColor(storage.sndProfile[storage.soundFont].clashColor);
-			lightOn(currentColor);
-#endif
-		} else if (blink < randomBlink) {
-			blink++;
-		} else if (blink == randomBlink and randomBlink >= 14) {
-			blink = 0;
-		} else if (blink == randomBlink and randomBlink < 14) {
-			randomBlink += random(7, 15);
-			brightness = 0;
-#if defined FoCSTRING
-			FoCOff(FoCSTRING);
-#endif
-#if defined LUXEON
-			getColor(currentColor, storage.mainColor);
-			lightOn(ledPins, currentColor);
-#endif
-#if defined NEOPIXEL
-			getColor(storage.sndProfile[storage.soundFont].mainColor);
-			if (not isFlickering) {
-				lightOn(currentColor);
-			}
-#endif
-		}
-#if defined LEDSTRINGS
-		lightFlicker(ledPins, storage.sndProfile[storage.soundFont][2],
-				brightness);
-#endif
-#if defined LUXEON
-		lightFlicker(ledPins, currentColor, brightness);
-#endif
-
-	} else if (not lockup && randomBlink != 0) { // We have released lockup button
-#if defined FoCSTRING
-			FoCOff(FoCSTRING);
-#endif
-#if defined LUXEON
-		getColor(currentColor, storage.mainColor);
-		lightOn(ledPins, currentColor);
-#endif
-#if defined NEOPIXEL
-		getColor(storage.sndProfile[storage.soundFont].mainColor);
-		if (not isFlickering) {
-			lightOn(currentColor);
-		}
-#endif
-		randomBlink = 0;
-
-	} else if (blaster > 0) {
-
-#if defined NEOPIXEL
-		if (blink == 2) {
-			getColor(storage.sndProfile[storage.soundFont].clashColor);
-		}
-#endif
-		if (blink < 14) {
-#if defined LEDSTRINGS
-			analogWrite(ledPins[blasterPin], LOW);
-#if defined FoCSTRING
-			FoCOn(FoCSTRING);
-#endif
-#endif
-#if defined LUXEON
-			getColor(currentColor, storage.clashColor);
-			lightOn(ledPins, currentColor);
-#endif
-
-#if defined NEOPIXEL
-			if (not isFlickering) {
-				lightBlasterEffect(blasterPixel, blink);
-			}
-#endif
-			blink++;
-		}
-   
-#if defined NEOPIXEL
-      else if (blink == 14) 
-      {
-        getColor(storage.sndProfile[storage.soundFont].mainColor);
-        blink++;
-      } 
-      else if (blink >= 15 and blink < 29) 
-#endif
-
-#if defined LEDSTRINGS
-		else if (blink >= 14 and blink < 19) {
-
-			lightFlicker(ledPins, storage.sndProfile[storage.soundFont][2]);
-
-			if (blasterPin > 0)
-				analogWrite(ledPins[blasterPin - 1], LOW);
-
-			if (blasterPin < 5)
-				analogWrite(ledPins[blasterPin + 1], LOW);
-
-			blink++;
-
-		}
-		else if (blink >= 19 and blink < 29)
-    
-#endif
-#if defined LUXEON
-		else if (blink >= 14 and blink < 29)
-    
-#endif
-			{
-#if defined NEOPIXEL
-        if (not isFlickering) {
-          lightBlasterEffect(blasterPixel, blink - 14);
-        }
-#endif
-#if defined LEDSTRINGS
-			lightFlicker(ledPins, storage.sndProfile[storage.soundFont][2]);
-#endif
-#if defined LUXEON
-			getColor(currentColor, storage.mainColor);
-			lightOn(ledPins, currentColor);
-#endif
-#if defined FoCSTRING
-			FoCOff(FoCSTRING);
-#endif
-			blink++;
-		}
-		else if (blink == 29) 
-		{
-#if defined LUXEON
-			getColor(currentColor, storage.mainColor);
-			lightOn(ledPins, currentColor);
-#endif
-
-#if defined FoCSTRING
-			FoCOff(FoCSTRING);
-#endif
-#if defined LEDSTRINGS
-			lightFlicker(ledPins, storage.sndProfile[storage.soundFont][2]);
-#endif
-//#if defined NEOPIXEL
-//			getColor(storage.sndProfile[storage.soundFont].mainColor);
-//#endif
-			blink = 0;
-			blaster--;
-		}
-
-	} 
-	else 
-	{
-#if defined LEDSTRINGS
-		lightFlicker(ledPins, storage.sndProfile[storage.soundFont][2]);
-#endif
-#if defined NEOPIXEL
-		// Neopixels string might be to slow to fill all LEDs register
-		// So we let the function finish it's duty before launching a new one
-		if (not isFlickering) {
-			lightFlicker(0);
-		}
-#endif
-
-#if defined LUXEON
-		lightFlicker(ledPins, currentColor,0);
-#endif
-	}
 }
 
-#endif //LIGHT_EFFECTS
+void LoopPlay_Sound(uint8_t track) {
+#ifdef OLD_DPFPLAYER_LIB
+  mp3_loop_play(track);
+#else // DFPlayer_LSOS
+  dfplayer.playSingleLoop(track);
+#endif
+}
+
+void Set_Loop_Playback() {
+#ifdef OLD_DPFPLAYER_LIB
+  mp3_single_loop(true);
+#else
+  dfplayer.setSingleLoop(true);;
+#endif    
+}
+
+void InitDFPlayer(){
+#ifdef OLD_DPFPLAYER_LIB
+  mp3_set_serial (mp3player);  //set softwareSerial for DFPlayer-mini mp3 module
+  mp3player.begin(9600);
+  delay(50);
+  mp3_set_device(1); //playback from SD card
+  delay(50);
+  mp3_set_volume (storage.volume);
+#else
+  dfplayer.setSerial(DFPLAYER_TX, DFPLAYER_RX);
+  // AK 7.9.2016: if the storage.volume has no or invalid value, it will cause the
+  // sketch to repeat setup (reset itself) - up till now no idea why?
+  // this can happen if the EEPROM is erased (i.e. reflash of bootloader)
+    dfplayer.setVolume(storage.volume);
+
+  //setup finished. Boot ready. We notify !
+#endif
+}
+
+void Pause_Sound() {
+#ifdef OLD_DPFPLAYER_LIB
+  mp3_pause();
+#else
+  dfplayer.pause();
+#endif  
+}
+
+void Resume_Sound() {
+#ifdef OLD_DPFPLAYER_LIB
+  mp3_play();
+#else
+  dfplayer.play();
+#endif    
+}
+
+
+
