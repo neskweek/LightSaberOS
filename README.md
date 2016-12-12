@@ -4,8 +4,7 @@ ________________________________________________________________________________
 
 ## VIDEOS
 
-[![DIYino demo of LSOS v1.4] (https://www.youtube.com/watch?v=qAy1VTHSvfs/0.jpg)](https://www.youtube.com/watch?v=qAy1VTHSvfs)      
-_This is a modified version of the neopixel code. LSOS doesn't come with this fire effect out of the box ;)_   
+[![DIYino demo of LSOS v1.4] (https://www.youtube.com/watch?v=qAy1VTHSvfs/0.jpg)](https://www.youtube.com/watch?v=qAy1VTHSvfs);)_   
 
 ________________________________________________________________________________   
 
