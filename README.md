@@ -1,16 +1,40 @@
-# LightSaberOS
+# LightSaberOS v1.4 DJWing's Single Button feature
 
 ________________________________________________________________________________   
 
 ## VIDEOS
 
-[![DIYino demo of Neopixel lightsaber blade with LSOS] (http://img.youtube.com/vi/PjXLKvWpA8A/0.jpg)](https://www.youtube.com/watch?v=PjXLKvWpA8A)      
+[![DIYino demo of LSOS v1.4] (https://www.youtube.com/watch?v=qAy1VTHSvfs/0.jpg)](https://www.youtube.com/watch?v=qAy1VTHSvfs)      
 _This is a modified version of the neopixel code. LSOS doesn't come with this fire effect out of the box ;)_   
-[![DIYino prototype demo with LSOS by neskweek - Swings] (http://img.youtube.com/vi/tU3GZzV9I6E/0.jpg)](http://www.youtube.com/watch?v=tU3GZzV9I6E)[![Motion Detection Demo (made under v1.0 RC5)] (http://img.youtube.com/vi/wY8BSSEyYLY/0.jpg)](http://www.youtube.com/watch?v=wY8BSSEyYLY)[![Quick tour (made under v1.0 RC4)] (http://img.youtube.com/vi/mc8scn_qyFM/0.jpg)](http://www.youtube.com/watch?v=mc8scn_qyFM)
 
 ________________________________________________________________________________   
 
-### FEATURES :
+### NEW FEATURES :
+supports single button setup if you uncomment the compile directive #define SINGLEBUTTON in the config.h file.
+Otherwise it works like v1.3
+
+Bug fix: lockup sound now plays in loop, therefore not stopping at the end of the sound file.
+
+Single button working instructions:
+Idle Mode:
+	- click: activate saber
+	- double click: enter JukeBox
+	- long press: enter Config Mode
+Config Mode:
+	- click: increase i.e. in case of volume or color config /go to next item i.e. in case of sound fonts
+	- double click: go to next configuration item
+	- long press: exit config mode
+Action Mode:
+	- click: trigger lockup, lockup will start immediately at the first ensuing clash
+	- double click: start movement triggered blaster mode
+	- long press: deactivate saber
+JukeBox:	
+	- click: pause/resume
+	- double click: exit JukeBox
+	- long press: next song
+________________________________________________________________________________   
+
+### LEGACY FEATURES :
 
 * Simple modular systems (you can choose to remove some systems from your final compilation)
 * Swing detection
@@ -25,22 +49,6 @@ ________________________________________________________________________________
 * Config Menu to modify some features without wiring the device to your PC/Mac 
 * EEPROM load/save of your config preferences
 * Soundfont adding supported (not automatic, you'll have little work to do ;) )
-
-________________________________________________________________________________   
-
-### WHAT YOU WILL NEED :
-* [Java Runtime Environment 8](http://www.oracle.com/technetwork/java/javase/downloads/jre8-downloads-2133155.html)    
-Download the right file for your architecture
-* [Arduino IDE](https://www.arduino.cc/en/Main/Software) (advised for end user)   
-OR    
-  [Arduino Eclipse v3.0](http://www.baeyens.it/) (advised for developpers)  
-Again, download the right files for your architecture
-* my new DFPlayer library (Included in zip file)
-* [I2Cdev and MPU6050 (Included in zip file)](https://codeload.github.com/jrowberg/i2cdevlib/zip/master) 
-* [EEPROMex9.1 (Included in zip file)](http://thijs.elenbaas.net/wp-content/uploads/downloads/2013/12/EEPROMEx-9.1.zip)
-* [OneButton (Included in zip file)] (https://github.com/mathertel/OneButton)
-* [LinkedList (Included in zip file)] (https://github.com/ivanseidel/LinkedList)
-* Wire (Included in Arduino Eclipse) 
 
 ________________________________________________________________________________   
 
@@ -81,70 +89,6 @@ These instructions should work for IDE version 1.6.0 and greater and may work wi
 
 ________________________________________________________________________________   
 
-## SET UP YOUR PC FOR ECLIPSE USE (OPTIONAL):
-
-For people who don't want to use Eclipse Arduino, and prefer use Arduino IDE (which is really simpler if you don't plan to code) you can jump off to project setup section.    
-
-LSOS is now fully compatible with Arduino IDE thanks to [Pert (per1234)] (https://github.com/per1234) 
-
-1. Download and install [Java Runtime Environment 8](http://www.oracle.com/technetwork/java/javase/downloads/jre8-downloads-2133155.html)   
-Download the right file for your OS   
-2. Download [Arduino Eclipse v3.0](http://www.baeyens.it/)      
-Again, download the right file for your OS   
-3. Uncompress this archive inside c:\Program Files   
-4. Start C:\Program Files\eclipseArduino\eclipseArduinoIDE.exe    
-On first start up you will be ask where to put your prject workspace.   
-I advise you to put it there (off course replace "neskw" by your username) :   
-![Set workspace destination](https://raw.githubusercontent.com/neskweek/LightSaberOS/master/README/eclipse1.PNG)   
-On first startup it will download a bunch of stuff related to Arduino Libraries.   
-Wait until it finishes   
-5. Go to Windows > Preferences      
-6. Select Arduino and set "Build before upload ?" to "Yes" and press OK   
-7. Plug in your Arduino device    
-It would be best that you always use the same USB port for future use    
-8. Go to File > New > Arduino sketch     
-![Project Name](https://raw.githubusercontent.com/neskweek/LightSaberOS/master/README/eclipse2.PNG)   
-Then press next   
-![Fill in your board Info](https://raw.githubusercontent.com/neskweek/LightSaberOS/master/README/eclipse3.PNG)   
-COM port may be different on your PC. It depends on USB port you plugged it in.   
-Then press next   
-![Optional Check AVaRICE](https://raw.githubusercontent.com/neskweek/LightSaberOS/master/README/eclipse4.PNG)   
-Here Checking AVaRICE is optional   
-Then press Finish   
-9. Delete LightSaberOS.ino file   
-
-________________________________________________________________________________    
-
-## IMPORT GITHUB FILES INSIDE ECLIPSE PROJECT:
-
-1. Uncompress LightSaberOS-master.zip archive
-2. If not already done create this directory : C:\Users\__[YOUR USERNAME]__\Arduino   
-3. Copy and Paste LightSaberOS-master\Libraries directory inside C:\Users\__[YOUR USERNAME]__\Arduino   
-4. Inside Eclipse Right click on LightSaberOS project  > Import    
-![Import source files](https://raw.githubusercontent.com/neskweek/LightSaberOS/master/README/eclipse5.PNG)   
-Then press Next  
-![Select source directory](https://raw.githubusercontent.com/neskweek/LightSaberOS/master/README/eclipse6.PNG)   
-Then press Next   
-In "Eclipse Project explorer" open the new created LightSaberOS-master and select those files :   
-![Select source directory](https://raw.githubusercontent.com/neskweek/LightSaberOS/master/README/eclipse7.PNG)   
-Then drag and drop them to the root structure of the project   
-5. Inside Eclipse Right click on LightSaberOS project  > Import   
-![Import Libraries](https://raw.githubusercontent.com/neskweek/LightSaberOS/master/README/eclipse8.PNG)   
-Then press Next    
-Select those libraries :     
-![Select Libraries](https://raw.githubusercontent.com/neskweek/LightSaberOS/master/README/eclipse9.PNG)   
-Then press Finish    
-6. Delete LightSaberOS-master directory from Eclipse Project explorer    
-    
-   
-You should end up with this Project explorer structure :   
-![Project structure](https://raw.githubusercontent.com/neskweek/LightSaberOS/master/README/eclipse10.PNG)   
-
-If so, Then you're ready to rock !   
-
-________________________________________________________________________________    
-   
-   
  
 ### PROJECT SETUP   
 
@@ -280,32 +224,6 @@ ________________________________________________________________________________
 * Short press on Main switch or Aux switch : leave PowerSaving Mode (go back to Standby Mode)
 
 
-###### _In Action Mode_ :
-* Move your saber around : Swing effect
-* Hit the hilt/blade : Clash effect
-* Short press Aux switch : Enable/disable Blaster block modes. Move your saber to produce Blaster effects.
-* Long press Aux switch : Blade Lockup effect
-* Long press Main switch : Shutdown saber
-
-
-
-
-###### _In Config Mode_ :  
-* short press Main switch : Up the value
-* short press Aux switch : Down the value
-* long press Main switch : Change menu :  
-	* Volume
-	* SoundFont 
-	* [ONLY FOR LEDSTRING USERS] Power On effect: change the type of ignition for the current SoundFont
-	* [ONLY FOR LEDSTRING USERS] Power Off effect: change the type of retractation for the current SoundFont
-	* [ONLY FOR LEDSTRING USERS] Flicker effect: change the type of flickering for the current SoundFont
-	* [ONLY FOR RGB LED USERS] Main color : change the color of your saber
-	* [ONLY FOR RGB LED USERS] Clash color: change the color displayed during clash effect 
-	* [ONLY FOR RGB LED USERS] Assign colors to current soundfont ? : Allows you to save the colors you just defined to the current SoundFont
-	* Swing sensitivity : adjust swing sensitivity.
-
-* Long press Aux switch : update config to EEPROM and leave Config Mode
-
 ________________________________________________________________________________  
 
 ### HOW TO MANAGE YOUR SDCRAD
@@ -380,18 +298,6 @@ Then rename the file it produces : 0001-CONFIG-ConfigMode.mp3. Remove old 0001-C
 2. Every changes in sounds file will force you to format your SDCard and copy the whole lot again.
 ________________________________________________________________________________ 
 
-### HOW TO MAKE YOUR OWN SOUNDFONT
-
-[In this video](https://www.youtube.com/watch?v=Q_6VITJT0-w), you'll learn how to create the differents lightsabers sounds-effects.   
-
-You can experiment with different device to produce some unique sounds.   
-
-Then use Audacity to mix them.    
-
-Final sounds **MUST BE** in WAV format (**_NO MP3 ! NO WMA!_**)!   
-When encoding a sound to those format (MP3 or WMA) the encoder will automaticly put a silence at start.
-________________________________________________________________________________ 
-
 ## License:
 
 This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License.  
@@ -426,71 +332,3 @@ Thanks to __YOU__ for using it ;)
 
 ________________________________________________________________________________   
 
-## WITH YOUR HELP...
-... a real life  lightsaber which cut through stuffs, like a pizza, could be made...    
-But first things first : I need the pizza !   
-[![paypal](https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=GX6M3586YU8JL)   
-;)   
-________________________________________________________________________________   
-
-## FINAL THOUGHTS
-
-I hope you'll like it.
-
-Don't hesitate to reports bugs (I've made a lot of test but... hey !), or suggest new functionallity.  
-If you want to contribute to this project, please contact me via mail or on the [thread of this project] (http://forum.arduino.cc/index.php?topic=361566.0)  
-________________________________________________________________________________    
-________________________________________________________________________________    
-________________________________________________________________________________    
-________________________________________________________________________________    
-________________________________________________________________________________    
-   
-________________________________________________________________________________    
-________________________________________________________________________________   
-   
-
-##12/03/2016 : The following might not be accurate since release of version 1.0  
-## Modification of this Readme is a "work in progress"
-## More info regarding LSOS will be added
-## Thank you for your patience
-________________________________________________________________________________    
-________________________________________________________________________________    
-________________________________________________________________________________    
-________________________________________________________________________________    
-________________________________________________________________________________    
-   
-________________________________________________________________________________    
-________________________________________________________________________________   
-
-### MODULES
-
-________________________________________________________________________________ 
-
-### HOW TO ADD A SOUNDFONT
-
-Edit SoundFont.h
-
-________________________________________________________________________________ 
-
-
-### NOTES :
-
-1. __Only WAVs file !!!__ _NOOOO MP3, NOOOO WMA !!!_   :     
-When encoding a sound to those format (MP3 and WMA) the encoder will automaticly put a silence at start.    
-___WE DON'T WANT GAPS !!!___  
-2. With soundfiles with hum extension (you edited a swing file and paste a hum sound repeated for some time), if you put 2 min of hum after your swing sound, if you don't move your saber for 2 min (higly unprobable in real situation) you'll notice a little gap in hum sound at that moment : You've just switch on a pure hum soundfile.
-3. Don't put gaps in soundfile numbering ex.:001_Boot.wav,002.wav, 0010_Swing1.wav...    
-The "folder play" command of the DFPlayer will see them as 001, 002, 003...    
-That will generate unpredictable behaviour.
-4. You can't put more than 255 folders numbered folder on your SDCard, including O1 (which contains config mode sounds)
-5. You can't put more than 255 files in a folder on your SDCard.
-6. You won't be able to have more than 65535 sound file on the wole SDCard (including config sounds).
-7. Don't put names after folder number (ex.: 001_Config or 002_Sith). Your folder won't be detected (tested :( )
-8. Since I've developped it on a breadboard, clash and swings settings may need some more tweaking.    
-Still hopping that will not be the case  :P. I've developped those wanting to obtain "real life" saber feel.
-9. Beware  the amount of debug settings you uncoment: they add significant amount of data to the compile.   
-I've made them modular for this reason, so take advantage of it.
-
-________________________________________________________________________________ 
-
-### LECTURES / SOURCES /INSPIRATIONS
