@@ -213,11 +213,11 @@ void mainLongPressStart() {
 #else  // SINGLEBUTTON
 //Leaving Config Mode
     changeMenu = false;
-    //  repeat = true;
     SaberState=S_STANDBY;
     PrevSaberState=S_CONFIG;
-    //configMode = false;
+#endif
   }
+#ifdef SINGLEBUTTON
 #ifdef JUKEBOX
   else if (SaberState==S_JUKEBOX) {
 
@@ -241,7 +241,6 @@ void mainLongPressStart() {
     //Entering Config Mode
     SaberState=S_CONFIG;
     PrevSaberState=S_STANDBY;
-    //configMode = true;
 
 	}
 #endif
