@@ -32,7 +32,7 @@
  *************************************/
 #define MPUCALOFFSETEEPROM
 #ifdef MPUCALOFFSETEEPROM
-#define MEMORYBASEMPUCALIBOFFSET 200 // 96 -> increased due to storing RGB PWM values in EEPROM takes a lot of space (3 x 1byte x 3 color types x nr of sound fonts i.e. for 5 sound fonts 45 bytes
+#define MEMORYBASEMPUCALIBOFFSET 96
 #endif
 /************************************/
 
@@ -94,7 +94,7 @@
 
 #if defined NEOPIXEL
 // How many leds in one strip?
-#define NUMPIXELS 120  // can go up to 120, could lead to memory problems if further increased
+#define NUMPIXELS 119  // can go up to 120, could lead to memory problems if further increased
 
 #ifdef CROSSGUARDSABER
 // define how many pixels are used for the crossguard and how many for the main blade
@@ -105,7 +105,7 @@
 //#define FIREBLADE
 
 // Number of color defined
-//#define COLORS 14
+#define COLORS 14
 static const uint8_t rgbFactor = 255;
 
 // For led chips like NEOPIXELs, which have a data line, ground, and power, you just
@@ -132,7 +132,7 @@ static const uint8_t rgbFactor = 100;
  * Range : 6<->600
  * Default: 48
  */
-//#define COLORS		 		14
+#define COLORS		 		14
 #endif
 /************************************/ // BLADE TYPE
 
@@ -150,7 +150,7 @@ static const uint8_t rgbFactor = 100;
  * BE VERY CAREFULL WITH THIS ONE OR 
  * YOU'LL BURN YOUR BLADE'S LED 
  ************************************/
-#define MAX_BRIGHTNESS		200
+#define MAX_BRIGHTNESS		150
 
 /* LIGHT_EFFECTS
  *
@@ -178,7 +178,7 @@ static const uint8_t rgbFactor = 100;
  */
 #define SWING_SUPPRESS     500
 #define CLASH_SUPRESS     400  // do not modify below 400, otherwise interlocking clash sounds can occur
-#define BLASTERBLOCK_SUPRESS     200
+#define BLASTERBLOCK_SUPRESS     400
 #define HUM_RELAUNCH     5000
 
 /* BLASTER DEFLECT TYPE
@@ -347,7 +347,6 @@ static const uint8_t rgbFactor = 100;
  */
 #define LS_SERIAL  //enable serial communication using Wire library
 #if defined LS_SERIAL
-#define LS_FSM
 //#define LS_INFO
 //#define LS_DEBUG
 #endif
