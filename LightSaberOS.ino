@@ -1,5 +1,5 @@
 /*
- * LightSaberOS V1.3
+ * LightSaberOS V1.5
  *
  * released on: 21 Octber 2016
  * author: 		Sebastien CAPOU (neskweek@gmail.com) and Andras Kun (kun.andras@yahoo.de)
@@ -44,7 +44,10 @@
 #include <WS2812.h>
 #endif
 
-
+#ifdef DEEP_SLEEP
+  #include <avr/sleep.h>
+  #include <avr/power.h>
+#endif // DEEP_SLEEP
 
 SoundFont soundFont;
 unsigned long sndSuppress = millis();
@@ -68,6 +71,8 @@ SaberStateEnum PrevSaberState;
 enum ActionModeSubStatesEnum {AS_HUM, AS_IGNITION, AS_RETRACTION, AS_BLADELOCKUP, AS_PREBLADELOCKUP, AS_BLASTERDEFLECTMOTION, AS_BLASTERDEFLECTPRESS, AS_CLASH, AS_SWING, AS_SPIN, AS_FORCE};
 ActionModeSubStatesEnum ActionModeSubStates;
 
+enum ConfigModeSubStatesEnum {CS_VOLUME, CS_SOUNDFONT, CS_MAINCOLOR, CS_CLASHCOLOR, CS_BLASTCOLOR, CS_FLICKERTYPE, CS_IGNITIONTYPE, CS_RETRACTTYPE, CS_SLEEPINIT};
+ConfigModeSubStatesEnum ConfigModeSubStates;
 /***************************************************************************************************
  * Motion detection Variables
  */
@@ -106,7 +111,6 @@ uint8_t currentColor[4]; //0:Red 1:Green 2:Blue 3:ColorID
 uint8_t ledPins[] = {STRING1, STRING2, STRING3};
 WS2812 pixels(NUMPIXELS);
 cRGB color;
-volatile bool isFlickering = false;
 cRGB currentColor;
 uint8_t blasterPixel;
 #endif
@@ -158,9 +162,15 @@ struct StoreStruct {
 	uint8_t volume;// 0 to 31
 	uint8_t soundFont;// as many as Sound font you have defined in Soundfont.h Max:253
   struct Profile {
+#ifdef COLORS
     uint8_t mainColor;  //colorID
     uint8_t clashColor;//colorID
     uint8_t blasterboltColor;
+#else
+    cRGB mainColor;
+    cRGB clashColor;
+    cRGB blasterboltColor;
+#endif
   }sndProfile[SOUNDFONT_QUANTITY + 2];
 }storage;
 #endif
@@ -173,9 +183,15 @@ struct StoreStruct {
 	uint8_t volume;// 0 to 31
 	uint8_t soundFont;// as many as Sound font you have defined in Soundfont.h Max:253
   struct Profile {
+#ifdef COLORS
     uint8_t mainColor;  //colorID
     uint8_t clashColor;//colorID
     uint8_t blasterboltColor;
+#else
+    cRGB mainColor;
+    cRGB clashColor;
+    cRGB blasterboltColor;
+#endif
   }sndProfile[SOUNDFONT_QUANTITY + 2];
 }storage;
 
@@ -219,16 +235,40 @@ void setup() {
 #endif
 #if defined LUXEON
     for (uint8_t i=2; i<SOUNDFONT_QUANTITY+2;i++){
+      #ifdef COLORS
       storage.sndProfile[i].mainColor=1;
       storage.sndProfile[i].clashColor=1;
       storage.sndProfile[i].blasterboltColor=1;
+      #else
+      storage.sndProfile[i].mainColor.r=20;
+      storage.sndProfile[i].mainColor.g=20;
+      storage.sndProfile[i].mainColor.b=20;
+      storage.sndProfile[i].clashColor.r=20;
+      storage.sndProfile[i].clashColor.g=20;
+      storage.sndProfile[i].clashColor.b=20;
+      storage.sndProfile[i].blasterboltColor.r=20;
+      storage.sndProfile[i].blasterboltColor.g=20;
+      storage.sndProfile[i].blasterboltColor.b=20;
+      #endif
     }
 #endif
 #if defined NEOPIXEL
     for (uint8_t i=2; i<SOUNDFONT_QUANTITY+2;i++){
+      #ifdef COLORS
       storage.sndProfile[i].mainColor=1;
       storage.sndProfile[i].clashColor=1;
       storage.sndProfile[i].blasterboltColor=1;
+      #else
+      storage.sndProfile[i].mainColor.r=20;
+      storage.sndProfile[i].mainColor.g=20;
+      storage.sndProfile[i].mainColor.b=20;
+      storage.sndProfile[i].clashColor.r=20;
+      storage.sndProfile[i].clashColor.g=20;
+      storage.sndProfile[i].clashColor.b=20;
+      storage.sndProfile[i].blasterboltColor.r=20;
+      storage.sndProfile[i].blasterboltColor.g=20;
+      storage.sndProfile[i].blasterboltColor.b=20;
+      #endif
     }
 #endif
 saveConfig();
@@ -319,14 +359,6 @@ saveConfig();
 	mpu.setXGyroOffset(23);
 	mpu.setYGyroOffset(-11);
 	mpu.setZGyroOffset(44);
-
-	/* DIYino*/
-//	mpu.setXAccelOffset(-84);
-//	mpu.setYAccelOffset(788);
-//	mpu.setZAccelOffset(1137);
-//	mpu.setXGyroOffset(7);
-//	mpu.setYGyroOffset(6);
-//	mpu.setZGyroOffset(7);
 #endif
 
 
@@ -371,22 +403,6 @@ saveConfig();
 	// configure the motion interrupt for clash recognition
 	// INT_PIN_CFG register
 	// in the working code of MPU6050_DMP all bits of the INT_PIN_CFG are false (0)
-
-//	mpu.setInterruptMode(false); // INT_PIN_CFG register INT_LEVEL (0-active high, 1-active low)
-//	mpu.setInterruptDrive(false); // INT_PIN_CFG register INT_OPEN (0-push/pull, 1-open drain)
-//	mpu.setInterruptLatch(false); // INT_PIN_CFG register LATCH_INT_EN (0 - emits 50us pulse upon trigger, 1-pin is held until int is cleared)
-//	mpu.setInterruptLatchClear(false); // INT_PIN_CFG register INT_RD_CLEAR (0-clear int only on reading int status reg, 1-any read clears int)
-//	mpu.setFSyncInterruptLevel(false);
-//	mpu.setFSyncInterruptEnabled(false);
-//	mpu.setI2CBypassEnabled(false);
-//	// Enable/disable interrupt sources - enable only motion interrupt
-//	mpu.setIntFreefallEnabled(false);
-//	mpu.setIntMotionEnabled(true);
-//	mpu.setIntZeroMotionEnabled(false);
-//	mpu.setIntFIFOBufferOverflowEnabled(false);
-//	mpu.setIntI2CMasterEnabled(false);
-//	mpu.setIntDataReadyEnabled(false);
-
 	mpu.setDLPFMode(3);
 	mpu.setDHPFMode(0);
 	//mpu.setFullScaleAccelRange(3);
@@ -413,11 +429,17 @@ saveConfig();
 
 #if defined LUXEON
 	//initialise start color
-	getColor(currentColor, storage.sndProfile[storage.soundFont].mainColor);
+  getColor(currentColor, storage.sndProfile[storage.soundFont].mainColor);
 #endif
 
 #if defined NEOPIXEL
 	pixels.setOutput(DATA_PIN); // This initializes the NeoPixel library.
+  neopixels_stripeKillKey_Disable();
+  currentColor.r=0;
+  currentColor.g=0;
+  currentColor.b=0;
+  lightOn(currentColor);
+  delay(300);
 	lightOff();
 	getColor(storage.sndProfile[storage.soundFont].mainColor);
   neopixels_stripeKillKey_Enable();
@@ -468,6 +490,17 @@ saveConfig();
   pinMode(SPK2, INPUT);
   SinglePlay_Sound(11);
   delay(20);
+
+#ifdef DEEP_SLEEP
+/************ DEEP_SLEEP MODE SETTINGS **********/
+  pinMode(MP3_PSWITCH, OUTPUT);
+  pinMode(FTDI_PSWITCH, OUTPUT);
+  digitalWrite(MP3_PSWITCH,LOW);  // enable MP3 player with A0
+  digitalWrite(FTDI_PSWITCH,LOW);  // enable FTDI player with A1
+  // pin change interrupt masks (see below list)
+  PCMSK2 |= bit (PCINT20);   // pin 4 Aux button
+  PCMSK0 |= bit (PCINT4);    // pin 12 Main button
+#endif // DEEP_SLEEP
 
 
   /****** INIT SABER STATE VARIABLE *****/
@@ -525,6 +558,7 @@ void loop() {
 #if defined LS_INFO
 			Serial.println(F("START ACTION"));
 #endif
+
 			//Play powerons wavs
 			SinglePlay_Sound(soundFont.getPowerOn());
 			// Light up the ledstrings
@@ -653,6 +687,7 @@ void loop() {
             blink = 0;
             getColor(storage.sndProfile[storage.soundFont].blasterboltColor);
             lightBlasterEffect(blasterPixel, 3, storage.sndProfile[storage.soundFont].mainColor);
+
   #endif
 #endif
             delay(BLASTER_FX_DURATION);  // blaster bolt deflect duration
@@ -842,23 +877,6 @@ void loop() {
 				Serial.print(curDeltAccel.y);
 				Serial.print(F("\tz="));
 				Serial.println(curDeltAccel.z);
-//				Serial.print(F("\t\tprevRotation\tw="));
-//				Serial.print(prevRotation.w * 1000);
-//				Serial.print(F("\t\tx="));
-//				Serial.print(prevRotation.x);
-//				Serial.print(F("\t\ty="));
-//				Serial.print(prevRotation.y);
-//				Serial.print(F("\t\tz="));
-//				Serial.println(prevRotation.z);
-//				Serial.print(F("\tprevOrientation="));
-//				Serial.print(F("\t"));
-//				Serial.print(prevOrientation.w * 1000);
-//				Serial.print(F("\t\tx="));
-//				Serial.print(prevOrientation.x);
-//				Serial.print(F("\t\ty="));
-//				Serial.print(prevOrientation.y);
-//				Serial.print(F("\t\tz="));
-//				Serial.println(prevOrientation.z);
 #endif
 
           ActionModeSubStates=AS_SWING;
@@ -927,214 +945,39 @@ void loop() {
 			Serial.println(F("START CONF"));
 #endif
 			enterMenu = true;
+    ConfigModeSubStates=CS_SOUNDFONT;
+    SinglePlay_Sound(5);
+    delay(500); 
 		}
-
-		if (modification == -1) {
-
-#if defined LS_INFO
-			Serial.print(F("-:"));
-#endif
-			SinglePlay_Sound(2);
-			delay(50);
-		} else if (modification == 1) {
-
-#if defined LS_INFO
-			Serial.print(F("+:"));
-#endif
-			SinglePlay_Sound(1);
-			delay(50);
-		}
-
-		switch (menu) {
-
- 
-		case 0: // SOUNDFONT
-			confMenuStart(storage.soundFont, 5, menu);
-
-			play = false;
-			confParseValue(storage.soundFont, 2, SOUNDFONT_QUANTITY + 1, 1);
-			if (modification) {
-
-				modification = 0;
-				storage.soundFont = value;
-				soundFont.setID(value);
-				SinglePlay_Sound(soundFont.getMenu());
-				delay(150);
-
-#if defined LS_INFO
-				Serial.println(soundFont.getID());
-#endif
-			}
-			break;
-
-    case 1: //VOLUME
-      confMenuStart(storage.volume, 4, menu);
-
-      confParseValue(storage.volume, 0, 31, 1);
-
-      if (modification) {
-
-        modification = 0;
-        storage.volume = value;
-#ifdef OLD_DPFPLAYER_LIB
-  mp3_set_volume (storage.volume);
-#else
-  dfplayer.setVolume(storage.volume); // Too Slow: we'll change volume on exit
-#endif
-        delay(50);
-#if defined LS_INFO
-        Serial.println(storage.volume);
-#endif
-      }
-
-      break;
-      
-#if defined LUXEON
-			case 2: // BLADE MAIN COLOR
-			confMenuStart(storage.sndProfile[storage.soundFont].mainColor, 6, menu);
-
-			confParseValue(storage.sndProfile[storage.soundFont].mainColor, 0, COLORS - 1, 1);
-
-			if (modification) {
-
-				modification = 0;
-				storage.sndProfile[storage.soundFont].mainColor =value;
-				getColor(currentColor, storage.sndProfile[storage.soundFont].mainColor);
-				lightOn(ledPins, currentColor);
-#if defined LS_INFO
-				Serial.print(storage.sndProfile[storage.soundFont].mainColor);
-				Serial.print("\tR:");
-				Serial.print(currentColor[0]);
-				Serial.print("\tG:");
-				Serial.print(currentColor[1]);
-				Serial.print(" \tB:");
-				Serial.println(currentColor[2]);
-#endif
-			}
-			break;
-			case 3: //BLADE CLASH COLOR
-			confMenuStart(storage.sndProfile[storage.soundFont].clashColor, 7, menu);
-
-			confParseValue(storage.sndProfile[storage.soundFont].clashColor, 0, COLORS - 1, 1);
-
-			if (modification) {
-
-				modification = 0;
-				storage.sndProfile[storage.soundFont].clashColor =value;
-				getColor(currentColor, storage.sndProfile[storage.soundFont].clashColor);
-				lightOn(ledPins, currentColor);
-#if defined LS_INFO
-				Serial.print(storage.sndProfile[storage.soundFont].clashColor);
-				Serial.print("\tR:");
-				Serial.print(currentColor[0]);
-				Serial.print("\tG:");
-				Serial.print(currentColor[1]);
-				Serial.print(" \tB:");
-				Serial.println(currentColor[2]);
-#endif
-			}
-			break;
-      case 4: //BLADE BLASTER BLOCK COLOR
-      confMenuStart(storage.sndProfile[storage.soundFont].blasterboltColor, 8, menu);
-
-      confParseValue(storage.sndProfile[storage.soundFont].blasterboltColor, 0,
-          COLORS - 1, 1);
-
-      if (modification) {
-
-        modification = 0;
-        storage.sndProfile[storage.soundFont].blasterboltColor = value;
-        getColor(currentColor, storage.sndProfile[storage.soundFont].blasterboltColor);
-        lightOn(ledPins, currentColor);
-#if defined LS_INFO
-        Serial.print(storage.sndProfile[storage.soundFont].blasterboltColor);
-        Serial.print("\tR:");
-        Serial.print(currentColor[0]);
-        Serial.print("\tG:");
-        Serial.print(currentColor[1]);
-        Serial.print(" \tB:");
-        Serial.println(currentColor[2]);
-#endif
-      }
-      break;
-#endif
-
-/*NEOPIXEL*/
-#if defined NEOPIXEL
-			case 2: // BLADE MAIN COLOR
-			confMenuStart(storage.sndProfile[storage.soundFont].mainColor, 6, menu);
-
-			confParseValue(storage.sndProfile[storage.soundFont].mainColor, 0,
-					COLORS - 1, 1);
-
-			if (modification) {
-
-				modification = 0;
-				storage.sndProfile[storage.soundFont].mainColor = value;
-				getColor(storage.sndProfile[storage.soundFont].mainColor);
-				lightOn(currentColor);
-#if defined LS_DEBUG
-				Serial.print(storage.sndProfile[storage.soundFont].mainColor);
-				Serial.print("\tR:");
-				Serial.print(currentColor.r);
-				Serial.print("\tG:");
-				Serial.print(currentColor.g);
-				Serial.print(" \tB:");
-				Serial.println(currentColor.b);
-#endif
-			}
-			break;
-			case 3: //BLADE CLASH COLOR
-			confMenuStart(storage.sndProfile[storage.soundFont].clashColor, 7, menu);
-
-			confParseValue(storage.sndProfile[storage.soundFont].clashColor, 0,
-					COLORS - 1, 1);
-
-			if (modification) {
-
-				modification = 0;
-				storage.sndProfile[storage.soundFont].clashColor = value;
-				getColor(storage.sndProfile[storage.soundFont].clashColor);
-				lightOn(currentColor);
-#if defined LS_DEBUG
-				Serial.print(storage.sndProfile[storage.soundFont].clashColor);
-				Serial.print("\tR:");
-				Serial.print(currentColor.r);
-				Serial.print("\tG:");
-				Serial.print(currentColor.g);
-				Serial.print(" \tB:");
-				Serial.println(currentColor.b);
-#endif
-			}
-			break;
-      case 4: //BLADE BLASTER BLOCK COLOR
-      confMenuStart(storage.sndProfile[storage.soundFont].blasterboltColor, 8, menu);
-
-      confParseValue(storage.sndProfile[storage.soundFont].blasterboltColor, 0,
-          COLORS - 1, 1);
-
-      if (modification) {
-
-        modification = 0;
-        storage.sndProfile[storage.soundFont].blasterboltColor = value;
-        getColor(storage.sndProfile[storage.soundFont].blasterboltColor);
-        lightOn(currentColor);
-#if defined LS_DEBUG
-        Serial.print(storage.sndProfile[storage.soundFont].blasterboltColor);
-        Serial.print("\tR:");
-        Serial.print(currentColor.r);
-        Serial.print("\tG:");
-        Serial.print(currentColor.g);
-        Serial.print(" \tB:");
-        Serial.println(currentColor.b);
-#endif
-      }
-      break;
-#endif
-		default:
-			menu = 0;
-			break;
-		}
+    #ifndef COLORS
+    #ifdef NEOPIXEL or LUXEON
+    if (ConfigModeSubStates==CS_MAINCOLOR or ConfigModeSubStates==CS_CLASHCOLOR or ConfigModeSubStates==CS_BLASTCOLOR) {
+      modification=GravityVector();
+      Serial.println(modification);
+      switch(modification) {
+        case(0): // red +
+          currentColor.r=100; currentColor.g=0; currentColor.b=0;
+          break;
+        case(1): // red -
+          currentColor.r=20; currentColor.g=0; currentColor.b=0;
+          break;
+        case(2): // green +
+          currentColor.r=0; currentColor.g=100; currentColor.b=0;
+          break;
+         case(3): // green -
+          currentColor.r=0; currentColor.g=20; currentColor.b=0;
+          break;          
+        case(4): // blue +
+          currentColor.r=0; currentColor.g=0; currentColor.b=100;
+          break;
+        case(5): // blue -
+          currentColor.r=0; currentColor.g=0; currentColor.b=20;
+          break;
+          }
+      lightOn(currentColor, NUMPIXELS-5, NUMPIXELS);
+    }
+    #endif // NEOPIXEL or LUXEON
+    #endif // not COLORS
 
 	} //END CONFIG MODE HANDLER
 
@@ -1224,6 +1067,9 @@ accentLEDControl(AL_ON);
       PrevSaberState=S_JUKEBOX;
       SinglePlay_Sound(14);  // play intro sound of JukeBox mode
       delay(2500);
+      #ifdef NEOPIXEL
+      neopixels_stripeKillKey_Disable();
+      #endif
 #if defined LS_INFO
             Serial.println(F("START JUKEBOX"));
 #endif       
@@ -1231,6 +1077,7 @@ accentLEDControl(AL_ON);
       jb_track=NR_CONFIGFOLDERFILES+1;
       SinglePlay_Sound(jb_track);  // JukeBox dir/files must be directly adjecent to config sounds on the SD card
     }
+    if (jukebox_play) {
 #ifdef LEDSTRINGS
     JukeBox_Stroboscope(ledPins);
 #endif
@@ -1243,8 +1090,31 @@ accentLEDControl(AL_ON);
   getColor(storage.sndProfile[storage.soundFont].mainColor);
   JukeBox_Stroboscope(currentColor);
 #endif
+    }
   }
-#endif
+#endif  //  JUKEBOX
+#ifdef DEEP_SLEEP
+  else if (SaberState==S_SLEEP) {
+    if (PrevSaberState==S_CONFIG) {  // just entered Sleep mode
+      
+      byte old_ADCSRA = ADCSRA;
+      // disable ADC to save power
+    // disable ADC
+    ADCSRA = 0;  // reduces another ~100uA!
+    SleepModeEntry();
+
+    // .. and the code will continue from here
+    
+    ADCSRA = old_ADCSRA;   // re-enable ADC conversion
+    SleepModeExit();    
+    SaberState=S_STANDBY;
+    PrevSaberState=S_SLEEP;
+    // play boot sound
+    SinglePlay_Sound(11);
+    delay(20);
+    }
+  }
+#endif // DEEP_SLEEP
 } //loop
 
 // ====================================================================================
@@ -1330,6 +1200,39 @@ inline void printQuaternion(Quaternion quaternion) {
 } //printQuaternion
 #endif
 
+uint8_t GravityVector() {
+  uint8_t Orientation; // 0: +X, 1: -X, 2: +Y, 3: -Y, 4: +Z, 5: -Z
+  int16_t ax, ay, az;
+  
+  //mpu.dmpGetAccel(&curAccel, fifoBuffer);
+  mpu.getAcceleration(&ax, &ay, &az);
+  //printAccel(ax, ay, az);
+  if (ax<0) {Orientation=1;}  // -X
+  else {Orientation=0;}  // +X
+  if (abs(abs(ax)-16000)>abs(abs(ay)-16000)) {
+      if (ay<0) {Orientation=3;}  // -Y
+      else {Orientation=2;}  // +Y           
+  }
+  if ( (abs(abs(ay)-16000)>abs(abs(az)-16000)) and (abs(abs(ax)-16000)>abs(abs(az)-16000)) ) {
+      if (az<0) {Orientation=5;}  // -Z
+      else {Orientation=4;}  // +Z     
+    }
+  //Serial.print(F("\t\Orientation="));
+  //Serial.println(Orientation); 
+  return Orientation;
+}
+
+//#if defined LS_MOTION_DEBUG
+//inline void printAccel(int16_t ax, int16_t ay, int16_t az) {
+//  Serial.print(F("\t\tx="));
+//  Serial.print(ax);
+//  Serial.print(F("\t\ty="));
+//  Serial.print(ay);
+//  Serial.print(F("\t\tz="));
+//  Serial.println(az);
+//} //printQuaternion
+//#endif
+
 // ====================================================================================
 // ===           	  			EEPROM MANIPULATION FUNCTIONS	            		===
 // ====================================================================================
@@ -1358,12 +1261,6 @@ inline void saveConfig() {
 } //saveConfig
 
 // ====================================================================================
-// ===              	    			LED FUNCTIONS		                		===
-// ====================================================================================
-
-
-
-// ====================================================================================
 // ===                          SOUND FUNCTIONS                                     ===
 // ====================================================================================
 
@@ -1387,6 +1284,15 @@ void LoopPlay_Sound(uint8_t track) {
 #else // DFPlayer_LSOS
   dfplayer.playSingleLoop(track);
 #endif
+}
+
+void Set_Volume() {
+#ifdef OLD_DPFPLAYER_LIB
+  mp3_set_volume (storage.volume);
+#else
+  dfplayer.setVolume(storage.volume); // Too Slow: we'll change volume on exit
+#endif
+delay(50);
 }
 
 void Set_Loop_Playback() {
@@ -1432,5 +1338,69 @@ void Resume_Sound() {
 #endif    
 }
 
+#ifdef DEEP_SLEEP
+// ====================================================================================
+// ===                          SLEEP MODE FUNCTIONS                                ===
+// ====================================================================================
+
+void sleepNow()         // here we put the arduino to sleep
+{
+
+    power_all_disable ();   // turn off all modules -> no measurable effect
+     
+    set_sleep_mode(SLEEP_MODE_PWR_DOWN);   // sleep mode is set here
+
+    sleep_enable();          // enables the sleep bit in the mcucr register
+                             // so sleep is possible. just a safety pin 
+
+    // turn off brown-out enable in software -> no measurable effect
+    MCUCR = bit (BODS) | bit (BODSE);
+    MCUCR = bit (BODS); 
+  
+    PCIFR  |= bit (PCIF0) | bit (PCIF1) | bit (PCIF2);   // clear any outstanding interrupts
+    PCICR  |= bit (PCIE0) | bit (PCIE1) | bit (PCIE2);   // enable pin change interrupts
+
+    sleep_mode();            // here the device is actually put to sleep!!
+                             // THE PROGRAM CONTINUES FROM HERE AFTER WAKING UP
+
+    sleep_disable();         // first thing after waking from sleep:
+                             // disable sleep...
+    detachInterrupt(0);      // disables interrupt 0 on pin 2 so the 
+                             // wakeUpNow code will not be executed 
+                             // during normal running time.
+
+}
+
+void SleepModeEntry() {
+      mpu.setSleepEnabled(true);
+      dfplayer.sleep();
+      digitalWrite(A1,HIGH);  // A1 to High
+      pinMode(DFPLAYER_RX, OUTPUT);
+      digitalWrite(DFPLAYER_RX,LOW);
+      pinMode(DFPLAYER_TX, OUTPUT);
+      digitalWrite(DFPLAYER_TX,LOW);
+      delay (300);
+     digitalWrite(A2,HIGH);  // A2 to High
+     delay(100);     // this delay is needed, the sleep 
+                      //function will provoke a Serial error otherwise!!
+      sleepNow();     // sleep function called here  
+}
+
+void SleepModeExit() {
+
+  // cancel sleep as a precaution
+      sleep_disable();
+      power_all_enable ();   // enable modules again    
+      digitalWrite(A2,LOW);  // A2 to Low
+      delay (300);
+      mpu.setSleepEnabled(false);
+      delay (300);
+      digitalWrite(A1,LOW);  // A1 to Low
+      pinMode(DFPLAYER_RX, OUTPUT);
+      pinMode(DFPLAYER_TX, INPUT);
+      delay (300);
+      setup(); // redo all initializations
+}
 
 
+#endif // DEEP_SLEEP

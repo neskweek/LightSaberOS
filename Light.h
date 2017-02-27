@@ -52,6 +52,7 @@ void lightFlicker(uint8_t ledPins[], uint8_t type, uint8_t value = 0,uint8_t ASt
 
 void lightOn(uint8_t ledPins[], uint8_t color[]);
 void lightOff(uint8_t ledPins[]);
+cRGB ColorMixing(cRGB color);
 
 void lightIgnition(uint8_t ledPins[], uint8_t color[], uint16_t time);
 void lightRetract(uint8_t ledPins[], uint8_t color[], uint16_t time);
@@ -70,16 +71,25 @@ void getColor(uint8_t color[], uint8_t colorID); //getColor
 void neopixels_stripeKillKey_Enable();
 void neopixels_stripeKillKey_Disable();
 
-void lightOn(cRGB color,int16_t pixel = -1);
+void lightOn(cRGB color, int8_t StartPixel=-1, int8_t StopPixel=-1);
 void lightOff();
 
 void lightIgnition(cRGB color, uint16_t time, uint8_t type);
 void lightRetract( uint16_t time, uint8_t type);
 
+#ifdef COLORS
 void lightBlasterEffect( uint8_t pixel, uint8_t range, uint8_t SndFnt_MainColor);
+#else
+void lightBlasterEffect( uint8_t pixel, uint8_t range, cRGB SndFnt_MainColor);
+#endif
 void lightFlicker( uint8_t value = 0,uint8_t AState=0);
 
+#ifdef COLORS
 void getColor(uint8_t colorID); //getColor
+#else
+void getColor(cRGB colorID); //getColor
+void ColorMixing(cRGB colorID, int8_t mod, uint8_t maxBrightness=MAX_BRIGHTNESS, bool Saturate=false);
+#endif
 void RampNeoPixel(uint16_t RampDuration, bool DirectionUpDown);
 
 #ifdef FIREBLADE

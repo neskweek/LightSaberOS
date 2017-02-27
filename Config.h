@@ -32,7 +32,7 @@
  *************************************/
 #define MPUCALOFFSETEEPROM
 #ifdef MPUCALOFFSETEEPROM
-#define MEMORYBASEMPUCALIBOFFSET 96
+#define MEMORYBASEMPUCALIBOFFSET 200 // 96 -> increased due to storing RGB PWM values in EEPROM takes a lot of space (3 x 1byte x 3 color types x nr of sound fonts i.e. for 5 sound fonts 45 bytes
 #endif
 /************************************/
 
@@ -94,7 +94,7 @@
 
 #if defined NEOPIXEL
 // How many leds in one strip?
-#define NUMPIXELS 119  // can go up to 120, could lead to memory problems if further increased
+#define NUMPIXELS 120  // can go up to 120, could lead to memory problems if further increased
 
 #ifdef CROSSGUARDSABER
 // define how many pixels are used for the crossguard and how many for the main blade
@@ -105,7 +105,7 @@
 //#define FIREBLADE
 
 // Number of color defined
-#define COLORS 14
+//#define COLORS 14
 static const uint8_t rgbFactor = 255;
 
 // For led chips like NEOPIXELs, which have a data line, ground, and power, you just
@@ -132,7 +132,7 @@ static const uint8_t rgbFactor = 100;
  * Range : 6<->600
  * Default: 48
  */
-#define COLORS		 		14
+//#define COLORS		 		14
 #endif
 /************************************/ // BLADE TYPE
 
@@ -150,16 +150,7 @@ static const uint8_t rgbFactor = 100;
  * BE VERY CAREFULL WITH THIS ONE OR 
  * YOU'LL BURN YOUR BLADE'S LED 
  ************************************/
-#define MAX_BRIGHTNESS		150
-
-/* LIGHT_EFFECTS
- *
- * Enable / disable  all light and
- * color effects of the blade
- * If you a device with a CPU wich is not
- * an Atmega328 : COMMENT THIS
- ************************************/
-//#define LIGHT_EFFECTS
+#define MAX_BRIGHTNESS		200
 
 // How long do the light effect last for the different FX's
 #define CLASH_FX_DURATION 200
@@ -178,7 +169,7 @@ static const uint8_t rgbFactor = 100;
  */
 #define SWING_SUPPRESS     500
 #define CLASH_SUPRESS     400  // do not modify below 400, otherwise interlocking clash sounds can occur
-#define BLASTERBLOCK_SUPRESS     400
+#define BLASTERBLOCK_SUPRESS     200
 #define HUM_RELAUNCH     5000
 
 /* BLASTER DEFLECT TYPE
@@ -202,6 +193,13 @@ static const uint8_t rgbFactor = 100;
  *************************************/
 //#define WRIST_MOVEMENTS
 
+/* Board definitions
+ *  
+ */
+
+#define DIYINO_PRIME
+//#define DIYINO_STARTDUST
+//#define ARDUINO_HOMEBREW
 
 /* DEEP_SLEEP
  * If you want to enable/disable
@@ -211,12 +209,9 @@ static const uint8_t rgbFactor = 100;
  *************************************/
 //#define DEEP_SLEEP
 #if defined DEEP_SLEEP
-#define SLEEP_TIMER			300000 //5min = 300000 millisecs
-#endif
+#define SLEEP_TIMER			20000 //20 secs
 
-#define VOLTAGEDIVIDER 2,36
-
-
+#endif  // DEEP_SLEEP
 
 /*
  * PINS DEFINITION
@@ -257,7 +252,10 @@ static const uint8_t rgbFactor = 100;
 #endif
 
 
-
+#ifdef DIYINO_PRIME or DIYINO_STARDUST
+  #define MP3_PSWITCH 15
+  #define FTDI_PSWITCH 16
+#endif // DIYINO_PRIME or DIYINO_STARDUST
 
 /*
  * ACCENT_LED
@@ -347,6 +345,7 @@ static const uint8_t rgbFactor = 100;
  */
 #define LS_SERIAL  //enable serial communication using Wire library
 #if defined LS_SERIAL
+//#define LS_FSM
 //#define LS_INFO
 //#define LS_DEBUG
 #endif

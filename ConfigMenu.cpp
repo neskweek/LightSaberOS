@@ -9,6 +9,10 @@
 #include "Config.h"
 #include "Light.h"
 
+#if defined NEOPIXEL
+#include <WS2812.h>
+#endif
+
 extern int8_t modification;
 extern bool play;
 extern int16_t value;
@@ -24,7 +28,7 @@ extern void LoopPlay_Sound(uint8_t track);
 void confParseValue(uint16_t variable, uint16_t min, uint16_t max,
 		short int multiplier) {
 
-	value = variable + (multiplier * modification);
+	value = variable + (multiplier * 1);
 
 	if (value < (int) min) {
 		value = max;
@@ -42,8 +46,12 @@ void confParseValue(uint16_t variable, uint16_t min, uint16_t max,
 } //confParseValue
 
 // this functions parses in the value of the config variable and based on it plays sounds or activates LEDs
+/*#ifdef COLORS
 void confMenuStart(uint16_t variable, uint16_t sound, uint8_t menu) {
-	extern uint8_t ledPins[];
+#else
+void confMenuStart(cRGB variable, uint16_t sound, uint8_t menu) {
+#endif
+  extern uint8_t ledPins[];
 #if defined LUXEON
 	extern uint8_t currentColor[];
 #endif
@@ -148,5 +156,5 @@ void confMenuStart(uint16_t variable, uint16_t sound, uint8_t menu) {
 		delay(100);
 	}
 } //confMenuStart
-
+*/                            
 

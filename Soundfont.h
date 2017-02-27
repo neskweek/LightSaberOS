@@ -34,12 +34,9 @@ public:
 		powerOff = LinkedList<uint16_t>();
 		hum = LinkedList<uint16_t>();
 		swing = LinkedList<uint16_t>();
-		spin = LinkedList<uint16_t>();
 		clash = LinkedList<uint16_t>();
 		lockup = LinkedList<uint16_t>();
 		blaster = LinkedList<uint16_t>();
-		wrist = LinkedList<uint16_t>();
-		force = LinkedList<uint16_t>();
     menu = LinkedList<uint16_t>();
 		ID=0;
 		powerOnTime =500;
@@ -72,12 +69,9 @@ public:
 		uint16_t powerOff[2];
 		uint16_t hum[2];
 		uint16_t swing[2];
-		uint16_t spin[2];
 		uint16_t clash[2];
 		uint16_t lockup[2];
 		uint16_t blaster[2];
-		uint16_t wrist[2];
-		uint16_t force[2];
     uint16_t menu[2];
 
 		this->ID = id;
@@ -128,18 +122,12 @@ public:
       powerOff[1] = powerOff[0]+1;
       swing[0] = powerOff[1]+1; // 8 swing sounds (8-15)
       swing[1] = swing[0]+7;
-      spin[0] = 0;
-      spin[1] = 0;
       clash[0] = swing[1]+1; // 8 clash sounds (16-23)
       clash[1] = clash[0]+7;
       lockup[0] = clash[1]+1; // 1 lockup sound (24)
       lockup[1] = lockup[0];
       blaster[0] = lockup[1]+1; // 4 blaster deflect sound (25-28)
       blaster[1] = blaster[0]+3;
-      wrist[0] = 0;
-      wrist[1] = 0;
-      force[0] = 0;
-      force[1] = 0;
       menu[0] = blaster[1]+1; // 1 menu sound file (29)
       menu[1] = menu[0];
       // hum must be the last file in the sound font for proper hum relaunch
@@ -161,18 +149,12 @@ public:
       powerOff[1] = powerOff[0]+1;
       swing[0] = powerOff[1]+1; // 8 swing sounds (8-15)
       swing[1] = swing[0]+7;
-      spin[0] = 0;
-      spin[1] = 0;
       clash[0] = swing[1]+1; // 8 clash sounds (16-23)
       clash[1] = clash[0]+7;
       lockup[0] = clash[1]+1; // 1 lockup sound (24)
       lockup[1] = lockup[0];
       blaster[0] = lockup[1]+1; // 4 blaster deflect sound (25-28)
       blaster[1] = blaster[0]+3;
-      wrist[0] = 0;
-      wrist[1] = 0;
-      force[0] = 0;
-      force[1] = 0;
       menu[0] = blaster[1]+1; // 1 menu sound file (29)
       menu[1] = menu[0];
       // hum must be the last file in the sound font for proper hum relaunch
@@ -194,18 +176,12 @@ public:
       powerOff[1] = powerOff[0]+1;
       swing[0] = powerOff[1]+1; // 8 swing sounds (8-15)
       swing[1] = swing[0]+7;
-      spin[0] = 0;
-      spin[1] = 0;
       clash[0] = swing[1]+1; // 8 clash sounds (16-23)
       clash[1] = clash[0]+7;
       lockup[0] = clash[1]+1; // 1 lockup sound (24)
       lockup[1] = lockup[0];
       blaster[0] = lockup[1]+1; // 4 blaster deflect sound (25-28)
       blaster[1] = blaster[0]+3;
-      wrist[0] = 0;
-      wrist[1] = 0;
-      force[0] = 0;
-      force[1] = 0;
       menu[0] = blaster[1]+1; // 1 menu sound file (29)
       menu[1] = menu[0];
       // hum must be the last file in the sound font for proper hum relaunch
@@ -227,18 +203,12 @@ public:
       powerOff[1] = powerOff[0]+1;
       swing[0] = powerOff[1]+1; // 8 swing sounds (8-15)
       swing[1] = swing[0]+7;
-      spin[0] = 0;
-      spin[1] = 0;
       clash[0] = swing[1]+1; // 8 clash sounds (16-23)
       clash[1] = clash[0]+7;
       lockup[0] = clash[1]+1; // 1 lockup sound (24)
       lockup[1] = lockup[0];
       blaster[0] = lockup[1]+1; // 4 blaster deflect sound (25-28)
       blaster[1] = blaster[0]+3;
-      wrist[0] = 0;
-      wrist[1] = 0;
-      force[0] = 0;
-      force[1] = 0;
       menu[0] = blaster[1]+1; // 1 menu sound file (29)
       menu[1] = menu[0];
       // hum must be the last file in the sound font for proper hum relaunch
@@ -260,18 +230,12 @@ public:
       powerOff[1] = powerOff[0]+1;
       swing[0] = powerOff[1]+1; // 8 swing sounds (8-15)
       swing[1] = swing[0]+7;
-      spin[0] = 0;
-      spin[1] = 0;
       clash[0] = swing[1]+1; // 8 clash sounds (16-23)
       clash[1] = clash[0]+7;
       lockup[0] = clash[1]+1; // 1 lockup sound (24)
       lockup[1] = lockup[0];
       blaster[0] = lockup[1]+1; // 4 blaster deflect sound (25-28)
       blaster[1] = blaster[0]+3;
-      wrist[0] = 0;
-      wrist[1] = 0;
-      force[0] = 0;
-      force[1] = 0;
       menu[0] = blaster[1]+1; // 1 menu sound file (29)
       menu[1] = menu[0];
       // hum must be the last file in the sound font for proper hum relaunch
@@ -283,24 +247,18 @@ public:
     this->powerOn.clear();
     this->powerOff.clear();
     this->swing.clear();
-    this->spin.clear();
     this->clash.clear();
     this->lockup.clear();
     this->blaster.clear();
-    this->wrist.clear();
-    this->force.clear();
     this->menu.clear();
     this->hum.clear();
     fill(&this->boot, boot);
     fill(&this->powerOn, powerOn);
     fill(&this->powerOff, powerOff);
     fill(&this->swing, swing);
-    fill(&this->spin, spin);
     fill(&this->clash, clash);
     fill(&this->lockup, lockup);
     fill(&this->blaster, blaster);
-    fill(&this->wrist, wrist);
-    fill(&this->force, force);
     fill(&this->menu, menu);
     fill(&this->hum, hum);
   }
@@ -341,17 +299,6 @@ public:
 		return this->swing.get(random(0, this->swing.size()));
 	}
 
-	const uint16_t getSpin() {
-			return this->spin.get(random(0, this->spin.size()));
-		}
-
-	const uint16_t getForce() {
-		return this->force.get(random(0, this->force.size()));
-	}
-	const uint16_t getWrist() {
-		return this->wrist.get(random(0, this->wrist.size()));
-	}
-
   const uint16_t getMenu() {
     return this->menu.get(random(0, this->menu.size()));
   }
@@ -390,12 +337,9 @@ private:
 	uint16_t powerOffTime;
 	LinkedList<uint16_t> hum;
 	LinkedList<uint16_t> swing;
-	LinkedList<uint16_t> spin;
 	LinkedList<uint16_t> clash;
 	LinkedList<uint16_t> lockup;
 	LinkedList<uint16_t> blaster;
-	LinkedList<uint16_t> wrist;
-	LinkedList<uint16_t> force;
   LinkedList<uint16_t> menu;
   uint16_t powerOnEffect;
   uint16_t powerOffEffect;
