@@ -1,49 +1,24 @@
-# LightSaberOS
+# LightSaberOS version 1.5: Gravity Color Blend
 
+________________________________________________________________________________   
+Some hints:
+- please use Arduino IDE version 1.6.11 or newer
+- BUT make sure you use the Board Manager version 1.6.11 or lower!!! How to do this?
+	1. go to Tools/Boards/Boards Manager...
+	2. select Arduino AVR Boards by Arduino version xxxx
+	3. Select in the lower left side of the box the version 1.6.11 and press install
+- if you want to use the Gravity Color Blend feature, you need to move the MPU6050 calibration values
+  so make room for the extended set of arameters stored in the EEPROM. The easierst way to do it is to
+  re-calibrate the MU using this sketch (MPU lib needed!!!):
+  https://github.com/Protonerd/DIYino/blob/master/MPU6050_calibration.ino
 ________________________________________________________________________________   
 
 ## VIDEOS
 
-[![DIYino demo of Neopixel lightsaber blade with LSOS] (http://img.youtube.com/vi/PjXLKvWpA8A/0.jpg)](https://www.youtube.com/watch?v=PjXLKvWpA8A)      
-_This is a modified version of the neopixel code. LSOS doesn't come with this fire effect out of the box ;)_   
-[![DIYino prototype demo with LSOS by neskweek - Swings] (http://img.youtube.com/vi/tU3GZzV9I6E/0.jpg)](http://www.youtube.com/watch?v=tU3GZzV9I6E)[![Motion Detection Demo (made under v1.0 RC5)] (http://img.youtube.com/vi/wY8BSSEyYLY/0.jpg)](http://www.youtube.com/watch?v=wY8BSSEyYLY)[![Quick tour (made under v1.0 RC4)] (http://img.youtube.com/vi/mc8scn_qyFM/0.jpg)](http://www.youtube.com/watch?v=mc8scn_qyFM)
+![Change color on the fly!!!] ( https://youtu.be/crkaLPb7E7s )      
 
 ________________________________________________________________________________   
-
-### FEATURES :
-
-* Simple modular systems (you can choose to remove some systems from your final compilation)
-* Swing detection
-* Blade Clash detection  
-* Wrist movement detection 
-* Full gapless sound playing with "Hum Extended" soundfiles (see below)
-* Blaster Shot deflect 
-* Blade Lockup (long press on Aux switch. Plays until release of the button)
-* Accent LED
-* Flash-on-Clash LEDString
-* Multiple ignition/retractation/flickering effects
-* Config Menu to modify some features without wiring the device to your PC/Mac 
-* EEPROM load/save of your config preferences
-* Soundfont adding supported (not automatic, you'll have little work to do ;) )
-
-________________________________________________________________________________   
-
-### WHAT YOU WILL NEED :
-* [Java Runtime Environment 8](http://www.oracle.com/technetwork/java/javase/downloads/jre8-downloads-2133155.html)    
-Download the right file for your architecture
-* [Arduino IDE](https://www.arduino.cc/en/Main/Software) (advised for end user)   
-OR    
-  [Arduino Eclipse v3.0](http://www.baeyens.it/) (advised for developpers)  
-Again, download the right files for your architecture
-* my new DFPlayer library (Included in zip file)
-* [I2Cdev and MPU6050 (Included in zip file)](https://codeload.github.com/jrowberg/i2cdevlib/zip/master) 
-* [EEPROMex9.1 (Included in zip file)](http://thijs.elenbaas.net/wp-content/uploads/downloads/2013/12/EEPROMEx-9.1.zip)
-* [OneButton (Included in zip file)] (https://github.com/mathertel/OneButton)
-* [LinkedList (Included in zip file)] (https://github.com/ivanseidel/LinkedList)
-* Wire (Included in Arduino Eclipse) 
-
-________________________________________________________________________________   
-
+  
 ### DEVICE CURRENTLY SUPPORTED :
 
 Designed to be used on [DIYino boards](https://github.com/Protonerd/DIYino) (recommended)
