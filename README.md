@@ -3,10 +3,10 @@
 ________________________________________________________________________________   
 Some hints:
 - please use Arduino IDE version 1.6.11 or newer
-- BUT make sure you use the Board Manager version 1.6.11 or lower!!! How to do this?
+- make sure you use the Board Manager version 1.6.17 or newer!!! How to do this?
 	1. go to Tools/Boards/Boards Manager...
 	2. select Arduino AVR Boards by Arduino version xxxx
-	3. Select in the lower left side of the box the version 1.6.11 and press install
+	3. Select in the lower left side of the box the version 1.6.17 and press install
 - if you want to use the Gravity Color Blend feature, you need to move the MPU6050 calibration values
   so make room for the extended set of arameters stored in the EEPROM. The easierst way to do it is to
   re-calibrate the MU using this sketch (MPU lib needed!!!):
@@ -103,20 +103,6 @@ Then press Next
 In "Eclipse Project explorer" open the new created LightSaberOS-master and select those files :   
 ![Select source directory](https://raw.githubusercontent.com/neskweek/LightSaberOS/master/README/eclipse7.PNG)   
 Then drag and drop them to the root structure of the project   
-5. Inside Eclipse Right click on LightSaberOS project  > Import   
-![Import Libraries](https://raw.githubusercontent.com/neskweek/LightSaberOS/master/README/eclipse8.PNG)   
-Then press Next    
-Select those libraries :     
-![Select Libraries](https://raw.githubusercontent.com/neskweek/LightSaberOS/master/README/eclipse9.PNG)   
-Then press Finish    
-6. Delete LightSaberOS-master directory from Eclipse Project explorer    
-    
-   
-You should end up with this Project explorer structure :   
-![Project structure](https://raw.githubusercontent.com/neskweek/LightSaberOS/master/README/eclipse10.PNG)   
-
-If so, Then you're ready to rock !   
-
 ________________________________________________________________________________    
    
    
