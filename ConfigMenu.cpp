@@ -9,7 +9,7 @@
 #include "Config.h"
 #include "Light.h"
 
-#if defined NEOPIXEL
+#if defined PIXELBLADE
 #include <WS2812.h>
 #endif
 
@@ -52,10 +52,10 @@ void confMenuStart(uint16_t variable, uint16_t sound, uint8_t menu) {
 void confMenuStart(cRGB variable, uint16_t sound, uint8_t menu) {
 #endif
   extern uint8_t ledPins[];
-#if defined LUXEON
+#if defined STAR_LED
 	extern uint8_t currentColor[];
 #endif
-#if defined NEOPIXEL
+#if defined PIXELBLADE
 	extern cRGB currentColor;
 #endif
 	extern bool enterMenu;
@@ -82,7 +82,7 @@ void confMenuStart(cRGB variable, uint16_t sound, uint8_t menu) {
 			lightOn(ledPins, 0);
 #endif
 			break;
-#if defined LUXEON
+#if defined STAR_LED
     case 2:
 			lightOff(ledPins);
 #if defined LS_INFO
@@ -109,7 +109,7 @@ void confMenuStart(cRGB variable, uint16_t sound, uint8_t menu) {
       break;
 #endif
 
-#if defined NEOPIXEL
+#if defined PIXELBLADE
     case 2:
       lightOff();
 

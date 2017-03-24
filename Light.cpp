@@ -7,13 +7,13 @@
 #include "Light.h"
 #include "Config.h"
 
-#if defined NEOPIXEL
+#if defined PIXELBLADE
 #include <WS2812.h>
 #endif
 
 enum SaberStateEnum {S_STANDBY, S_SABERON, S_CONFIG, S_SLEEP, S_JUKEBOX};
 enum ActionModeSubStatesEnum {AS_HUM, AS_IGNITION, AS_RETRACTION, AS_BLADELOCKUP, AS_BLASTERDEFLECTMOTION, AS_BLASTERDEFLECTPRESS, AS_CLASH, AS_SWING, AS_SPIN, AS_FORCE};
-enum ConfigModeSubStatesEnum {CS_VOLUME, CS_SOUNDFONT, CS_MAINCOLOR, CS_CLASHCOLOR, CS_BLASTCOLOR, CS_FLICKERTYPE, CS_IGNITIONTYPE, CS_RETRACTTYPE, CS_SLEEPINIT};
+enum ConfigModeSubStatesEnum {CS_VOLUME, CS_SOUNDFONT, CS_MAINCOLOR, CS_CLASHCOLOR, CS_BLASTCOLOR, CS_FLICKERTYPE, CS_IGNITIONTYPE, CS_RETRACTTYPE, CS_SLEEPINIT, CS_BATTERYLEVEL};
 extern SaberStateEnum SaberState;
 extern SaberStateEnum PrevSaberState;
 extern ActionModeSubStatesEnum ActionModeSubStates;
@@ -315,13 +315,15 @@ void JukeBox_Stroboscope(uint8_t ledPins[]) {
 #endif
 
 #endif
-#if defined LUXEON
+#if defined STAR_LED
 
-void lightOn(uint8_t ledPins[], uint8_t color[]) {
+extern cRGB currentColor;
+
+void lightOn(uint8_t ledPins[], cRGB color) {
 // Light On
-	for (uint8_t i = 0; i <= 2; i++) {
-		analogWrite(ledPins[i], MAX_BRIGHTNESS * color[i] / rgbFactor);
-	}
+    analogWrite(ledPins[0], MAX_BRIGHTNESS * color.r / rgbFactor); // RED
+    analogWrite(ledPins[1], MAX_BRIGHTNESS * color.g / rgbFactor); // GREEN
+    analogWrite(ledPins[2], MAX_BRIGHTNESS * color.b / rgbFactor); // BLUE
 } //lightOn
 
 void lightOff(uint8_t ledPins[]) {
@@ -331,77 +333,104 @@ void lightOff(uint8_t ledPins[]) {
 	}
 } //lightOff
 
-void ColorMixing(cRGB color) {
+#ifndef COLORS
+void ColorMixing(cRGB colorID, int8_t mod, uint8_t maxBrightness, bool Saturate) {
   cRGB mixedColor;
+  mixedColor.r=colorID.r;
+  mixedColor.g=colorID.g;
+  mixedColor.b=colorID.b;
       switch(mod) {
         case(0):
-          mixedColor.r=color.r+1;
+          if (Saturate) {
+            mixedColor.r=maxBrightness;
+          }
+          else {
+            mixedColor.r=constrain(colorID.r+1,0,255);
+          }
           break;
         case(1):
-          mixedColor.r=color.r-1;
+          if (Saturate) {
+            mixedColor.r=0;
+          }
+          else {
+            mixedColor.r=constrain(colorID.r-1,0,255);
+          }
           break;
         case(2):
-          mixedColor.g=color.g+1;
+          if (Saturate) {
+            mixedColor.g=maxBrightness;
+          }
+          else {
+            mixedColor.g=constrain(colorID.g+1,0,255);
+          }
           break;
         case(3):
-          mixedColor.g=color.g-1;
+          if (Saturate) {
+            mixedColor.g=0;
+          }
+          else {
+            mixedColor.g=constrain(colorID.g-1,0,255);
+          }
           break;
         case(4):
-          mixedColor.b=color.b+1;
+          if (Saturate) {
+            mixedColor.b=maxBrightness;
+          }
+          else {
+            mixedColor.b=constrain(colorID.b+1,0,255);
+          }
           break;
         case(5):
-          mixedColor.b=color.b-1;
-          break;                              
+          if (Saturate) {
+            mixedColor.b=0;
+          }
+          else {
+            mixedColor.b=constrain(colorID.b-1,0,255);
+          }
+          break; 
       }
-      if (mixedColor.r > 100) {mixedColor.r=0;}
-      if (mixedColor.g > 100) {mixedColor.g=0;}
-      if (mixedColor.b > 100) {mixedColor.b=0;}
-      delay(50);
-        //getColor(currentColor, storage.sndProfile[storage.soundFont].mainColor);
-        lightOn(ledPins, mixedColor);
-        #if defined LS_INFO
-                //Serial.print(storage.sndProfile[storage.soundFont].mainColor);
-                Serial.print("\tR:");
-                Serial.print(mixedColor[0]);
-                Serial.print("\tG:");
-                Serial.print(mixedColor[1]);
-                Serial.print(" \tB:");
-                Serial.println(mixedColor[2]);
-        #endif
-  currentColor.r=mixedColor.r;
-  currentColor.g=mixedColor.g;
-  currentColor.b=mixedColor.b;
-  
-  //return mixedColor;
-  
+        getColor(mixedColor);
+        //#if defined LS_DEBUG
+          //Serial.print(storage.sndProfile[storage.soundFont].mainColor);
+          Serial.print("\tR:");
+          Serial.print(currentColor.r);
+          Serial.print("\tG:");
+          Serial.print(currentColor.g);
+          Serial.print(" \tB:");
+          Serial.println(currentColor.b);
+        //#endif
+      // LED_RED, LED_GREEN, LED_BLUE
+      analogWrite(LED_RED,currentColor.r); // RED
+      analogWrite(LED_GREEN, currentColor.g); // GREEN
+      analogWrite(LED_BLUE, currentColor.b); // BLUE  
 }
-void lightIgnition(uint8_t ledPins[], uint8_t color[], uint16_t time) {
+#endif // not COLORS
+  
+void lightIgnition(uint8_t ledPins[], cRGB color, uint16_t time) {
 
 // Fade in to Maximum brightness
 	for (uint8_t fadeIn = 255; fadeIn > 0; fadeIn--) {
-		for (uint8_t i = 0; i <= 2; i++) {
-			analogWrite(ledPins[i],
-					(MAX_BRIGHTNESS / fadeIn) * color[i] / rgbFactor);
-		}
+    analogWrite(ledPins[0], (MAX_BRIGHTNESS / fadeIn) * color.r / rgbFactor); // RED
+    analogWrite(ledPins[1], (MAX_BRIGHTNESS / fadeIn) * color.g / rgbFactor); // GREEN
+    analogWrite(ledPins[2], (MAX_BRIGHTNESS / fadeIn) * color.b / rgbFactor); // BLUE
 		delay(time / 255);
 	}
 } //lightIgnition
 
-void lightRetract(uint8_t ledPins[], uint8_t color[], uint16_t time) {
+void lightRetract(uint8_t ledPins[], cRGB color, uint16_t time) {
 // Fade out
 
 	for (uint8_t fadeOut = 1; fadeOut < 255; fadeOut++) {
-		for (uint8_t i = 0; i <= 2; i++) {
-			analogWrite(ledPins[i],
-					(MAX_BRIGHTNESS / fadeOut) * color[i] / rgbFactor);
-		}
+    analogWrite(ledPins[0], (MAX_BRIGHTNESS / fadeOut) * color.r / rgbFactor); // RED
+    analogWrite(ledPins[1], (MAX_BRIGHTNESS / fadeOut) * color.g / rgbFactor); // GREEN
+    analogWrite(ledPins[2], (MAX_BRIGHTNESS / fadeOut) * color.b / rgbFactor); // BLUE
 		delay(time / 255);
 	}
 
 	lightOff(ledPins);
 } //lightRetract
 
-void lightFlicker(uint8_t ledPins[], uint8_t color[], uint8_t value) {
+void lightFlicker(uint8_t ledPins[], cRGB color, uint8_t value) {
 	uint8_t brightness;
 	if (not value) {
 // Calculation of the amount of brightness to fade
@@ -418,147 +447,120 @@ void lightFlicker(uint8_t ledPins[], uint8_t color[], uint8_t value) {
 	Serial.print(F("   SPK2: "));
 	Serial.println(analogRead(SPK2));
 #endif
-	for (uint8_t i = 0; i <= 2; i++) {
-		analogWrite(ledPins[i], brightness * color[i] / rgbFactor);
-	}
+    analogWrite(ledPins[0], (brightness * color.r / rgbFactor)); // RED
+    analogWrite(ledPins[1], (brightness * color.g / rgbFactor)); // GREEN
+    analogWrite(ledPins[2], (brightness * color.b / rgbFactor)); // BLUE
 } //lightFlicker
 
-/*
-void getColor(uint8_t color[], uint16_t colorID) {
-	uint8_t tint = (COLORS / 6);
-	uint8_t step = rgbFactor / tint;
-	color[3] = colorID;
-	if ((colorID >= 0) and (colorID < (1 * tint))) {
-//From Red to Yellow
-		color[0] = 100;
-		color[1] = step * (colorID % tint);
-		color[2] = 0;
-	} else if ((colorID >= (1 * tint)) and (colorID < (2 * tint))) {
-// From Yellow to Green
-		color[0] = 100 - (step * (colorID % tint));
-		color[1] = 100;
-		color[2] = 0;
-	} else if ((colorID >= (2 * tint)) and (colorID < (3 * tint))) {
-// From Green to Aqua
-		color[0] = 0;
-		color[1] = 100;
-		color[2] = step * (colorID % tint);
-	} else if ((colorID >= (3 * tint)) and (colorID < (4 * tint))) {
-// From Aqua to Blue
-		color[0] = 0;
-		color[1] = 100 - (step * (colorID % tint));
-		color[2] = 100;
-	} else if ((colorID >= (4 * tint)) and (colorID < (5 * tint))) {
-// From Blue to Purple/Pink
-		color[0] = step * (colorID % tint);
-		color[1] = 0;
-		color[2] = 100;
-	} else if (colorID >= (5 * tint)) {
-// From Purple/Pink to Red
-		color[0] = 100;
-		color[1] = 0;
-		color[2] = 100 - (step * (colorID % tint));
-	}
 
-} //getColor
-*/
-void getColor(uint8_t color[], uint8_t colorID) {
-  color[3] = colorID;
-  switch (colorID) {
-    case 0:
+#ifdef COLORS
+void getColor(uint8_t color) {
+#else //  not COLOR
+void getColor(cRGB color) {
+#endif
+
+#ifdef COLORS
+  //currentColor[3] = colorID;
+  switch (color) {
+  case 0:
 //Red
-    color[0] = 150;
-    color[1] = 0;
-    color[2] = 0;
+    currentColor.r = 100;
+    currentColor.g = 0;
+    currentColor.b = 0;
     break;
   case 1:
 //Yellow
-    color[0] = 150;
-    color[1] = 150;
-    color[2] = 0;
+    currentColor.r = 100;
+    currentColor.g = 100;
+    currentColor.b = 0;
     break;
   case 2:
 //Green
-    color[0] = 0;
-    color[1] = 150;
-    color[2] = 0;
+    currentColor.r = 0;
+    currentColor.g = 100;
+    currentColor.b = 0;
     break;
   case 3:
 //Aqua
-    color[0] = 0;
-    color[1] = 150;
-    color[2] = 150;
+    currentColor.r = 0;
+    currentColor.g = 100;
+    currentColor.b = 100;
     break;
   case 4:
 //Blue
-    color[0] = 0;
-    color[1] = 0;
-    color[2] = 150;
+    currentColor.r = 0;
+    currentColor.g = 0;
+    currentColor.b = 100;
     break;
   case 5:
 //Fuschia
-    color[0] = 150;
-    color[1] = 0;
-    color[2] = 150;
+    currentColor.r = 100;
+    currentColor.g = 0;
+    currentColor.b = 100;
     break;
+
   case 6:
 //DarkGrey
-    color[0] = 150;
-    color[1] = 150;
-    color[2] = 150;
+    currentColor.r = 100;
+    currentColor.g = 100;
+    currentColor.b = 100;
     break;
   case 7:
 //DarkOrange
-    color[0] = 150;
-    color[1] = 80;
-    color[2] = 0;
+    currentColor.r = 1000;
+    currentColor.g = 76;
+    currentColor.b = 0;
     break;
   case 8:
 //DarkViolet
-    color[0] = 116;
-    color[1] = 0;
-    color[2] = 166;
+    currentColor.r = 100;
+    currentColor.g = 0;
+    currentColor.b = 100;
     break;
   case 9:
 //DodgerBlue
-    color[0] = 24;
-    color[1] = 75;
-    color[2] = 150;
+    currentColor.r = 24;
+    currentColor.g = 80;
+    currentColor.b = 100;
     break;
   case 10:
 //Gold
-    color[0] = 150;
-    color[1] = 1208;
-    color[2] = 0;
+    currentColor.r = 100;
+    currentColor.g = 120;
+    currentColor.b = 0;
     break;
   case 11:
 //GoldenRod
-    color[0] = 170;
-    color[1] = 130;
-    color[2] = 24;
+    currentColor.r = 100;
+    currentColor.g = 112;
+    currentColor.b = 24;
     break;
   case 12:
 //Indigo
-    color[0] = 78;
-    color[1] = 0;
-    color[2] = 150;
+    currentColor.r = 80;
+    currentColor.g = 0;
+    currentColor.b = 100;
     break;
   case 13:
 //LightGreen
-    color[0] = 90;
-    color[1] = 150;
-    color[2] = 78;
+    currentColor.r = 90;
+    currentColor.g = 100;
+    currentColor.b = 90;
     break;
 
   default:
 // White (if enough voltage)
-    color[0] = 100;
-    color[1] = 100;
-    color[2] = 100;
+    currentColor.r = 50;
+    currentColor.g = 50;
+    currentColor.b = 50;
     break;
   }
+#else  // not COLOR
+    currentColor.r = color.r;
+    currentColor.g = color.g;
+    currentColor.b = color.b;
+#endif
 } //getColor
-
 #ifdef JUKEBOX
 void JukeBox_Stroboscope() {
   
@@ -568,14 +570,14 @@ void JukeBox_Stroboscope() {
 
 #endif
 
-#if defined NEOPIXEL
+#if defined PIXELBLADE
 static uint8_t flickerPos = 0;
 static long lastFlicker = millis();
 extern WS2812 pixels;
 
 extern cRGB currentColor;
 
-void neopixels_stripeKillKey_Enable() {
+void pixelblade_KillKey_Enable() {
   // cut power to the neopixels stripes by disconnecting their GND signal using the LS pins
     digitalWrite(3, LOW);
     digitalWrite(5, LOW);
@@ -586,7 +588,7 @@ void neopixels_stripeKillKey_Enable() {
     digitalWrite(DATA_PIN,HIGH); // in order not to back-connect GND over the Data pin to the stripes when the Low-Sides disconnect it
 }
 
-void neopixels_stripeKillKey_Disable() {
+void pixelblade_KillKey_Disable() {
   // cut power to the neopixels stripes by disconnecting their GND signal using the LS pins
     digitalWrite(3, HIGH);
     digitalWrite(5, HIGH);
@@ -700,7 +702,7 @@ void lightIgnition(cRGB color, uint16_t time, uint8_t type) {
 	//switch (type) {
 	//case 0:
 // Light up the ledstrings Movie-like
-    RampNeoPixel(time, true);
+    RampPixels(time, true);
 /*		for (uint16_t i = 0; i < NUMPIXELS; i++) {
 			pixels.set_crgb_at(i, value);
 			i++;
@@ -735,7 +737,7 @@ void lightRetract(uint16_t time, uint8_t type) {
 		value.b = 0;
 		value.g = 0;
 		value.r = 0; // RGB Value -> Off
-    RampNeoPixel(time, false);
+    RampPixels(time, false);
 		/*for (uint16_t i = NUMPIXELS; i > 0; i--) {
 			//BUG CORRECTION:
 			//Not uint8_t here because Arduino nano clones did go
@@ -842,15 +844,20 @@ void lightFlicker(uint8_t value,uint8_t AState) {
   }
     FireBlade();
     pixels.sync(); // Sends the data to the LEDs
-
 #else
-  if (not value) {
+//  if (not value) {
 // Calculation of the amount of brightness to fade
-     brightness = constrain(MAX_BRIGHTNESS
-    - (abs(analogRead(SPK1) - analogRead(SPK2)))/8,0,255);
-  } else {
-    brightness = value;
-  }
+//     brightness = constrain(MAX_BRIGHTNESS
+//    - (abs(analogRead(SPK1) - analogRead(SPK2)))/8,0,255);
+//  } else {
+//    brightness = value;
+//  }
+
+int flickFactor = random(0,255);
+if (flickFactor > 3 && flickFactor < 170) { flickFactor = 255; }
+//brightness = 255 * flickFactor / 100;
+brightness = flickFactor;
+
 #if defined LS_HEAVY_DEBUG
 	Serial.print(F("Brightness: "));
 	Serial.print(brightness);
@@ -863,14 +870,44 @@ void lightFlicker(uint8_t value,uint8_t AState) {
 //	switch (type) {
 //	case 0:
 	// std Flickering
+  cRGB color;
+  if (AState==AS_BLADELOCKUP) { //animate blade in lockup mode
+    // gives 25% chance to flick larger range for better randomization
+    int lockupFlick = random(0,39); 
+    if (lockupFlick < 10) {
+      color.b = brightness * currentColor.r / rgbFactor;
+      color.g = brightness * currentColor.g / rgbFactor;
+      color.r = brightness * currentColor.b / rgbFactor;
+    } else if (lockupFlick < 20) {
+      color.r = brightness * currentColor.r / rgbFactor;
+      color.b = brightness * currentColor.g / rgbFactor;
+      color.g = brightness * currentColor.b / rgbFactor;
+    } else if (lockupFlick < 30) {
+      color.b = brightness * currentColor.r / rgbFactor;
+      color.r = brightness * currentColor.g / rgbFactor;
+      color.g = brightness * currentColor.b / rgbFactor;
+    } else {
+      color.r = brightness * currentColor.r / rgbFactor;
+      color.g = brightness * currentColor.g / rgbFactor;
+      color.b = brightness * currentColor.b / rgbFactor;
+    }
+  } else {  //normal operation
+    color.r = brightness * currentColor.r / rgbFactor;
+    color.g = brightness * currentColor.g / rgbFactor;
+    color.b = brightness * currentColor.b / rgbFactor;
+  }
 
-	cRGB color;
-	color.r = brightness * currentColor.r / rgbFactor;
-	color.g = brightness * currentColor.g / rgbFactor;
-	color.b = brightness * currentColor.b / rgbFactor;
-	for (uint16_t i = 0; i <= NUMPIXELS; i++) {
-		pixels.set_crgb_at(i, color);
-	}
+  for (uint16_t i = 0; i <= NUMPIXELS; i++) {
+//    int instabilityFactor = random (0,100);
+//    cRGB instabilityColor;
+//    instabilityColor.r =255;
+//    instabilityColor.g=255;
+//    instabilityColor.b=255;
+//    if ( !instabilityFactor ) { pixels.set_crgb_at(i, instabilityColor); }
+//    else { 
+      pixels.set_crgb_at(i, color); 
+//    }
+  }
 	pixels.sync();
 
 //		break;
@@ -911,13 +948,13 @@ void lightFlicker(uint8_t value,uint8_t AState) {
  *
  */
 #ifdef COLORS
-void getColor(uint8_t colorID) {
+void getColor(uint8_t color) {
 #else
-void getColor(cRGB colorID) {
+void getColor(cRGB color) {
 #endif
 
 #ifdef COLORS
-  switch (colorID) {
+  switch (color) {
   case 0:
 //Red
     currentColor.r = 100;
@@ -1012,9 +1049,9 @@ void getColor(cRGB colorID) {
     break;
   }
 #else
-    currentColor.r = colorID.r;
-    currentColor.g = colorID.g;
-    currentColor.b = colorID.b;
+    currentColor.r = color.r;
+    currentColor.g = color.g;
+    currentColor.b = color.b;
 #endif
 } //getColor
 
@@ -1050,7 +1087,7 @@ void JukeBox_Stroboscope(cRGB color) {
 #endif
 
 // neopixel ramp code from jbkuma
-void RampNeoPixel(uint16_t RampDuration, bool DirectionUpDown) {
+void RampPixels(uint16_t RampDuration, bool DirectionUpDown) {
   unsigned long ignitionStart = millis();  //record start of ramp function
   cRGB value;
 #ifdef FIREBLADE
@@ -1071,22 +1108,28 @@ void RampNeoPixel(uint16_t RampDuration, bool DirectionUpDown) {
     }    
 #else
   for (unsigned int i = 0; i < NUMPIXELS; i = NUMPIXELS*(millis()-ignitionStart)/RampDuration) { // turn on/off the number of LEDs that match rap timing
+      //generate a flicker effect between 65% and 115% of MAX_BRIGHTNESS, with a 1 in 115 chance of flicking to 0
+      int flickFactor = random(0,115);
+      if (flickFactor < 65 && flickFactor > 0) { flickFactor = 100; } 
      for(uint8_t  j=0; j<NUMPIXELS; j++ ) { // fill up string with data
-      if ((DirectionUpDown and j<=i) or (!DirectionUpDown and j<=NUMPIXELS-1-i)){
-        value.r = MAX_BRIGHTNESS * currentColor.r / rgbFactor;
-        value.g = MAX_BRIGHTNESS * currentColor.g / rgbFactor;
-        value.b = MAX_BRIGHTNESS * currentColor.b / rgbFactor;
-        }
-        else if ((DirectionUpDown and j>i) or (!DirectionUpDown and j>NUMPIXELS-1-i)){
+      if ((DirectionUpDown and j<=i)){
+        value.r = MAX_BRIGHTNESS * i / NUMPIXELS * currentColor.r / rgbFactor * flickFactor / 100;
+        value.g = MAX_BRIGHTNESS * i / NUMPIXELS * currentColor.g / rgbFactor * flickFactor / 100;
+        value.b = MAX_BRIGHTNESS * i / NUMPIXELS * currentColor.b / rgbFactor * flickFactor / 100;
+        } else if (!DirectionUpDown and j<=NUMPIXELS-1-i){
+        value.r = MAX_BRIGHTNESS * (NUMPIXELS - i) / NUMPIXELS * currentColor.r / rgbFactor * flickFactor / 100;
+        value.g = MAX_BRIGHTNESS * (NUMPIXELS - i) / NUMPIXELS * currentColor.g / rgbFactor * flickFactor / 100;
+        value.b = MAX_BRIGHTNESS * (NUMPIXELS - i) / NUMPIXELS * currentColor.b / rgbFactor * flickFactor / 100;
+        } else if ((DirectionUpDown and j>i) or (!DirectionUpDown and j>NUMPIXELS-1-i)){
         value.r=0;
         value.g=0;
         value.b=0;      
-        }      
-        pixels.set_crgb_at(j, value);
-      }
+      }      
+      pixels.set_crgb_at(j, value);
+    }
      pixels.sync(); // Sends the data to the LEDs
      delay(RampDuration/NUMPIXELS); //match the ramp duration to the number of pixels in the string
-    }
+  }
 #endif
 }
 
@@ -1328,3 +1371,75 @@ void fadeAccent() {
 }
 #endif
 #endif
+
+
+void BladeMeter (int meterLevel) {  //expects input of 0-100
+  //normalize data if to max and min if out of range
+  if (meterLevel <= 0) { meterLevel = 0; } 
+  if (meterLevel >= 100) { meterLevel = 100; }
+
+#ifdef LEDSTRINGS // light blade as 6 segment bar graph
+  int ledPins[] = {LS1, LS2, LS3, LS4, LS5, LS6};
+  meterLevel = meterLevel*6/100;
+    for (uint8_t i = 0; i < 6; i++) {
+      if (i <= meterLevel) {
+        digitalWrite(ledPins[i], HIGH);
+      } else {
+        digitalWrite(ledPins[i], LOW);
+      }
+    }
+#endif
+
+#ifdef STAR_LED // light led in gradient from red to green
+  analogWrite(LED_RED, MAX_BRIGHTNESS * (100 - meterLevel) * 255 / 100 / rgbFactor);
+  analogWrite(LED_GREEN, MAX_BRIGHTNESS * meterLevel * 255 / 100 / rgbFactor);
+//  unsigned int meterGreen = meterLevel * 255 / 100;
+//  unsigned int meterRed = (100 - meterLevel) * 255 / 100;
+#endif
+
+#ifdef PIXELBLADE // light blade as 3 color meter proportionate to length
+  cRGB value;
+  //set first pixel for accent LED compatability
+  if (meterLevel < 30) {
+    value.r = MAX_BRIGHTNESS/2;
+    value.g = 0;
+    value.b = 0;
+  } else if (meterLevel < 60) {
+    value.r = MAX_BRIGHTNESS/2*0.8;
+    value.g = MAX_BRIGHTNESS/2*0.6;
+    value.b = 0;
+  } else {
+    value.r = 0;
+    value.g = MAX_BRIGHTNESS/2;
+    value.b = 0;
+  }
+  pixels.set_crgb_at(0, value);
+
+  //set rest of blade
+  for (unsigned int i = 1; i < NUMPIXELS; i++) { // turn on/off one LED at a time
+      if (i < NUMPIXELS * meterLevel / 100){
+        if (i < (30 * NUMPIXELS / 100)) {
+          value.r = MAX_BRIGHTNESS;
+          value.g = 0;
+          value.b = 0;
+        } else if (i < (60 * NUMPIXELS / 100)) {
+          value.r = MAX_BRIGHTNESS;
+          value.g = MAX_BRIGHTNESS;
+          value.b = 0;
+        } else {
+          value.r = 0;
+          value.g = MAX_BRIGHTNESS;
+          value.b = 0;
+        }
+      } else {
+      value.r=0;
+      value.g=0;
+      value.b=0;      
+      }      
+      pixels.set_crgb_at(i, value);
+    }
+    pixels.sync(); // Sends the data to the LEDs
+//    delay(3);
+#endif
+}
+

@@ -9,6 +9,15 @@
 #if not defined CONFIG_H_
 #define CONFIG_H_
 
+/***** Battery meter settings *****/
+#define BATTERY_CHECK // comment to disable
+#define BATTERY_FACTOR 5 // Callibration value to compensate for component variation
+#define BATTERY_READPIN 17 //A3 - read battery level 100kohm from GND, 470kohm from Bat+
+#define LOW_BATTERY 3.3 // low voltage for battery, a 5v Arduino or DIYino requires 3.3v 
+#define FULL_BATTERY 4.15 // full voltage for battery, nominally 4.2 for a 3.7v battery
+//cRGB C1;  //Low meter color
+//cRGB C2;  //middle meter color
+//cRGB C3;  //high meter color
 
 
 /*!!!!!IMPORTANT IMPORTANT IMPORTANT IMPORTANT IMPORTANT!!!
@@ -42,14 +51,14 @@
 /*
  * BLADE TYPE
  *
- * RGB LED OR NEOPIXEL users:
+ * RGB LED OR PIXELBLADE users:
  * Comment the following line will
  * disable and remove all LEDSTRINGS
  * blocks from compile
  *************************************/
 //#define LEDSTRINGS
-//#define LUXEON
-#define NEOPIXEL
+#define STAR_LED
+//#define PIXELBLADE
 
 /************************************/
 /*
@@ -70,6 +79,7 @@
 #define VOL          20
 #define SOUNDFONT       3
 #define SWING         1000
+#define CLASH_THRESHOLD 6 //default 10
 /************************************/
 
 /*
@@ -79,10 +89,10 @@
 #if defined LEDSTRINGS
 #define CONFIG_VERSION     "L01"
 #endif
-#if defined LUXEON
+#if defined STAR_LED
 #define CONFIG_VERSION     "L02"
 #endif
-#if defined NEOPIXEL
+#if defined PIXELBLADE
 #define CONFIG_VERSION     "L03"
 #endif
 #define MEMORYBASE       32
@@ -90,9 +100,9 @@
 /************************************/
 
 
-#define SINGLEBUTTON
+//#define SINGLEBUTTON
 
-#if defined NEOPIXEL
+#if defined PIXELBLADE
 // How many leds in one strip?
 #define NUMPIXELS 120  // can go up to 120, could lead to memory problems if further increased
 
@@ -112,9 +122,9 @@ static const uint8_t rgbFactor = 255;
 // need to define DATA_PIN.  For led chipsets that are SPI based (four wires - data, clock,
 // ground, and power), like the LPD8806 define both DATA_PIN and CLOCK_PIN
 #define DATA_PIN 			13 // D13
-#define STRING1				5
-#define STRING2 			6
-#define STRING3 			9
+//#define STRING1			5
+//#define STRING2 			6
+//#define STRING3 			9
 #endif
 
 
@@ -123,7 +133,7 @@ static const uint8_t rgbFactor = 255;
 
 
 
-#if defined LUXEON
+#if defined STAR_LED
 
 static const uint8_t rgbFactor = 100;
 
@@ -154,7 +164,7 @@ static const uint8_t rgbFactor = 100;
 
 // How long do the light effect last for the different FX's
 #define CLASH_FX_DURATION 200
-#define BLASTER_FX_DURATION 300
+#define BLASTER_FX_DURATION 150
 #define SWING_FX_DURATION 400
 
 
@@ -169,7 +179,7 @@ static const uint8_t rgbFactor = 100;
  */
 #define SWING_SUPPRESS     500
 #define CLASH_SUPRESS     400  // do not modify below 400, otherwise interlocking clash sounds can occur
-#define BLASTERBLOCK_SUPRESS     200
+#define BLASTERBLOCK_SUPRESS     100
 #define HUM_RELAUNCH     5000
 
 /* BLASTER DEFLECT TYPE
@@ -187,11 +197,6 @@ static const uint8_t rgbFactor = 100;
 #define BLATSTERMOVEMENTTRIGGER
 #endif
 
-/* WRIST_MOVEMENTS
- * If you want to enable/disable
- * wrists twists movements
- *************************************/
-//#define WRIST_MOVEMENTS
 
 /* Board definitions
  *  
@@ -207,7 +212,7 @@ static const uint8_t rgbFactor = 100;
  * If you a device with a CPU wich is not
  * an Atmega328 : COMMENT THIS
  *************************************/
-//#define DEEP_SLEEP
+#define DEEP_SLEEP
 #if defined DEEP_SLEEP
 #define SLEEP_TIMER			20000 //20 secs
 
@@ -219,12 +224,12 @@ static const uint8_t rgbFactor = 100;
 
 #if defined LEDSTRINGS
 
-#define LEDSTRING1 			3 //3
-#define LEDSTRING2 			5 //5
-#define LEDSTRING3 			6  //6
-#define LEDSTRING4 			9  //9
-#define LEDSTRING5 			10  //10
-#define LEDSTRING6 			11 //11
+#define LS1 			3 //3
+#define LS2 			5 //5
+#define LS3 			6  //6
+#define LS4 			9  //9
+#define LS5 			10  //10
+#define LS6 			11 //11
 
 /*
  * FoCSTRING
@@ -234,28 +239,42 @@ static const uint8_t rgbFactor = 100;
 //#define FoCSTRING			14
 #endif
 
-#ifdef NEOPIXELS
+#ifdef PIXELBLADE
 
-#define LS1       3
-#define LS2       5
-#define LS3       6
-#define LS4       9
-#define LS5       10
-#define LS6       11
-
+  #ifdef DIYINO_PRIME
+    #define LS1       3
+    #define LS2       5
+    #define LS3       6
+    #define LS4       9
+    #define LS5       10
+    #define LS6       11
+  #else if DIYINO_STARDUST
+    #define LS1       5
+    #define LS2       6
+    #define LS3      9
+  #endif
 #endif
-#if defined LUXEON
+#if defined STAR_LED
 
-#define LED_RED 			3
-#define LED_GREEN 			5
-#define LED_BLUE 			6
+  #ifdef DIYINO_PRIME 
+    #define LED_RED       3
+    #define LED_GREEN       5
+    #define LED_BLUE      6
+  #else if DIYINO_STARDUST
+    #define LED_RED 			5
+    #define LED_GREEN 			6
+    #define LED_BLUE 			9
+  #endif
 #endif
 
 
-#ifdef DIYINO_PRIME or DIYINO_STARDUST
+#ifdef DIYINO_PRIME 
   #define MP3_PSWITCH 15
   #define FTDI_PSWITCH 16
-#endif // DIYINO_PRIME or DIYINO_STARDUST
+#else if DIYINO_STARDUST 
+  #define MP3_PSWITCH 16
+  #define FTDI_PSWITCH 4
+#endif
 
 /*
  * ACCENT_LED
@@ -307,8 +326,13 @@ static const uint8_t rgbFactor = 100;
 #define SPK2				21 //A7
 
 
-#define MAIN_BUTTON			12
-#define LOCKUP_BUTTON		4
+#ifdef DIYINO_PRIME 
+  #define MAIN_BUTTON			12
+  #define LOCKUP_BUTTON		4
+#else if DIYINO_STARDUST
+  #define MAIN_BUTTON      12
+  #define LOCKUP_BUTTON   2
+#endif
 
 #define BUZZMOTOR  17 //A3
 #define BUTTONLEDPIN 16 //A2
@@ -318,12 +342,12 @@ static const uint8_t rgbFactor = 100;
  * CONFIG MENU PARAMETERS
  */
 #define JUKEBOX
-#if defined LUXEON
+#if defined STAR_LED
 #define CONFIG_BLADE_MAIN_COLOR
 #define CONFIG_BLADE_CLASH_COLOR
 #endif
 
-#if defined NEOPIXELS
+#if defined PIXELBLADES
 #define CONFIG_BLADE_MAIN_COLOR
 #define CONFIG_BLADE_CLASH_COLOR
 #define CONFIG_POWERON_EFFECT

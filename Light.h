@@ -32,6 +32,8 @@ struct softPWM {
 // ===              	    			LED FUNCTIONS		                		===
 // ====================================================================================
 
+void BladeMeter (int meterLevel); 
+
 #if defined LEDSTRINGS
 
 void lightOn(uint8_t ledPins[], int8_t segment = -1);
@@ -48,28 +50,33 @@ void lightFlicker(uint8_t ledPins[], uint8_t type, uint8_t value = 0,uint8_t ASt
     void JukeBox_Stroboscope(uint8_t ledPins[]);
   #endif
 #endif
-#if defined LUXEON
+#if defined STAR_LED
 
-void lightOn(uint8_t ledPins[], uint8_t color[]);
+void lightOn(uint8_t ledPins[], cRGB color);
 void lightOff(uint8_t ledPins[]);
-cRGB ColorMixing(cRGB color);
+#ifndef COLORS
+void ColorMixing(cRGB colorID, int8_t mod, uint8_t maxBrightness=MAX_BRIGHTNESS, bool Saturate=false);
+#endif
+void lightIgnition(uint8_t ledPins[], cRGB color, uint16_t time);
+void lightRetract(uint8_t ledPins[], cRGB color, uint16_t time);
 
-void lightIgnition(uint8_t ledPins[], uint8_t color[], uint16_t time);
-void lightRetract(uint8_t ledPins[], uint8_t color[], uint16_t time);
+void lightFlicker(uint8_t ledPins[], cRGB color, uint8_t value = 0);
 
-void lightFlicker(uint8_t ledPins[], uint8_t color[], uint8_t value = 0);
-
-void getColor(uint8_t color[], uint8_t colorID); //getColor
+#ifdef COLORS
+void getColor(uint8_t color); //getColor
+#else
+void getColor(cRGB color); //getColor
+#endif
 
 #ifdef JUKEBOX
     void JukeBox_Stroboscope();
 #endif
-#endif
+#endif  //  STAR_LED
 
-#if defined NEOPIXEL
+#if defined PIXELBLADE
 
-void neopixels_stripeKillKey_Enable();
-void neopixels_stripeKillKey_Disable();
+void pixelblade_KillKey_Enable();
+void pixelblade_KillKey_Disable();
 
 void lightOn(cRGB color, int8_t StartPixel=-1, int8_t StopPixel=-1);
 void lightOff();
@@ -85,12 +92,12 @@ void lightBlasterEffect( uint8_t pixel, uint8_t range, cRGB SndFnt_MainColor);
 void lightFlicker( uint8_t value = 0,uint8_t AState=0);
 
 #ifdef COLORS
-void getColor(uint8_t colorID); //getColor
+void getColor(uint8_t color); //getColor
 #else
-void getColor(cRGB colorID); //getColor
+void getColor(cRGB color); //getColor
 void ColorMixing(cRGB colorID, int8_t mod, uint8_t maxBrightness=MAX_BRIGHTNESS, bool Saturate=false);
 #endif
-void RampNeoPixel(uint16_t RampDuration, bool DirectionUpDown);
+void RampPixels(uint16_t RampDuration, bool DirectionUpDown);
 
 #ifdef FIREBLADE
 void FireBlade();

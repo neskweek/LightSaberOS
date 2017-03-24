@@ -15,7 +15,7 @@
 extern SoundFont soundFont;
 enum SaberStateEnum {S_STANDBY, S_SABERON, S_CONFIG, S_SLEEP, S_JUKEBOX};
 enum ActionModeSubStatesEnum {AS_HUM, AS_IGNITION, AS_RETRACTION, AS_BLADELOCKUP, AS_PREBLADELOCKUP, AS_BLASTERDEFLECTMOTION, AS_BLASTERDEFLECTPRESS, AS_CLASH, AS_SWING, AS_SPIN, AS_FORCE};
-enum ConfigModeSubStatesEnum {CS_VOLUME, CS_SOUNDFONT, CS_MAINCOLOR, CS_CLASHCOLOR, CS_BLASTCOLOR, CS_FLICKERTYPE, CS_IGNITIONTYPE, CS_RETRACTTYPE, CS_SLEEPINIT};
+enum ConfigModeSubStatesEnum {CS_VOLUME, CS_SOUNDFONT, CS_MAINCOLOR, CS_CLASHCOLOR, CS_BLASTCOLOR, CS_FLICKERTYPE, CS_IGNITIONTYPE, CS_RETRACTTYPE, CS_SLEEPINIT, CS_BATTERYLEVEL};
 extern SaberStateEnum SaberState;
 extern SaberStateEnum PrevSaberState;
 extern ActionModeSubStatesEnum ActionModeSubStates;
@@ -38,11 +38,12 @@ extern bool enterMenu;
 #if defined LEDSTRINGS
 extern uint8_t ledPins[];
 #endif
-#if defined LUXEON
+#if defined STAR_LED
 extern uint8_t ledPins[];
-extern uint8_t currentColor[4]; //0:Red 1:Green 2:Blue 3:ColorID
+extern cRGB currentColor;
+//extern uint8_t currentColor[4]; //0:Red 1:Green 2:Blue 3:ColorID
 #endif
-#if defined NEOPIXEL
+#if defined PIXELBLADE
 extern uint8_t ledPins[];
 extern cRGB color;
 extern cRGB currentColor;
@@ -69,7 +70,7 @@ extern struct StoreStruct {
   uint8_t soundFont; // as many Sound font you have defined in Soundfont.h Max:253
 } storage;
 #endif
-#if defined LUXEON
+#if defined STAR_LED
 extern struct StoreStruct {
   // This is for mere detection if they are our settings
   char version[5];
@@ -80,17 +81,17 @@ extern struct StoreStruct {
   #ifdef COLORS
     uint8_t mainColor;  //colorID
     uint8_t clashColor;//colorID
-    uint8_t blasterboltColor;
-  #else  // not COLORS
+    uint8_t blasterboltColor;//colorID
+  #else
     cRGB mainColor;
     cRGB clashColor;
     cRGB blasterboltColor;
-  #endif // COLORS
+  #endif
   }sndProfile[SOUNDFONT_QUANTITY + 2];
 }storage;
-#endif  // LUXEON
+#endif  // STAR_LED
 
-#if defined NEOPIXEL
+#if defined PIXELBLADE
 extern struct StoreStruct {
   // This is for mere detection if they are our settings
   char version[5];
@@ -98,18 +99,18 @@ extern struct StoreStruct {
   uint8_t volume;// 0 to 31
   uint8_t soundFont;// as many as Sound font you have defined in Soundfont.h Max:253
   struct Profile {
-#ifdef COLORS
+  #ifdef COLORS
     uint8_t mainColor;  //colorID
     uint8_t clashColor;//colorID
-    uint8_t blasterboltColor;
-#else
+    uint8_t blasterboltColor;//colorID
+  #else
     cRGB mainColor;
     cRGB clashColor;
     cRGB blasterboltColor;
-#endif
+  #endif
   }sndProfile[SOUNDFONT_QUANTITY + 2];
 }storage;
-#endif // NEOPIXEL
+#endif // PIXELBLADE
 // ====================================================================================
 // ===               			BUTTONS CALLBACK FUNCTIONS                 			===
 // ====================================================================================
@@ -151,8 +152,9 @@ void mainClick() {
     SinglePlay_Sound(1);
     delay(50);
     if (ConfigModeSubStates == CS_VOLUME) {
-      confParseValue(storage.volume, 0, 31, 1);
+      confParseValue(storage.volume, 0, 30, 1);
       storage.volume = value;
+      BladeMeter(value*100/30);
       Set_Volume();
       #if defined LS_INFO
               Serial.println(storage.volume);
@@ -164,6 +166,18 @@ void mainClick() {
       storage.soundFont = value;
       soundFont.setID(value);
       SinglePlay_Sound(soundFont.getMenu());
+          #if defined STAR_LED
+            getColor(storage.sndProfile[storage.soundFont].mainColor);
+            lightOn(ledPins, currentColor);
+          #endif  // STAR_LED
+          #if defined PIXELBLADE
+            getColor(storage.sndProfile[storage.soundFont].mainColor);
+            for (uint8_t i = 0; i < 6; i++) {
+              digitalWrite(ledPins[i], HIGH);
+            }
+              lightOn(currentColor);
+          #endif  // PIXELBLADE
+
       delay(150);
       #if defined LS_INFO
               Serial.println(soundFont.getID());
@@ -173,82 +187,82 @@ void mainClick() {
     else if (ConfigModeSubStates == CS_MAINCOLOR) {
       confParseValue(storage.sndProfile[storage.soundFont].mainColor, 0, COLORS - 1, 1);
       storage.sndProfile[storage.soundFont].mainColor =value;
-      #ifdef LUXEON
-        getColor(currentColor, storage.sndProfile[storage.soundFont].mainColor);
+      #ifdef STAR_LED
+        getColor(storage.sndProfile[storage.soundFont].mainColor);
         lightOn(ledPins, currentColor);
-      #endif // LUXEON
-      #ifdef NEOPIXEL
+      #endif // STAR_LED
+      #ifdef PIXELBLADE
         getColor(storage.sndProfile[storage.soundFont].mainColor);
         lightOn(currentColor);
-      #endif  // NEOPIXEL
+      #endif  // PIXELBLADE
     }
     else if (ConfigModeSubStates == CS_CLASHCOLOR) {
       confParseValue(storage.sndProfile[storage.soundFont].clashColor, 0, COLORS - 1, 1);
       storage.sndProfile[storage.soundFont].clashColor =value;
-      #ifdef LUXEON
-        getColor(currentColor, storage.sndProfile[storage.soundFont].clashColor);
+      #ifdef STAR_LED
+        getColor(storage.sndProfile[storage.soundFont].clashColor);
         lightOn(ledPins, currentColor);
-      #endif // LUXEON
-      #ifdef NEOPIXEL
+      #endif // STAR_LED
+      #ifdef PIXELBLADE
         getColor(storage.sndProfile[storage.soundFont].clashColor);
         lightOn(currentColor);
-      #endif  // NEOPIXEL
+      #endif  // PIXELBLADE
     }
     else if (ConfigModeSubStates == CS_BLASTCOLOR) {
       confParseValue(storage.sndProfile[storage.soundFont].blasterboltColor, 0, COLORS - 1, 1);
       storage.sndProfile[storage.soundFont].blasterboltColor =value;
-      #ifdef LUXEON
-        getColor(currentColor, storage.sndProfile[storage.soundFont].blasterboltColor);
+      #ifdef STAR_LED
+        getColor(storage.sndProfile[storage.soundFont].blasterboltColor);
         lightOn(ledPins, currentColor);
-      #endif // LUXEON
-      #ifdef NEOPIXEL
+      #endif // STAR_LED
+      #ifdef PIXELBLADE
         getColor(storage.sndProfile[storage.soundFont].blasterboltColor);
         lightOn(currentColor);
-      #endif  // NEOPIXEL
+      #endif  // PIXELBLADE
     }
     //modification=0;  // reset config mode change indicator 
 #else // not COLORS
-    #ifdef NEOPIXEL or LUXEON
+    #if defined(PIXELBLADE) or defined(STAR_LED)
     else if (ConfigModeSubStates == CS_MAINCOLOR) {
       ColorMixing(storage.sndProfile[storage.soundFont].mainColor,modification, MAX_BRIGHTNESS, true);
       storage.sndProfile[storage.soundFont].mainColor.r=currentColor.r;
       storage.sndProfile[storage.soundFont].mainColor.g=currentColor.g;
       storage.sndProfile[storage.soundFont].mainColor.b=currentColor.b;
-      #ifdef LUXEON
-        getColor(currentColor, storage.sndProfile[storage.soundFont].mainColor);
+      #ifdef STAR_LED
+        getColor(storage.sndProfile[storage.soundFont].mainColor);
         lightOn(ledPins, currentColor);
-      #endif // LUXEON
-      #ifdef NEOPIXEL
+      #endif // STAR_LED
+      #ifdef PIXELBLADE
         lightOn(currentColor, NUMPIXELS/2, NUMPIXELS-6);
-      #endif  // NEOPIXEL
+      #endif  // PIXELBLADE
     }
     else if (ConfigModeSubStates == CS_CLASHCOLOR) {
       ColorMixing(storage.sndProfile[storage.soundFont].clashColor,modification, MAX_BRIGHTNESS, true);
       storage.sndProfile[storage.soundFont].clashColor.r=currentColor.r;
       storage.sndProfile[storage.soundFont].clashColor.g=currentColor.g;
       storage.sndProfile[storage.soundFont].clashColor.b=currentColor.b;
-      #ifdef LUXEON
-        getColor(currentColor, storage.sndProfile[storage.soundFont].clashColor);
+      #ifdef STAR_LED
+        getColor(storage.sndProfile[storage.soundFont].clashColor);
         lightOn(ledPins, currentColor);
-      #endif // LUXEON
-      #ifdef NEOPIXEL
+      #endif // STAR_LED
+      #ifdef PIXELBLADE
         lightOn(currentColor, 1, NUMPIXELS/2-1);
-      #endif  // NEOPIXEL
+      #endif  // PIXELBLADE
     }
     else if (ConfigModeSubStates == CS_BLASTCOLOR) {
       ColorMixing(storage.sndProfile[storage.soundFont].blasterboltColor,modification, MAX_BRIGHTNESS, true);
       storage.sndProfile[storage.soundFont].blasterboltColor.r=currentColor.r;
       storage.sndProfile[storage.soundFont].blasterboltColor.g=currentColor.g;
       storage.sndProfile[storage.soundFont].blasterboltColor.b=currentColor.b;
-      #ifdef LUXEON
-        getColor(currentColor, storage.sndProfile[storage.soundFont].blasterboltColor);
+      #ifdef STAR_LED
+        getColor(storage.sndProfile[storage.soundFont].blasterboltColor);
         lightOn(ledPins, currentColor);
-      #endif // LUXEON
-      #ifdef NEOPIXEL
+      #endif // STAR_LED
+      #ifdef PIXELBLADE
         lightOn(currentColor, NUMPIXELS*3/4-5, NUMPIXELS*3/4);
-      #endif  // NEOPIXEL
+      #endif  // PIXELBLADE
     }
-    #endif // NEOPIXEL or LUXEON
+    #endif // PIXELBLADE or STAR_LED
 #endif // COLORS/not COLORS   
 	}
 	else if (SaberState==S_STANDBY) {
@@ -322,12 +336,36 @@ void mainDoubleClick() {
 } else if (SaberState==S_CONFIG) {
 // Change Menu
     switch(ConfigModeSubStates) {
+      case CS_BATTERYLEVEL:
+      #if defined STAR_LED
+          lightOff(ledPins);
+      #else
+          lightOff();
+      #endif        
+        ConfigModeSubStates=CS_SOUNDFONT;
+        SinglePlay_Sound(5);
+        delay(600);
+        SinglePlay_Sound(soundFont.getMenu());
+          #if defined STAR_LED
+            getColor(currentColor, storage.sndProfile[storage.soundFont].mainColor);
+            lightOn(ledPins, currentColor);
+          #endif  // STAR_LED
+          #if defined PIXELBLADE
+            getColor(storage.sndProfile[storage.soundFont].mainColor);
+            for (uint8_t i = 0; i < 6; i++) {
+              digitalWrite(ledPins[i], HIGH);
+            }
+              lightOn(currentColor);
+          #endif  // PIXELBLADE
+        delay(500);        
+        break;
       case CS_SOUNDFONT:
         #ifdef LEDSTRINGS
           #if defined LS_FSM
             Serial.print(F("Volume"));
           #endif  
           ConfigModeSubStates=CS_VOLUME;
+          BladeMeter(storage.volume*100/30);
           SinglePlay_Sound(4);
           delay(500);
         #else
@@ -337,11 +375,11 @@ void mainDoubleClick() {
           #if defined LS_FSM
             Serial.print(F("Main color"));
           #endif        
-          #if defined LUXEON
+          #if defined STAR_LED
             getColor(currentColor, storage.sndProfile[storage.soundFont].mainColor);
             lightOn(ledPins, currentColor);
-          #endif  // LUXEON
-          #if defined NEOPIXEL
+          #endif  // STAR_LED
+          #if defined PIXELBLADE
             getColor(storage.sndProfile[storage.soundFont].mainColor);
             for (uint8_t i = 0; i < 6; i++) {
               digitalWrite(ledPins[i], HIGH);
@@ -351,13 +389,56 @@ void mainDoubleClick() {
             #else  // not COLORS
               lightOn(currentColor, NUMPIXELS/2, NUMPIXELS-6);
             #endif 
-          #endif  // NEOPIXEL
+          #endif  // PIXELBLADE
         #endif // is/isnot LEDSTRINGS
         break;
+    #ifdef DEEP_SLEEP
+      case CS_SLEEPINIT:
+          ConfigModeSubStates=CS_SOUNDFONT;
+          SinglePlay_Sound(5);
+          delay(600);
+          SinglePlay_Sound(soundFont.getMenu());
+          #if defined STAR_LED
+            getColor(currentColor, storage.sndProfile[storage.soundFont].mainColor);
+            lightOn(ledPins, currentColor);
+          #endif  // STAR_LED
+          #if defined PIXELBLADE
+            getColor(storage.sndProfile[storage.soundFont].mainColor);
+            for (uint8_t i = 0; i < 6; i++) {
+              digitalWrite(ledPins[i], HIGH);
+            }
+              lightOn(currentColor);
+          #endif  // PIXELBLADE
+          delay(500);      
+          break;
+    #endif // DEEP_SLEEP
       case CS_VOLUME:
-        ConfigModeSubStates=CS_SOUNDFONT;
-        SinglePlay_Sound(5);
-        delay(500);        
+        #ifdef DEEP_SLEEP
+          ConfigModeSubStates=CS_SLEEPINIT;
+          // repeat a beep 2 times
+          SinglePlay_Sound(1);
+          delay(500);
+          SinglePlay_Sound(1);
+          delay(500);
+        #else // no sleep mode capability
+          lightOff();
+          ConfigModeSubStates=CS_SOUNDFONT;
+          SinglePlay_Sound(5);
+          delay(600);
+          SinglePlay_Sound(soundFont.getMenu());
+            #if defined STAR_LED
+              getColor(currentColor, storage.sndProfile[storage.soundFont].mainColor);
+              lightOn(ledPins, currentColor);
+            #endif  // STAR_LED
+            #if defined PIXELBLADE
+              getColor(storage.sndProfile[storage.soundFont].mainColor);
+              for (uint8_t i = 0; i < 6; i++) {
+                digitalWrite(ledPins[i], HIGH);
+              }
+                lightOn(currentColor);
+            #endif  // PIXELBLADE
+          delay(500);
+        #endif // DEEP_SLEEP        
         break;
       case CS_MAINCOLOR:
         ConfigModeSubStates=CS_CLASHCOLOR;
@@ -366,11 +447,11 @@ void mainDoubleClick() {
         #if defined LS_FSM
           Serial.print(F("Clash color"));
         #endif        
-        #if defined LUXEON
+        #if defined STAR_LED
           getColor(currentColor, storage.sndProfile[storage.soundFont].clashColor);
           lightOn(ledPins, currentColor);
-        #endif  // LUXEON
-        #if defined NEOPIXEL
+        #endif  // STAR_LED
+        #if defined PIXELBLADE
           getColor(storage.sndProfile[storage.soundFont].clashColor);
           for (uint8_t i = 0; i < 6; i++) {
             digitalWrite(ledPins[i], HIGH);
@@ -380,7 +461,7 @@ void mainDoubleClick() {
             #else  // not COLORS
               lightOn(currentColor, 1, NUMPIXELS/2-1);
             #endif 
-         #endif  // NEOPIXEL
+         #endif  // PIXELBLADE
         break;
       case CS_CLASHCOLOR:
         ConfigModeSubStates=CS_BLASTCOLOR;
@@ -389,11 +470,11 @@ void mainDoubleClick() {
         #if defined LS_FSM
           Serial.print(F("Blaster color"));
         #endif        
-        #if defined LUXEON
+        #if defined STAR_LED
           getColor(currentColor, storage.sndProfile[storage.soundFont].blasterboltColor);
           lightOn(ledPins, currentColor);
-        #endif  // LUXEON
-        #if defined NEOPIXEL
+        #endif  // STAR_LED
+        #if defined PIXELBLADE
           getColor(storage.sndProfile[storage.soundFont].blasterboltColor);
           for (uint8_t i = 0; i < 6; i++) {
             digitalWrite(ledPins[i], HIGH);
@@ -403,13 +484,14 @@ void mainDoubleClick() {
             #else  // not COLORS
               lightOn(currentColor, NUMPIXELS*3/4-5, NUMPIXELS*3/4);
             #endif 
-         #endif  // NEOPIXEL
+         #endif  // PIXELBLADE
         break;
       case CS_BLASTCOLOR:
         #if defined LS_FSM
           Serial.print(F("Volume"));
         #endif  
         ConfigModeSubStates=CS_VOLUME;
+        BladeMeter(storage.volume*100/30);
         SinglePlay_Sound(4);
         delay(500); 
         break;   
@@ -443,11 +525,11 @@ void mainDoubleClick() {
         #if defined LS_FSM
           Serial.print(F("Clash color"));
         #endif        
-        #if defined LUXEON
+        #if defined STAR_LED
           getColor(currentColor, storage.sndProfile[storage.soundFont].clashColor);
           lightOn(ledPins, currentColor);
-        #endif  // LUXEON
-        #if defined NEOPIXEL
+        #endif  // STAR_LED
+        #if defined PIXELBLADE
           getColor(storage.sndProfile[storage.soundFont].clashColor);
           for (uint8_t i = 0; i < 6; i++) {
             digitalWrite(ledPins[i], HIGH);
@@ -457,7 +539,7 @@ void mainDoubleClick() {
             #else  // not COLORS
               lightOn(currentColor, 1, NUMPIXELS/2-1);
             #endif 
-         #endif  // NEOPIXEL
+         #endif  // PIXELBLADE
         break;
       case CS_CLASHCOLOR:
         ConfigModeSubStates=CS_BLASTCOLOR;
@@ -466,11 +548,11 @@ void mainDoubleClick() {
         #if defined LS_FSM
           Serial.print(F("Blaster color"));
         #endif        
-        #if defined LUXEON
+        #if defined STAR_LED
           getColor(currentColor, storage.sndProfile[storage.soundFont].blasterboltColor);
           lightOn(ledPins, currentColor);
-        #endif  // LUXEON
-        #if defined NEOPIXEL
+        #endif  // STAR_LED
+        #if defined PIXELBLADE
           getColor(storage.sndProfile[storage.soundFont].blasterboltColor);
           for (uint8_t i = 0; i < 6; i++) {
             digitalWrite(ledPins[i], HIGH);
@@ -480,7 +562,7 @@ void mainDoubleClick() {
             #else  // not COLORS
               lightOn(currentColor, NUMPIXELS*3/4-5, NUMPIXELS*3/4);
             #endif 
-         #endif  // NEOPIXEL
+         #endif  // PIXELBLADE
         break;
       case CS_BLASTCOLOR:
         #if defined LS_FSM
@@ -507,12 +589,32 @@ void mainLongPressStart() {
 #ifndef SINGLEBUTTON
 // Change Menu
     switch(ConfigModeSubStates) {
+      case CS_BATTERYLEVEL:
+        ConfigModeSubStates=CS_SOUNDFONT;
+        SinglePlay_Sound(5);
+        delay(600);
+        SinglePlay_Sound(soundFont.getMenu());
+          #if defined STAR_LED
+            getColor(storage.sndProfile[storage.soundFont].mainColor);
+            lightOn(ledPins, currentColor);
+          #endif  // STAR_LED
+          #if defined PIXELBLADE
+            lightOff();
+            getColor(storage.sndProfile[storage.soundFont].mainColor);
+            for (uint8_t i = 0; i < 6; i++) {
+              digitalWrite(ledPins[i], HIGH);
+            }
+              lightOn(currentColor);
+          #endif  // PIXELBLADE
+        delay(500);        
+        break;
       case CS_SOUNDFONT:
         #ifdef LEDSTRINGS
           #if defined LS_FSM
             Serial.print(F("Volume"));
           #endif  
           ConfigModeSubStates=CS_VOLUME;
+          BladeMeter(storage.volume*100/30);
           SinglePlay_Sound(4);
           delay(500);
         #else  // not LEDSTRINGS
@@ -522,11 +624,11 @@ void mainLongPressStart() {
           #if defined LS_FSM
             Serial.print(F("Main color"));
           #endif        
-          #if defined LUXEON
-            getColor(currentColor, storage.sndProfile[storage.soundFont].mainColor);
+          #if defined STAR_LED
+              getColor(storage.sndProfile[storage.soundFont].mainColor);
             lightOn(ledPins, currentColor);
-          #endif  // LUXEON
-          #if defined NEOPIXEL
+          #endif  // STAR_LED
+          #if defined PIXELBLADE
             getColor(storage.sndProfile[storage.soundFont].mainColor);
             for (uint8_t i = 0; i < 6; i++) {
               digitalWrite(ledPins[i], HIGH);
@@ -536,7 +638,7 @@ void mainLongPressStart() {
             #else  // not COLORS
               lightOn(currentColor, NUMPIXELS/2, NUMPIXELS-6);
             #endif 
-          #endif  // NEOPIXEL
+          #endif  // PIXELBLADE
         #endif // is/isnot LEDSTRINGS
         break;
       case CS_VOLUME:
@@ -550,6 +652,20 @@ void mainLongPressStart() {
         #else // no sleep mode capability
           ConfigModeSubStates=CS_SOUNDFONT;
           SinglePlay_Sound(5);
+          delay(600);
+          SinglePlay_Sound(soundFont.getMenu());
+          #if defined STAR_LED
+            getColor(currentColor, storage.sndProfile[storage.soundFont].mainColor);
+            lightOn(ledPins, currentColor);
+          #endif  // STAR_LED
+          #if defined PIXELBLADE
+            lightOff();
+            getColor(storage.sndProfile[storage.soundFont].mainColor);
+            for (uint8_t i = 0; i < 6; i++) {
+              digitalWrite(ledPins[i], HIGH);
+            }
+              lightOn(currentColor);
+          #endif  // PIXELBLADE
           delay(500);      
         #endif  // DEEP_SLEEP
         break;
@@ -560,11 +676,11 @@ void mainLongPressStart() {
         #if defined LS_FSM
           Serial.print(F("Clash color"));
         #endif        
-        #if defined LUXEON
-          getColor(currentColor, storage.sndProfile[storage.soundFont].clashColor);
+        #if defined STAR_LED
+          getColor(storage.sndProfile[storage.soundFont].clashColor);
           lightOn(ledPins, currentColor);
-        #endif  // LUXEON
-        #if defined NEOPIXEL
+        #endif  // STAR_LED
+        #if defined PIXELBLADE
           getColor(storage.sndProfile[storage.soundFont].clashColor);
           for (uint8_t i = 0; i < 6; i++) {
             digitalWrite(ledPins[i], HIGH);
@@ -574,7 +690,7 @@ void mainLongPressStart() {
             #else  // not COLORS
               lightOn(currentColor, 1, NUMPIXELS/2-1);
             #endif 
-         #endif  // NEOPIXEL
+         #endif  // PIXELBLADE
         break;
       case CS_CLASHCOLOR:
         ConfigModeSubStates=CS_BLASTCOLOR;
@@ -583,11 +699,11 @@ void mainLongPressStart() {
         #if defined LS_FSM
           Serial.print(F("Blaster color"));
         #endif        
-        #if defined LUXEON
-          getColor(currentColor, storage.sndProfile[storage.soundFont].blasterboltColor);
+        #if defined STAR_LED
+          getColor(storage.sndProfile[storage.soundFont].blasterboltColor);
           lightOn(ledPins, currentColor);
-        #endif  // LUXEON
-        #if defined NEOPIXEL
+        #endif  // STAR_LED
+        #if defined PIXELBLADE
           getColor(storage.sndProfile[storage.soundFont].blasterboltColor);
           for (uint8_t i = 0; i < 6; i++) {
             digitalWrite(ledPins[i], HIGH);
@@ -597,13 +713,14 @@ void mainLongPressStart() {
             #else  // not COLORS
               lightOn(currentColor, NUMPIXELS*3/4-5, NUMPIXELS*3/4);
             #endif 
-         #endif  // NEOPIXEL
+         #endif  // PIXELBLADE
         break;
       case CS_BLASTCOLOR:
         #if defined LS_FSM
           Serial.print(F("Volume"));
         #endif  
         ConfigModeSubStates=CS_VOLUME;
+        BladeMeter(storage.volume*100/30);
         SinglePlay_Sound(4);
         delay(500); 
         break;   
@@ -611,6 +728,19 @@ void mainLongPressStart() {
       case CS_SLEEPINIT:
           ConfigModeSubStates=CS_SOUNDFONT;
           SinglePlay_Sound(5);
+          delay(600);
+          SinglePlay_Sound(soundFont.getMenu());
+          #if defined STAR_LED
+              getColor(storage.sndProfile[storage.soundFont].mainColor);
+            lightOn(ledPins, currentColor);
+          #endif  // STAR_LED
+          #if defined PIXELBLADE
+            getColor(storage.sndProfile[storage.soundFont].mainColor);
+            for (uint8_t i = 0; i < 6; i++) {
+              digitalWrite(ledPins[i], HIGH);
+            }
+              lightOn(currentColor);
+          #endif  // PIXELBLADE
           delay(500);      
           break;
       #endif // DEEP_SLEEP
@@ -621,8 +751,8 @@ void mainLongPressStart() {
     changeMenu = false;
     SaberState=S_STANDBY;
     PrevSaberState=S_CONFIG;
-    #ifdef NEOPIXEL
-      neopixels_stripeKillKey_Disable();
+    #ifdef PIXELBLADE
+      pixelblade_KillKey_Disable();
     #endif
   }
 #endif
@@ -651,8 +781,8 @@ void mainLongPressStart() {
     //Entering Config Mode
     SaberState=S_CONFIG;
     PrevSaberState=S_STANDBY; 
-    #ifdef NEOPIXEL 
-      neopixels_stripeKillKey_Enable();     
+    #ifdef PIXELBLADE 
+      pixelblade_KillKey_Enable();     
     #endif
 	}
 #endif
@@ -664,7 +794,7 @@ void mainLongPress() {
 #endif
 	if (SaberState==S_SABERON) {
 	} else if (SaberState==S_CONFIG) {
-    #ifdef NEOPIXEL or LUXEON
+    #if defined(PIXELBLADE) or defined(STAR_LED)
     #ifndef COLORS
     //if (ConfigModeSubStates==CS_MAINCOLOR or ConfigModeSubStates==CS_CLASHCOLOR or ConfigModeSubStates==CS_BLASTCOLOR) {
     //  modification=GravityVector();
@@ -675,7 +805,11 @@ void mainLongPress() {
       storage.sndProfile[storage.soundFont].mainColor.r=currentColor.r;
       storage.sndProfile[storage.soundFont].mainColor.g=currentColor.g;
       storage.sndProfile[storage.soundFont].mainColor.b=currentColor.b;
-      lightOn(currentColor, NUMPIXELS/2, NUMPIXELS-6);
+          #ifdef PIXELBLADE
+            lightOn(currentColor, NUMPIXELS/2, NUMPIXELS-6);
+          #else if STAR_LED
+            lightOn(ledPins, currentColor);
+          #endif
       delay(50);
     
       }
@@ -684,7 +818,11 @@ void mainLongPress() {
       storage.sndProfile[storage.soundFont].clashColor.r=currentColor.r;
       storage.sndProfile[storage.soundFont].clashColor.g=currentColor.g;
       storage.sndProfile[storage.soundFont].clashColor.b=currentColor.b;
-      lightOn(currentColor, 1, NUMPIXELS/2-1);
+          #ifdef PIXELBLADE
+            lightOn(currentColor, 1, NUMPIXELS/2-1);
+          #else if STAR_LED
+            lightOn(ledPins, currentColor);
+          #endif
       delay(50);
     }
     else if (ConfigModeSubStates==CS_BLASTCOLOR) {
@@ -692,11 +830,15 @@ void mainLongPress() {
       storage.sndProfile[storage.soundFont].blasterboltColor.r=currentColor.r;
       storage.sndProfile[storage.soundFont].blasterboltColor.g=currentColor.g;
       storage.sndProfile[storage.soundFont].blasterboltColor.b=currentColor.b;
-      lightOn(currentColor, NUMPIXELS*3/4-5, NUMPIXELS*3/4);
+          #ifdef PIXELBLADE
+            lightOn(currentColor, NUMPIXELS*3/4-5, NUMPIXELS*3/4);
+          #else if STAR_LED
+            lightOn(ledPins, currentColor);
+          #endif
       delay(50);
     }
   #endif // not COLORS
-  #endif // NEOPIXEL or LUXEON
+  #endif // PIXELBLADE or STAR_LED
 	}
 	else if (SaberState==S_STANDBY) {
 		/*
@@ -727,8 +869,9 @@ void lockupClick() {
       delay(50);
     if (ConfigModeSubStates == CS_VOLUME) {
       //play=true;
-      confParseValue(storage.volume, 0, 31, -1);
+      confParseValue(storage.volume, 0, 30, -1);
       storage.volume = value;
+      BladeMeter(storage.volume*100/30);
       #ifdef OLD_DPFPLAYER_LIB
         mp3_set_volume (storage.volume);
       #else
@@ -745,6 +888,22 @@ void lockupClick() {
       storage.soundFont = value;
       soundFont.setID(value);
       SinglePlay_Sound(soundFont.getMenu());
+          #if defined STAR_LED
+            #ifdef COLORS
+              getColor(storage.sndProfile[storage.soundFont].mainColor);
+            #else
+              getColor(storage.sndProfile[storage.soundFont].mainColor);
+            #endif
+            lightOn(ledPins, currentColor);
+          #endif  // STAR_LED
+          #if defined PIXELBLADE
+            getColor(storage.sndProfile[storage.soundFont].mainColor);
+            for (uint8_t i = 0; i < 6; i++) {
+              digitalWrite(ledPins[i], HIGH);
+            }
+              lightOn(currentColor);
+          #endif  // PIXELBLADE
+
       delay(150);
       #if defined LS_INFO
         Serial.println(soundFont.getID());
@@ -754,81 +913,81 @@ void lockupClick() {
     else if (ConfigModeSubStates == CS_MAINCOLOR) {
       confParseValue(storage.sndProfile[storage.soundFont].mainColor, 0, COLORS - 1, -1);
       storage.sndProfile[storage.soundFont].mainColor =value;
-      #ifdef LUXEON
-        getColor(currentColor, storage.sndProfile[storage.soundFont].mainColor);
+      #ifdef STAR_LED
+        getColor(storage.sndProfile[storage.soundFont].mainColor);
         lightOn(ledPins, currentColor);
-      #endif // LUXEON
-      #ifdef NEOPIXEL
+      #endif // STAR_LED
+      #ifdef PIXELBLADE
         getColor(storage.sndProfile[storage.soundFont].mainColor);
         lightOn(currentColor);
-      #endif  // NEOPIXEL
+      #endif  // PIXELBLADE
     }
     else if (ConfigModeSubStates == CS_CLASHCOLOR) {
       confParseValue(storage.sndProfile[storage.soundFont].clashColor, 0, COLORS - 1, -1);
       storage.sndProfile[storage.soundFont].clashColor =value;
-      #ifdef LUXEON
-        getColor(currentColor, storage.sndProfile[storage.soundFont].clashColor);
+      #ifdef STAR_LED
+        getColor(storage.sndProfile[storage.soundFont].clashColor);
         lightOn(ledPins, currentColor);
-      #endif // LUXEON
-      #ifdef NEOPIXEL
+      #endif // STAR_LED
+      #ifdef PIXELBLADE
         getColor(storage.sndProfile[storage.soundFont].clashColor);
         lightOn(currentColor);
-      #endif  // NEOPIXEL
+      #endif  // PIXELBLADE
     }
     else if (ConfigModeSubStates == CS_BLASTCOLOR) {
       confParseValue(storage.sndProfile[storage.soundFont].blasterboltColor, 0, COLORS - 1, -1);
       storage.sndProfile[storage.soundFont].blasterboltColor =value;
-      #ifdef LUXEON
-        getColor(currentColor, storage.sndProfile[storage.soundFont].blasterboltColor);
+      #ifdef STAR_LED
+        getColor(storage.sndProfile[storage.soundFont].blasterboltColor);
         lightOn(ledPins, currentColor);
-      #endif // LUXEON
-      #ifdef NEOPIXEL
+      #endif // STAR_LED
+      #ifdef PIXELBLADE
         getColor(storage.sndProfile[storage.soundFont].blasterboltColor);
         lightOn(currentColor);
-      #endif  // NEOPIXEL
+      #endif  // PIXELBLADE
     }
 #else // not COLORS
-    #ifdef NEOPIXEL or LUXEON
+    #if defined(PIXELBLADE) or defined(STAR_LED)
     else if (ConfigModeSubStates == CS_MAINCOLOR) {
       ColorMixing(storage.sndProfile[storage.soundFont].mainColor,modification, MAX_BRIGHTNESS, true);
       storage.sndProfile[storage.soundFont].mainColor.r=currentColor.r;
       storage.sndProfile[storage.soundFont].mainColor.g=currentColor.g;
       storage.sndProfile[storage.soundFont].mainColor.b=currentColor.b;
-      #ifdef LUXEON
-        getColor(currentColor, storage.sndProfile[storage.soundFont].mainColor);
+      #ifdef STAR_LED
+        getColor(storage.sndProfile[storage.soundFont].mainColor);
         lightOn(ledPins, currentColor);
-      #endif // LUXEON
-      #ifdef NEOPIXEL
+      #endif // STAR_LED
+      #ifdef PIXELBLADE
         lightOn(currentColor, NUMPIXELS/2, NUMPIXELS-6);
-      #endif  // NEOPIXEL
+      #endif  // PIXELBLADE
     }
     else if (ConfigModeSubStates == CS_CLASHCOLOR) {
       ColorMixing(storage.sndProfile[storage.soundFont].clashColor,modification, MAX_BRIGHTNESS, true);
       storage.sndProfile[storage.soundFont].clashColor.r=currentColor.r;
       storage.sndProfile[storage.soundFont].clashColor.g=currentColor.g;
       storage.sndProfile[storage.soundFont].clashColor.b=currentColor.b;
-      #ifdef LUXEON
-        getColor(currentColor, storage.sndProfile[storage.soundFont].clashColor);
+      #ifdef STAR_LED
+        getColor(storage.sndProfile[storage.soundFont].clashColor);
         lightOn(ledPins, currentColor);
-      #endif // LUXEON
-      #ifdef NEOPIXEL
+      #endif // STAR_LED
+      #ifdef PIXELBLADE
         lightOn(currentColor, 1, NUMPIXELS/2-1);
-      #endif  // NEOPIXEL
+      #endif  // PIXELBLADE
     }
     else if (ConfigModeSubStates == CS_BLASTCOLOR) {
       ColorMixing(storage.sndProfile[storage.soundFont].blasterboltColor,modification, MAX_BRIGHTNESS, true);
       storage.sndProfile[storage.soundFont].blasterboltColor.r=currentColor.r;
       storage.sndProfile[storage.soundFont].blasterboltColor.g=currentColor.g;
       storage.sndProfile[storage.soundFont].blasterboltColor.b=currentColor.b;
-      #ifdef LUXEON
-        getColor(currentColor, storage.sndProfile[storage.soundFont].blasterboltColor);
+      #ifdef STAR_LED
+        getColor(storage.sndProfile[storage.soundFont].blasterboltColor);
         lightOn(ledPins, currentColor);
-      #endif // LUXEON
-      #ifdef NEOPIXEL
+      #endif // STAR_LED
+      #ifdef PIXELBLADE
         lightOn(currentColor, NUMPIXELS*3/4-5, NUMPIXELS*3/4);
-      #endif  // NEOPIXEL
+      #endif  // PIXELBLADE
     }
-    #endif // NEOPIXEL or LUXEON
+    #endif // PIXELBLADE or STAR_LED
 #endif // COLORS
 	} 
 #ifdef JUKEBOX
@@ -931,14 +1090,18 @@ void lockupLongPress() {
     sndSuppress = millis();  // trick the hum relaunch by starting the stopper all over again otherwise the hum relaunch will interrupt the lockup
 	} 
 	else if (SaberState==S_CONFIG) {
-    #ifdef NEOPIXEL or LUXEON
+    #if defined(PIXELBLADE) or defined(STAR_LED)
       #ifndef COLORS
         if (ConfigModeSubStates==CS_MAINCOLOR) {
           ColorMixing(storage.sndProfile[storage.soundFont].mainColor,modification,false);
           storage.sndProfile[storage.soundFont].mainColor.r=currentColor.r;
           storage.sndProfile[storage.soundFont].mainColor.g=currentColor.g;
           storage.sndProfile[storage.soundFont].mainColor.b=currentColor.b;
-          lightOn(currentColor, NUMPIXELS/2, NUMPIXELS-6);
+          #ifdef PIXELBLADE
+            lightOn(currentColor, NUMPIXELS/2, NUMPIXELS-6);
+          #else if STAR_LED
+            lightOn(ledPins, currentColor);
+          #endif
           delay(50);
           }
         else if (ConfigModeSubStates==CS_CLASHCOLOR) {
@@ -946,7 +1109,11 @@ void lockupLongPress() {
           storage.sndProfile[storage.soundFont].clashColor.r=currentColor.r;
           storage.sndProfile[storage.soundFont].clashColor.g=currentColor.g;
           storage.sndProfile[storage.soundFont].clashColor.b=currentColor.b;
-          lightOn(currentColor, 1, NUMPIXELS/2-1);
+          #ifdef PIXELBLADE
+            lightOn(currentColor, 1, NUMPIXELS/2-1);
+          #else if STAR_LED
+            lightOn(ledPins, currentColor);
+          #endif
           delay(50);
         }
         else if (ConfigModeSubStates==CS_BLASTCOLOR) {
@@ -954,11 +1121,15 @@ void lockupLongPress() {
           storage.sndProfile[storage.soundFont].blasterboltColor.r=currentColor.r;
           storage.sndProfile[storage.soundFont].blasterboltColor.g=currentColor.g;
           storage.sndProfile[storage.soundFont].blasterboltColor.b=currentColor.b;
-          lightOn(currentColor, NUMPIXELS*3/4-5, NUMPIXELS*3/4);
+          #ifdef PIXELBLADE
+            lightOn(currentColor, NUMPIXELS*3/4-5, NUMPIXELS*3/4);
+          #else if STAR_LED
+            lightOn(ledPins, currentColor);
+          #endif
           delay(50);
         }
       #endif // not COLORS
-    #endif // NEOPIXEL or LUXEON
+    #endif // PIXELBLADE or STAR_LED
 
 	} else if (SaberState==S_STANDBY) {
 		/*
