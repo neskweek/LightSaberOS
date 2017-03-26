@@ -80,6 +80,12 @@ void WS2812::setColorOrderBRG() {
 	offsetGreen = 2;
 }
 
+void WS2812::setColorOrderRBG() {
+	offsetRed = 0;
+	offsetBlue = 1;
+	offsetGreen = 2;
+}
+
 WS2812::~WS2812() {
 	
 	

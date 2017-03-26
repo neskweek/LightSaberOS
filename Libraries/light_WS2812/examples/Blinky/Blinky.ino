@@ -12,7 +12,7 @@ WS2812 LED(1); // 1 LED
 cRGB value;
 
 void setup() {
-	LED.setOutput(14); // Digital Pin 9
+	LED.setOutput(9); // Digital Pin 9
 }
 
 void loop() {
