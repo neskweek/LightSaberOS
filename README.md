@@ -1,4 +1,4 @@
-# LightSaberOS
+# LightSaberOS by neskweek and Protonerd based on Protonerd's DIYino saber boards
 
 ________________________________________________________________________________   
 
@@ -12,17 +12,23 @@ ________________________________________________________________________________
 
 ### FEATURES :
 
-* Simple modular systems (you can choose to remove some systems from your final compilation)
-* Swing detection
-* Blade Clash detection  
-* Wrist movement detection 
+* Simple modular systems (you can choose to remove some features from your final compilation)
+* Supports all currently used blade types:
+	 * STAR_LED refers to an in-hilt high-power LED module, usually of type RGB for color mixing, but can be a single LED type or any combination
+	 * of colors and LED dice up to 3 (more can be configured on demand, up to 6 with DIYino Prime
+	 * PIXELBLADE defines a neopixel stripe running the length of the blade. For more information on neopixels, see: https://www.adafruit.com/category/168
+	 * Currently supported chip set: WS2812B
+	 * LEDSTRINGS are commonly known as segmented LED strings and represent a blade type where thru-hole LEDs of a single color are connected in parallel
+	 * along the length of the blade. Currently supported number of segments: 6 (like Hasbro high-end and Plecter boards among others)
+* Swing detection based on quaternions (reacts only on real swings, no need for complicated sensitivity settings)
+* Blade Clash detection (reacts reliably on clash without needing any sensitivity settings)
 * Full gapless sound playing with "Hum Extended" soundfiles (see below)
-* Blaster Shot deflect 
-* Blade Lockup (long press on Aux switch. Plays until release of the button)
-* Accent LED
+* Blaster Shot deflect either triggered by button or on-the-move
+* Blade Lockup (either button activated or triggered by a clash if initiaited)
+* Accent LED for illuminated buttons
 * Flash-on-Clash LEDString
 * Multiple ignition/retractation/flickering effects
-* Config Menu to modify some features without wiring the device to your PC/Mac 
+* Config Menu to modify some features without connecting your board to your PC/Mac 
 * EEPROM load/save of your config preferences
 * Soundfont adding supported (not automatic, you'll have little work to do ;) )
 
@@ -33,14 +39,15 @@ ________________________________________________________________________________
 Download the right file for your architecture
 * [Arduino IDE](https://www.arduino.cc/en/Main/Software) (advised for end user)   
 OR    
-  [Arduino Eclipse v3.0](http://www.baeyens.it/) (advised for developpers)  
+  [Arduino Eclipse v3.0](http://www.baeyens.it/) (advised for developpers, you have to know what you are doing)  
 Again, download the right files for your architecture
 * my new DFPlayer library (Included in zip file)
 * [I2Cdev and MPU6050 (Included in zip file)](https://codeload.github.com/jrowberg/i2cdevlib/zip/master) 
 * [EEPROMex9.1 (Included in zip file)](http://thijs.elenbaas.net/wp-content/uploads/downloads/2013/12/EEPROMEx-9.1.zip)
 * [OneButton (Included in zip file)] (https://github.com/mathertel/OneButton)
 * [LinkedList (Included in zip file)] (https://github.com/ivanseidel/LinkedList)
-* Wire (Included in Arduino Eclipse) 
+* Wire
+* All necessary libraries are part of the Git
 
 ________________________________________________________________________________   
 
@@ -54,12 +61,10 @@ Designed to be used on Arduino Nano, Arduino Pro mini (ATmega328 processors)
 * Soundplayer modules:
 	* DFPlayer Mini
 * Blade module:
-	* homemade LEDstrings
-	* RGB LEDs (Luxeon/Cree styled)
-	* Single LED
-	* Neopixel strings
-
-I would be glad to see other modules added. If you're interested to make your device compatible, please contact me.
+	* homemade LEDstrings aka. LEDSTRINGS
+	* RGB LEDs (Luxeon/Cree styled) aka. STAR_LED
+	* Single LED (falls under the category STAR_LED)
+	* Neopixel strings aka. PIXELBLADE
 
 ________________________________________________________________________________   
 
@@ -67,81 +72,18 @@ ________________________________________________________________________________
 
 These instructions should work for IDE version 1.6.0 and greater and may work with 1.5.x also. If compiling hangs with 1.6.4, try again with File > Preferences > Compiler warnings: None.
 
-0. Download and install Arduino IDE
+0. Download and install Arduino IDE (recommended version 1.6.11 or newer)
 1. Download https://github.com/neskweek/LightSaberOS/archive/master.zip.
 2. Unzip the downloaded file LightSaberOS-master.zip.
 3. Rename the unzipped folder from LightSaberOS-master to LightSaberOS.
 4. Move all folders inside LightSaberOS/Libraries to {sketchbook folder}/libraries. You can find the location of your sketchbook folder at File > Preferences > Sketchbook location.
 5. Open the file LightSaberOS/LightSaberOS.ino.
 6. Connect the USB cable to your Arduino.
-7. Select the correct board in Tools > Board.
-8. Select the correct port in Tools > Port.
-9. Follow the Project Setup instructions at https://github.com/neskweek/LightSaberOS.
-10. Once all configuration changes have been made to LightSaberOS.ino, do Sketch > Upload.
-
-________________________________________________________________________________   
-
-## SET UP YOUR PC FOR ECLIPSE USE (OPTIONAL):
-
-For people who don't want to use Eclipse Arduino, and prefer use Arduino IDE (which is really simpler if you don't plan to code) you can jump off to project setup section.    
-
-LSOS is now fully compatible with Arduino IDE thanks to [Pert (per1234)] (https://github.com/per1234) 
-
-1. Download and install [Java Runtime Environment 8](http://www.oracle.com/technetwork/java/javase/downloads/jre8-downloads-2133155.html)   
-Download the right file for your OS   
-2. Download [Arduino Eclipse v3.0](http://www.baeyens.it/)      
-Again, download the right file for your OS   
-3. Uncompress this archive inside c:\Program Files   
-4. Start C:\Program Files\eclipseArduino\eclipseArduinoIDE.exe    
-On first start up you will be ask where to put your prject workspace.   
-I advise you to put it there (off course replace "neskw" by your username) :   
-![Set workspace destination](https://raw.githubusercontent.com/neskweek/LightSaberOS/master/README/eclipse1.PNG)   
-On first startup it will download a bunch of stuff related to Arduino Libraries.   
-Wait until it finishes   
-5. Go to Windows > Preferences      
-6. Select Arduino and set "Build before upload ?" to "Yes" and press OK   
-7. Plug in your Arduino device    
-It would be best that you always use the same USB port for future use    
-8. Go to File > New > Arduino sketch     
-![Project Name](https://raw.githubusercontent.com/neskweek/LightSaberOS/master/README/eclipse2.PNG)   
-Then press next   
-![Fill in your board Info](https://raw.githubusercontent.com/neskweek/LightSaberOS/master/README/eclipse3.PNG)   
-COM port may be different on your PC. It depends on USB port you plugged it in.   
-Then press next   
-![Optional Check AVaRICE](https://raw.githubusercontent.com/neskweek/LightSaberOS/master/README/eclipse4.PNG)   
-Here Checking AVaRICE is optional   
-Then press Finish   
-9. Delete LightSaberOS.ino file   
-
-________________________________________________________________________________    
-
-## IMPORT GITHUB FILES INSIDE ECLIPSE PROJECT:
-
-1. Uncompress LightSaberOS-master.zip archive
-2. If not already done create this directory : C:\Users\__[YOUR USERNAME]__\Arduino   
-3. Copy and Paste LightSaberOS-master\Libraries directory inside C:\Users\__[YOUR USERNAME]__\Arduino   
-4. Inside Eclipse Right click on LightSaberOS project  > Import    
-![Import source files](https://raw.githubusercontent.com/neskweek/LightSaberOS/master/README/eclipse5.PNG)   
-Then press Next  
-![Select source directory](https://raw.githubusercontent.com/neskweek/LightSaberOS/master/README/eclipse6.PNG)   
-Then press Next   
-In "Eclipse Project explorer" open the new created LightSaberOS-master and select those files :   
-![Select source directory](https://raw.githubusercontent.com/neskweek/LightSaberOS/master/README/eclipse7.PNG)   
-Then drag and drop them to the root structure of the project   
-5. Inside Eclipse Right click on LightSaberOS project  > Import   
-![Import Libraries](https://raw.githubusercontent.com/neskweek/LightSaberOS/master/README/eclipse8.PNG)   
-Then press Next    
-Select those libraries :     
-![Select Libraries](https://raw.githubusercontent.com/neskweek/LightSaberOS/master/README/eclipse9.PNG)   
-Then press Finish    
-6. Delete LightSaberOS-master directory from Eclipse Project explorer    
-    
-   
-You should end up with this Project explorer structure :   
-![Project structure](https://raw.githubusercontent.com/neskweek/LightSaberOS/master/README/eclipse10.PNG)   
-
-If so, Then you're ready to rock !   
-
+7. Set up your board manager in Tools/Boards/Boards Manager, select Arduino AVR Boards by Arduino and  in the lower left side of the box the version 1.6.17 (recommended) and press install
+8. Select the correct board in Tools > Board (Arduino Nano for DIYino Prime v1 or Arduino/Genuino Uno for DIYino Prime v1.5 or greater and for Stardust)
+9. Select the correct port in Tools > Port.
+10. Follow the Project Setup instructions at https://github.com/neskweek/LightSaberOS.
+11. Once all configuration changes have been made to LightSaberOS.ino, do Sketch > Upload.
 ________________________________________________________________________________    
    
    
@@ -156,7 +98,7 @@ Don't think I want to deceive you from your goal but you 'll have to keep those 
 * ___This project is not plug and play !___ It's tough, time consuming and you'll spend some times in trial and errors. But it's also highly rewarding once completed with success.     
 * ___This project might be cheap___, but it's highly unlikely. If you don't make mistake it can be. If you do you'll have to go on spare parts,etc... and costs can grew up.     
 * ___Think twice about your power supply/LED relations ! This is CRUCIAL!___ A power supply that gives to much voltage for your LEDs will result in burned LEDs. We don't recommend the use of power supply that exceed total LED's voltage capacity. While it's still possible, if you do go down this path, calculate, think, ask questions and USE A MULTIMETER ! 
-Beware of MAX_BRIGHTNESS setting. While this can remove some voltage from your LEDs it's certainly can not remove too much. Each MOSFETs can take a certain amount of voltage but it will heat up. And too much it can ruin your MOSFET or your DIYNO card.     
+Beware of MAX_BRIGHTNESS setting. While this can remove some voltage from your LEDs it's certainly can not remove too much. Each MOSFETs can take a certain amount of voltage but it will heat up. And too much it can ruin your MOSFET or your DIYNO board.     
 This choice is ___THE MOST IMPORTANT CHOICE___ for your device !!!!    
 Also mind the intensity (Amps) your setup will require...     
 I told you it will be tough !  
@@ -165,22 +107,9 @@ Isolate your buttons leads too, contact with metal hull => short cut. You'll wan
 * ___Consider a kill key !___ They'll preserve your batteries from draining out when you're not using your saber, allows you to recharge your saber, allows you to quickly shut down your saber.... You want to put a kill key !     
 
 #### 1. IMU calibration 
- First, you'll need (if not already done) to calibrate your MPU6050.   
- [I recommend you use the AutoCalibration script you can find here](http://www.i2cdevlib.com/forums/topic/96-arduino-sketch-to-automatically-calculate-mpu6050-offsets/)  
- Note the offset values it will give you and replace those you'll find inside setup() function  in __Lightsaber.ino__ : 
-```c++
-	/*
-	 * Those offsets are specific to each MPU6050 device.
-	 * they are found via calibration process.
-	 * See this script http://www.i2cdevlib.com/forums/index.php?app=core&module=attach&section=attach&attach_id=27
-	 */
-	mpu.setXAccelOffset(-2645);
-	mpu.setYAccelOffset(-5491);
-	mpu.setZAccelOffset(3881);
-	mpu.setXGyroOffset(27);
-	mpu.setYGyroOffset(-135);
-	mpu.setZGyroOffset(-38);
-```
+ First, you'll need (if not already done) to calibrate your MPU6050. DIYino boards come pre-calibrated with calibration values stored starting from EEPROM address 96 or 200 (see comments for branch LSOS 1.5) 
+ [I recommend you use the AutoCalibration script you can find here](https://github.com/Protonerd/DIYino/blob/master/MPU6050_calibration.ino)  
+
 
 #### 2. Determine IMU orientation
  The way you physically installed the MPU6050 in your hilt will influence how swing detection works.  
@@ -202,32 +131,16 @@ We need to have this file copied in the same order as their filename order. On M
 
 
 #### 4. Check Wirings
-_If you use DIYino board, don't mind that paragraph._[Go there instead and read user manual](https://github.com/Protonerd/DIYino)     
-_If you use DIYino board, and want flicker effect wire SPK+ to A6 and SPK- to A7._
+_If you use DIYino board, don't mind that paragraph._[Go there instead and read user manual](https://github.com/Protonerd/DIYino/blob/master/DIYino_Prime_v1_User_Manual.pdf)     
+_If you use DIYino board v1, and want flicker effect wire SPK+ to A6 and SPK- to A7. Starting with v1.5 and Stardust this connections is included on-board._
 
 Using  **Protonerd's** wirings.    
 Don't forget to wire those ones which were added :  
 * DFPLAYER TX to D7
 * DFPLAYER SPK+ to A6
-* DFPLAYER SPK- to A7     
-![Schematics](http://i1073.photobucket.com/albums/w385/cest_bastien1/Lightsaber/AS2_LEDstringSaberArduino_NeskweekRevised_zpsu5k0ljck.png)    
-Wiring of busy pin is optional since LightSaberOS doesn't use it.  
+* DFPLAYER SPK- to A7  
 
-
-
- 
-
-
-
-
-
-
-
-
-
-
-
-#### 5. Select your emitter type
+#### 5. Select your blade type
 
 
 ###### A.LEDSTRINGS 
@@ -236,31 +149,18 @@ In __Config.h__  be sure this line is uncommented :
 #define LEDSTRINGS 
 ```   
 
-###### B. RGB LEDs 
+###### B. RGB LEDs or Single LED
 In __Config.h__  comment this line :
 ```c++
-#define LEDSTRINGS 
+#define STAR_LED 
 ``` 
 
-###### C. Single LED
-* a) Wire your LED on pin D3
+###### C. Neopixel stripes
 	
 * b) In __Config.h__  comment this line :
 	
 ```c++ 
-#define LEDSTRINGS 
-```        
-* c) Modify the following lines  in __LightSaber.ino__ so all variables are set to 0 :    
-
-```c++         
-#ifdef LUXEON
-		storage.mainColor = 0;
-		storage.clashColor = 0;
-		storage.soundFontColorPreset[2][0] = 0;
-		storage.soundFontColorPreset[2][1] = 0;
-		storage.soundFontColorPreset[3][0] = 0;
-		storage.soundFontColorPreset[3][1] = 0;
-#endif
+#define PIXELBLADE 
 ```
 
 #### 6. Compile and Upload the sketch to your Arduino device
@@ -269,7 +169,7 @@ In __Config.h__  comment this line :
 
 ________________________________________________________________________________   
 
-## HOW IT WORKS :
+## Finite State Machine or How to interact with your saber :
 
 ###### _In Standby Mode (idle)_ :  
 * Short press on Main switch : activate your saber (Action Mode)
@@ -294,16 +194,6 @@ ________________________________________________________________________________
 * short press Main switch : Up the value
 * short press Aux switch : Down the value
 * long press Main switch : Change menu :  
-	* Volume
-	* SoundFont 
-	* [ONLY FOR LEDSTRING USERS] Power On effect: change the type of ignition for the current SoundFont
-	* [ONLY FOR LEDSTRING USERS] Power Off effect: change the type of retractation for the current SoundFont
-	* [ONLY FOR LEDSTRING USERS] Flicker effect: change the type of flickering for the current SoundFont
-	* [ONLY FOR RGB LED USERS] Main color : change the color of your saber
-	* [ONLY FOR RGB LED USERS] Clash color: change the color displayed during clash effect 
-	* [ONLY FOR RGB LED USERS] Assign colors to current soundfont ? : Allows you to save the colors you just defined to the current SoundFont
-	* Swing sensitivity : adjust swing sensitivity.
-
 * Long press Aux switch : update config to EEPROM and leave Config Mode
 
 ________________________________________________________________________________  
@@ -311,7 +201,7 @@ ________________________________________________________________________________
 ### HOW TO MANAGE YOUR SDCRAD
 #### 1. For DFPlayer Mini
 
-While there are several ways to make DFPlayer Mini plays your sound files from your SDard, only one can provide full gapless sound "enqueuing" : we need to call each sound file by their copy order number.    
+While there are several ways to make the DIYino board play your sound files from your SDard, only one can provide full gapless sound "enqueuing" : we need to call each sound file by their copy order number.    
 
 Let's say you have a fresh formatted SDcard.   
 You copy one file on it : its copy order is 1.   
@@ -399,20 +289,6 @@ To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-
 
 ________________________________________________________________________________   
 
-## TODO :
-By priority :
-* Better README.md (Work in progress)
-* Try to reduce compiled hex file 
-* Rewrite to Object Oriented form, using JakeSoft's [USaber Library](https://github.com/JakeS0ft/USaber)
-* Find a use to:
-	* short press Aux switch in standby mode 
-	* double click on Main switch in action/config/standby mode
-	* double clik on Aux switch in action/config/standby mode.
-* Rewrite some function in Assembler
-* Pitch shifting on movements (don't know if it's feasable)...
-
-________________________________________________________________________________   
-
 ## THANK YOU !!!
 
 Thanks to Andras Kun (__Protonerd__ from Arduino Forum) for initiating this project, providing [DIYino Boards](https://github.com/Protonerd/DIYino) and his big contributions to LSOS Code    
@@ -424,14 +300,7 @@ and many more source of inspirations. You can also use his [USaber lib](https://
 Thanks to [__Joe Barlow__](https://www.freesound.org/people/joe93barlow/) for his excellent opensource soundfont that I did remix for our needs.    
 Thanks to __YOU__ for using it ;)
 
-________________________________________________________________________________   
-
-## WITH YOUR HELP...
-... a real life  lightsaber which cut through stuffs, like a pizza, could be made...    
-But first things first : I need the pizza !   
-[![paypal](https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=GX6M3586YU8JL)   
-;)   
-________________________________________________________________________________   
+_______________________________________________________________   
 
 ## FINAL THOUGHTS
 
@@ -447,50 +316,4 @@ ________________________________________________________________________________
    
 ________________________________________________________________________________    
 ________________________________________________________________________________   
-   
 
-##12/03/2016 : The following might not be accurate since release of version 1.0  
-## Modification of this Readme is a "work in progress"
-## More info regarding LSOS will be added
-## Thank you for your patience
-________________________________________________________________________________    
-________________________________________________________________________________    
-________________________________________________________________________________    
-________________________________________________________________________________    
-________________________________________________________________________________    
-   
-________________________________________________________________________________    
-________________________________________________________________________________   
-
-### MODULES
-
-________________________________________________________________________________ 
-
-### HOW TO ADD A SOUNDFONT
-
-Edit SoundFont.h
-
-________________________________________________________________________________ 
-
-
-### NOTES :
-
-1. __Only WAVs file !!!__ _NOOOO MP3, NOOOO WMA !!!_   :     
-When encoding a sound to those format (MP3 and WMA) the encoder will automaticly put a silence at start.    
-___WE DON'T WANT GAPS !!!___  
-2. With soundfiles with hum extension (you edited a swing file and paste a hum sound repeated for some time), if you put 2 min of hum after your swing sound, if you don't move your saber for 2 min (higly unprobable in real situation) you'll notice a little gap in hum sound at that moment : You've just switch on a pure hum soundfile.
-3. Don't put gaps in soundfile numbering ex.:001_Boot.wav,002.wav, 0010_Swing1.wav...    
-The "folder play" command of the DFPlayer will see them as 001, 002, 003...    
-That will generate unpredictable behaviour.
-4. You can't put more than 255 folders numbered folder on your SDCard, including O1 (which contains config mode sounds)
-5. You can't put more than 255 files in a folder on your SDCard.
-6. You won't be able to have more than 65535 sound file on the wole SDCard (including config sounds).
-7. Don't put names after folder number (ex.: 001_Config or 002_Sith). Your folder won't be detected (tested :( )
-8. Since I've developped it on a breadboard, clash and swings settings may need some more tweaking.    
-Still hopping that will not be the case  :P. I've developped those wanting to obtain "real life" saber feel.
-9. Beware  the amount of debug settings you uncoment: they add significant amount of data to the compile.   
-I've made them modular for this reason, so take advantage of it.
-
-________________________________________________________________________________ 
-
-### LECTURES / SOURCES /INSPIRATIONS
