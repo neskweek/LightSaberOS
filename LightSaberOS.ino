@@ -1449,7 +1449,6 @@ void SleepModeEntry() {
     digitalWrite(ledPins[i], LOW);
   }
   mpu.setSleepEnabled(true);
-  dfplayer.sleep();
   digitalWrite(A1, HIGH); // A1 to High
   pinMode(DFPLAYER_RX, OUTPUT);
   digitalWrite(DFPLAYER_RX, LOW);
