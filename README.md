@@ -300,7 +300,14 @@ and many more source of inspirations. You can also use his [USaber lib](https://
 Thanks to [__Joe Barlow__](https://www.freesound.org/people/joe93barlow/) for his excellent opensource soundfont that I did remix for our needs.    
 Thanks to __YOU__ for using it ;)
 
-_______________________________________________________________   
+________________________________________________________________________________   
+
+## WITH YOUR HELP...
+... a real life  lightsaber which cut through stuffs, like a pizza, could be made...    
+But first things first : I need the pizza !   
+[![paypal](https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=GX6M3586YU8JL)   
+;)   
+_________________________________________________________________   
 
 ## FINAL THOUGHTS
 
