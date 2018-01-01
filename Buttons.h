@@ -1,8 +1,8 @@
 /*
  * Buttons.h
  *
- *  Created on: 6 mars 2016
- *  author: 		Sebastien CAPOU (neskweek@gmail.com)
+ *  Created on: 21 Octber 2016
+ *  author: 		Sebastien CAPOU (neskweek@gmail.com) and Andras Kun (kun.andras@yahoo.de)
  *  Source : 	https://github.com/neskweek/LightSaberOS
  */
 #include <Arduino.h>
@@ -13,9 +13,9 @@
 /*
  * BUTTONS PARAMETERS
  ************************************/
-#define CLICK				5    // ms you need to press a button to be a click
-#define PRESS_ACTION		200  // ms you need to press a button to be a long press, in action mode
-#define PRESS_CONFIG		400  // ms you need to press a button to be a long press, in config mode
+#define CLICK				200 //5    // ms you need to press a button to be a click
+#define PRESS_ACTION		600 //200  // ms you need to press a button to be a long press, in action mode
+#define PRESS_CONFIG		600 //400  // ms you need to press a button to be a long press, in config mode
 /************************************/
 
 
@@ -38,3 +38,5 @@ void lockupLongPress();
 void lockupLongPressStop();
 
 #endif /* BUTTONS_H_ */
+
+

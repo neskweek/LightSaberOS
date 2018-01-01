@@ -26,7 +26,7 @@
 // Fixed cycles used by the inner loop
 #define w_fixedlow    3
 #define w_fixedhigh   6
-#define w_fixedtotal  10
+#define w_fixedtotal  10   
 
 // Insert NOPs to match the timing, if possible
 #define w_zerocycles    (((F_CPU/1000)*w_zeropulse          )/1000000)

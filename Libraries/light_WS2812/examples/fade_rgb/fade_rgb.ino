@@ -8,8 +8,8 @@
 
 #include <WS2812.h>
 
-#define outputPin 14  // Digital output pin (default: 7)
-#define LEDCount 4   // Number of LEDs to drive (default: 9)
+#define outputPin 7  // Digital output pin (default: 7)
+#define LEDCount 9   // Number of LEDs to drive (default: 9)
 
 
 WS2812 LED(LEDCount); 

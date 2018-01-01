@@ -51,7 +51,8 @@ public:
 	void setColorOrderRGB();
 	void setColorOrderGRB();
 	void setColorOrderBRG();
-	
+	void setColorOrderRBG();
+
 
 private:
 	uint16_t count_led;
